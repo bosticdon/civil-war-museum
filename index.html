@@ -1,0 +1,2575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Civil War Photographic &amp; Weaponry Virtual Museum</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Playfair Display, Libre Baskerville, Crimson Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+
+  <!-- Three.js r128 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      --parchment: #f5efe2;
+      --parchment-dark: #e6dcc8;
+      --brass: #c59b47;
+      --brass-light: #e2be70;
+      --walnut: #1c1613;
+      --ink: #241c18;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #110d0b;
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--parchment);
+    }
+
+    main#museum-viewport {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    canvas#museum-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    canvas#museum-canvas:active {
+      cursor: grabbing;
+    }
+
+    dialog {
+      border: none;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+
+    dialog::backdrop {
+      background: rgba(6, 5, 4, 0.82);
+      backdrop-filter: blur(6px);
+    }
+
+    .font-display {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .font-serif-body {
+      font-family: 'Libre Baskerville', Georgia, serif;
+    }
+
+    /* Museum Parchment Placard Styling */
+    .placard-paper {
+      background: linear-gradient(145deg, #f8f3e8 0%, #ede3cf 100%);
+      color: #241c18;
+      border: 2px solid #b58d3d;
+      box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.85),
+        inset 0 0 40px rgba(168, 134, 72, 0.18);
+    }
+
+    .brass-border {
+      border: 1px solid rgba(197, 155, 71, 0.45);
+    }
+
+    .brass-btn {
+      background: linear-gradient(180deg, #322720 0%, #1e1713 100%);
+      border: 1px solid #b58d3d;
+      color: #f3e8d2;
+      transition: all 0.2s ease;
+    }
+
+    .brass-btn:hover {
+      background: linear-gradient(180deg, #47372d 0%, #2b211b 100%);
+      border-color: #e6c275;
+      box-shadow: 0 0 15px rgba(197, 155, 71, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .brass-btn:active {
+      transform: translateY(0);
+    }
+
+    .brass-pill-active {
+      background: linear-gradient(180deg, #c59b47 0%, #9b7429 100%);
+      color: #16110e;
+      font-weight: 700;
+      border-color: #f3d591;
+    }
+
+    /* Custom Scrollbar for Placard Description */
+    .placard-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .placard-scroll::-webkit-scrollbar-track {
+      background: rgba(181, 141, 61, 0.15);
+      border-radius: 999px;
+    }
+    .placard-scroll::-webkit-scrollbar-thumb {
+      background: #b58d3d;
+      border-radius: 999px;
+    }
+
+    /* Vignette overlay for atmospheric lighting */
+    .museum-vignette {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      background: radial-gradient(circle at center, transparent 52%, rgba(8, 6, 5, 0.65) 100%);
+    }
+
+    /* Reticle */
+    #crosshair {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1.5px solid rgba(226, 190, 112, 0.55);
+      pointer-events: none;
+      z-index: 5;
+      transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    #crosshair.hovered {
+      transform: translate(-50%, -50%) scale(1.9);
+      border-color: #f4d388;
+      background-color: rgba(226, 190, 112, 0.25);
+    }
+
+    .drop-active {
+      outline: 3px dashed #e6c275;
+      outline-offset: -8px;
+      background-color: rgba(197, 155, 71, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Semantic HTML5 Main 3D WebGL Museum Viewport -->
+  <main id="museum-viewport" aria-label="3D Civil War Virtual Museum Gallery">
+    <canvas id="museum-canvas" aria-label="Interactive 3D Gallery Canvas"></canvas>
+    <div class="museum-vignette" aria-hidden="true"></div>
+    <div id="crosshair" aria-hidden="true"></div>
+  </main>
+
+  <!-- Welcome / Entrance Curtain Overlay -->
+  <section id="welcome-overlay" aria-label="Exhibition Introduction" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 transition-opacity duration-700">
+    <article class="placard-paper max-w-2xl w-full rounded-xl p-6 sm:p-10 text-center relative overflow-hidden">
+      <p class="text-xs uppercase tracking-[0.28em] text-amber-900/80 font-semibold mb-2">
+        National Historical Exhibition • HTML5 3D Archive • 1861–1865
+      </p>
+      <h1 class="font-display text-3xl sm:text-5xl font-bold text-stone-900 mb-3 leading-tight">
+        Shadows of the Union &amp; Confederacy
+      </h1>
+      <div class="w-24 h-0.5 bg-amber-700/60 mx-auto my-4"></div>
+      <p class="font-serif-body text-sm sm:text-base text-stone-800 leading-relaxed mb-6">
+        Step inside the West Wing Gallery to examine six pivotal historical artifacts—five wet-plate collodion photographs captured by Mathew Brady and Alexander Gardner, alongside Benjamin Tyler Henry’s revolutionary 1860 lever-action repeating rifle.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left text-xs text-stone-800 bg-amber-950/5 border border-amber-800/25 rounded-lg p-4 mb-7">
+        <div class="flex items-start gap-2.5">
+          <span class="px-2 py-1 rounded bg-stone-900 text-amber-200 font-mono text-[11px] shrink-0">WASD / ↑↓</span>
+          <span>Walk freely down the mahogany gallery hall</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="px-2 py-1 rounded bg-stone-900 text-amber-200 font-mono text-[11px] shrink-0">DRAG</span>
+          <span>Look around 360° or use touch controls on mobile</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="px-2 py-1 rounded bg-stone-900 text-amber-200 font-mono text-[11px] shrink-0">CLICK</span>
+          <span>Inspect any placard, zoom, or drag-and-drop photos</span>
+        </div>
+      </div>
+
+      <button id="enter-museum-btn" class="brass-btn px-8 py-3.5 rounded-lg font-display text-lg tracking-wide shadow-xl cursor-pointer">
+        Enter the Exhibition Hall
+      </button>
+    </article>
+  </section>
+
+  <!-- Top Semantic HTML5 Header -->
+  <header class="fixed top-0 left-0 right-0 z-20 pointer-events-none p-3 sm:p-5 flex flex-wrap items-center justify-between gap-3">
+    <div class="pointer-events-auto bg-stone-950/85 backdrop-blur-md brass-border rounded-xl px-4 py-2.5 shadow-2xl">
+      <div class="text-[10px] uppercase tracking-[0.25em] text-amber-400/90 font-semibold">
+        HTML5 Interactive Virtual Archive
+      </div>
+      <h2 class="font-display text-base sm:text-lg text-amber-50 font-semibold">
+        Civil War Gallery — West Wing
+      </h2>
+    </div>
+
+    <!-- Proximity / Hover Prompt Banner -->
+    <div id="hover-tooltip" role="status" aria-live="polite" class="hidden pointer-events-none bg-stone-950/90 border border-amber-400/70 rounded-full px-5 py-2 text-amber-100 text-xs sm:text-sm shadow-xl tracking-wide">
+      Click to Inspect Exhibit
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="pointer-events-auto flex items-center gap-2">
+      <button id="open-host-guide-btn" class="brass-btn rounded-xl px-3.5 py-2 text-xs sm:text-sm cursor-pointer" title="How to Save &amp; Host This HTML5 File">
+        Save &amp; Host
+      </button>
+      <button id="toggle-controls-btn" class="brass-btn rounded-xl px-3.5 py-2 text-xs sm:text-sm flex items-center gap-2 cursor-pointer" title="Toggle Navigation Help">
+        <span>Controls</span>
+      </button>
+      <button id="reset-view-btn" class="brass-btn rounded-xl px-3.5 py-2 text-xs sm:text-sm cursor-pointer" title="Return to Gallery Entrance">
+        Entrance
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating Controls Legend (Semantic Aside) -->
+  <aside id="controls-panel" aria-label="Visitor Controls Legend" class="hidden fixed top-20 right-4 z-20 bg-stone-950/90 backdrop-blur-md brass-border rounded-xl p-4 w-64 text-xs text-amber-100/90 shadow-2xl space-y-2">
+    <div class="font-display text-sm text-amber-300 border-b border-amber-500/30 pb-1.5 mb-2">Visitor Guide</div>
+    <div class="flex justify-between"><span>Move Forward/Back</span><span class="font-mono text-amber-300">W / S or ↑ / ↓</span></div>
+    <div class="flex justify-between"><span>Strafe Left/Right</span><span class="font-mono text-amber-300">A / D</span></div>
+    <div class="flex justify-between"><span>Turn Camera</span><span class="font-mono text-amber-300">Click &amp; Drag / ← →</span></div>
+    <div class="flex justify-between"><span>Inspect Artifact</span><span class="font-mono text-amber-300">Click Frame / Case</span></div>
+    <div class="flex justify-between"><span>Close Placard</span><span class="font-mono text-amber-300">ESC</span></div>
+  </aside>
+
+  <!-- Mobile / On-Screen Walk Pad (Bottom Left on Touch/Small Screens) -->
+  <aside aria-label="Touch Movement Controls" class="fixed bottom-24 left-4 z-20 flex sm:hidden flex-col items-center gap-1.5 opacity-85">
+    <button data-move="forward" aria-label="Walk Forward" class="mobile-walk-btn brass-btn w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold">▲</button>
+    <div class="flex gap-1.5">
+      <button data-move="left" aria-label="Strafe Left" class="mobile-walk-btn brass-btn w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold">◀</button>
+      <button data-move="backward" aria-label="Walk Backward" class="mobile-walk-btn brass-btn w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold">▼</button>
+      <button data-move="right" aria-label="Strafe Right" class="mobile-walk-btn brass-btn w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold">▶</button>
+    </div>
+  </aside>
+
+  <!-- Bottom Semantic HTML5 Footer & Guided Tour Navigation Dock -->
+  <footer class="fixed bottom-3 left-1/2 -translate-x-1/2 z-20 w-[96%] max-w-4xl">
+    <nav aria-label="Guided Museum Tour Navigation" class="bg-stone-950/90 backdrop-blur-md brass-border rounded-2xl px-3 py-2.5 shadow-2xl flex items-center justify-between gap-2">
+      <button id="prev-exhibit-btn" class="brass-btn rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold shrink-0 cursor-pointer">
+        ← Prev
+      </button>
+
+      <div id="exhibit-pills" class="flex items-center gap-1.5 overflow-x-auto py-0.5 px-1 no-scrollbar">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="inspect-current-btn" class="brass-btn rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold text-amber-200 cursor-pointer hidden md:inline-flex">
+          Read Placard
+        </button>
+        <button id="next-exhibit-btn" class="brass-btn rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold cursor-pointer">
+          Next →
+        </button>
+      </div>
+    </nav>
+  </footer>
+
+  <!-- Semantic HTML5 <dialog> for Illuminated Curatorial Placard & Loupe Inspection -->
+  <dialog id="placard-dialog" aria-labelledby="modal-title" class="w-full h-full items-center justify-center p-3 sm:p-6">
+    <article class="placard-paper w-full max-w-5xl max-h-[92vh] rounded-2xl overflow-hidden flex flex-col lg:flex-row relative shadow-2xl mx-auto my-auto">
+      
+      <!-- Close Button -->
+      <button id="close-placard-btn" class="absolute top-3 right-3 z-30 w-9 h-9 rounded-full bg-stone-900 text-amber-200 border border-amber-500/60 hover:bg-stone-800 flex items-center justify-center text-lg font-bold cursor-pointer shadow-lg" title="Close Placard (Esc)">
+        ✕
+      </button>
+
+      <!-- Left Panel: Artifact High-Res Plate + Zoom/Pan Loupe + Drag & Drop / Local Upload -->
+      <section aria-label="Artifact Visual Inspection" class="lg:w-[54%] bg-stone-950 relative flex flex-col justify-between p-4 sm:p-5 border-b lg:border-b-0 lg:border-r border-amber-700/40">
+        <header class="flex items-center justify-between text-xs text-amber-200/80 mb-2 pr-8">
+          <span id="modal-archive-tag" class="uppercase tracking-[0.2em] font-semibold text-amber-400">
+            CIVIL WAR PHOTOGRAPHIC ARCHIVE
+          </span>
+          <span id="zoom-indicator" class="font-mono text-[11px] bg-stone-900 px-2 py-0.5 rounded border border-amber-500/30">
+            1.0x Zoom
+          </span>
+        </header>
+
+        <!-- Interactive Zoom/Pan & Drag-and-Drop Viewport -->
+        <div id="loupe-viewport" class="relative w-full h-64 sm:h-80 lg:h-[410px] bg-black rounded-xl overflow-hidden border border-amber-600/40 shadow-inner flex items-center justify-center cursor-zoom-in">
+          <img id="modal-artifact-img" src="" alt="Historical Artifact" class="max-w-full max-h-full object-contain transition-transform duration-100 origin-center pointer-events-none" />
+          <div class="absolute bottom-2.5 left-2.5 bg-black/75 text-amber-100/90 text-[11px] px-2.5 py-1 rounded-md border border-amber-500/30 pointer-events-none">
+            Click image for 2.2x Loupe • Drag when zoomed to pan • Drop JPG/PNG here to replace
+          </div>
+        </div>
+
+        <!-- Artifact Controls: Zoom, Upload Custom Photo & Reset to Archive Plate -->
+        <footer class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2 border-t border-stone-800">
+          <div class="flex items-center gap-1.5">
+            <button id="zoom-out-btn" class="brass-btn px-2.5 py-1.5 rounded-lg text-xs cursor-pointer">− Zoom</button>
+            <button id="zoom-reset-btn" class="brass-btn px-2.5 py-1.5 rounded-lg text-xs cursor-pointer">Reset</button>
+            <button id="zoom-in-btn" class="brass-btn px-2.5 py-1.5 rounded-lg text-xs cursor-pointer">+ Zoom</button>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button id="restore-default-img-btn" class="hidden brass-btn px-2.5 py-1.5 rounded-lg text-xs cursor-pointer text-amber-300/80" title="Restore Original Archival Plate">
+              ↺ Default
+            </button>
+            <label for="upload-artifact-input" class="brass-btn px-3 py-1.5 rounded-lg text-xs cursor-pointer flex items-center gap-1.5 text-amber-200">
+              <span>📷 Replace Exhibit Photo</span>
+            </label>
+            <input id="upload-artifact-input" type="file" accept="image/*" class="hidden" />
+          </div>
+        </footer>
+      </section>
+
+      <!-- Right Panel: Authentic Museum Placard Details & Audio Narration -->
+      <section aria-label="Curatorial Metadata and Essay" class="lg:w-[46%] p-5 sm:p-7 flex flex-col justify-between overflow-y-auto placard-scroll">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span id="modal-exhibit-number" class="text-xs uppercase tracking-[0.22em] text-amber-900 font-bold">
+              EXHIBIT 01 OF 06
+            </span>
+          </div>
+
+          <h2 id="modal-title" class="font-display text-2xl sm:text-3xl font-bold text-stone-950 leading-snug mb-4">
+            President Lincoln on the Battlefield at Antietam
+          </h2>
+
+          <!-- Metadata Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-950/5 border border-amber-800/25 rounded-xl p-3.5 mb-5 text-xs">
+            <div>
+              <div id="modal-meta1-label" class="uppercase tracking-wider text-amber-900/75 font-bold text-[10px]">
+                Date &amp; Location
+              </div>
+              <div id="modal-date" class="font-semibold text-stone-900 mt-0.5">October 3, 1862</div>
+              <div id="modal-location" class="text-stone-700">Sharpsburg, Maryland</div>
+            </div>
+            <div>
+              <div id="modal-meta2-label" class="uppercase tracking-wider text-amber-900/75 font-bold text-[10px]">
+                Production Details
+              </div>
+              <div id="modal-creator" class="font-semibold text-stone-900 mt-0.5">Mathew Brady</div>
+              <div id="modal-medium" class="text-stone-700">Wet-plate collodion negative</div>
+            </div>
+          </div>
+
+          <!-- Historical Curatorial Essay -->
+          <div class="mb-5">
+            <h3 class="text-[11px] uppercase tracking-[0.18em] text-amber-900/80 font-bold mb-1.5">
+              Curatorial Note
+            </h3>
+            <p id="modal-description" class="font-serif-body text-sm sm:text-[15px] text-stone-900 leading-relaxed">
+              <!-- Populated dynamically -->
+            </p>
+          </div>
+        </div>
+
+        <!-- Bottom Audio Guide & Exhibit Stepper -->
+        <footer class="pt-4 border-t border-amber-800/25 flex flex-col gap-3">
+          <!-- Custom Voice Narration Studio Bar (Record / Upload / Delete) -->
+          <div class="bg-amber-950/5 border border-amber-800/25 rounded-xl p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <button id="record-voice-btn" class="px-3 py-1.5 rounded-lg bg-red-900 hover:bg-red-800 text-amber-50 font-semibold flex items-center gap-1.5 cursor-pointer transition">
+                <span id="record-dot" class="w-2 h-2 rounded-full bg-red-300"></span>
+                <span id="record-label">Record Your Voice</span>
+              </button>
+              <span id="record-timer" class="hidden font-mono text-red-900 font-bold">00:00</span>
+
+              <label for="upload-audio-input" class="px-3 py-1.5 rounded-lg border border-stone-800/30 bg-amber-900/10 hover:bg-amber-900/20 text-stone-900 font-semibold cursor-pointer">
+                📁 Upload Audio
+              </label>
+              <input id="upload-audio-input" type="file" accept="audio/*" class="hidden" />
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="voice-status-badge" class="text-[11px] font-semibold text-stone-600">
+                Narrator: Built-in Guide
+              </span>
+              <button id="delete-voice-btn" class="hidden px-2.5 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-200 text-[11px] font-semibold cursor-pointer" title="Remove custom voice recording">
+                🗑 Delete Voice
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden HTML5 Audio Element for Custom Voice Playback -->
+          <audio id="custom-voice-player" class="hidden"></audio>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <button id="audio-guide-btn" class="px-4 py-2 rounded-xl bg-stone-900 text-amber-200 border border-amber-600/60 hover:bg-stone-800 text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer transition">
+              <span id="audio-icon">🔊</span>
+              <span id="audio-label">Play Audio Guide</span>
+            </button>
+
+            <div class="flex items-center gap-2">
+              <button id="modal-prev-btn" class="px-3.5 py-2 rounded-xl border border-stone-800/30 bg-amber-900/10 hover:bg-amber-900/20 text-stone-900 text-xs font-bold cursor-pointer">
+                ← Previous
+              </button>
+              <button id="modal-next-btn" class="px-3.5 py-2 rounded-xl bg-amber-800 hover:bg-amber-700 text-amber-50 text-xs font-bold cursor-pointer">
+                Next Exhibit →
+              </button>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+    </article>
+  </dialog>
+
+  <!-- Semantic HTML5 <dialog> for "How to Save & Host" Guide -->
+  <dialog id="host-guide-dialog" aria-labelledby="host-guide-title" class="w-full h-full items-center justify-center p-4">
+    <article class="placard-paper w-full max-w-2xl max-h-[88vh] rounded-2xl p-6 sm:p-8 relative overflow-y-auto placard-scroll mx-auto my-auto shadow-2xl">
+      <button id="close-host-guide-btn" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-900 text-amber-200 border border-amber-500/60 hover:bg-stone-800 flex items-center justify-center font-bold cursor-pointer">
+        ✕
+      </button>
+
+      <div class="text-[11px] uppercase tracking-[0.24em] text-amber-900 font-bold mb-1">
+        HTML5 Deployment &amp; Archiving Guide
+      </div>
+      <h2 id="host-guide-title" class="font-display text-2xl sm:text-3xl font-bold text-stone-950 mb-4">
+        How to Save, Customize &amp; Host Your HTML5 Museum
+      </h2>
+
+      <div class="space-y-4 font-serif-body text-xs sm:text-sm text-stone-800 leading-relaxed">
+        <div class="bg-amber-950/5 border border-amber-800/25 rounded-xl p-4">
+          <h3 class="font-display font-bold text-base text-stone-950 mb-1">1. Save This Single-File HTML5 App Locally</h3>
+          <p>
+            Save this code as <code class="bg-stone-900 text-amber-200 px-1.5 py-0.5 rounded font-mono text-xs">index.html</code> on your computer. Because it uses standard HTML5 (<code class="font-mono text-xs">&lt;!DOCTYPE html&gt;</code>, <code class="font-mono text-xs">&lt;dialog&gt;</code>, <code class="font-mono text-xs">&lt;canvas&gt;</code>, and WebGL), you can double-click <code class="font-mono text-xs">index.html</code> to open it directly in Chrome, Edge, Safari, or Firefox with zero server setup.
+          </p>
+        </div>
+
+        <div class="bg-amber-950/5 border border-amber-800/25 rounded-xl p-4">
+          <h3 class="font-display font-bold text-base text-stone-950 mb-1">2. Load Your PowerPoint Photos (Saved Automatically)</h3>
+          <p>
+            In PowerPoint (<code class="font-mono text-xs">MK History Project .pptx</code>), right-click each photograph and choose <strong>Save as Picture...</strong> (JPG or PNG). Inside this virtual museum, open any exhibit placard and click <strong>Replace Exhibit Photo</strong> (or drag and drop the image onto the viewer). Your photos are automatically saved in your browser's <code class="font-mono text-xs">localStorage</code> so they persist across visits.
+          </p>
+        </div>
+
+        <div class="bg-amber-950/5 border border-amber-800/25 rounded-xl p-4">
+          <h3 class="font-display font-bold text-base text-stone-950 mb-1">3. Publish Free Online (GitHub Pages or Netlify)</h3>
+          <ul class="list-disc pl-5 space-y-1 mt-1">
+            <li><strong>Netlify Drop:</strong> Visit <span class="underline">app.netlify.com/drop</span> and drag your folder containing <code class="font-mono text-xs">index.html</code> onto the page to get a shareable link in seconds.</li>
+            <li><strong>GitHub Pages:</strong> Create a new repository, upload <code class="font-mono text-xs">index.html</code>, and enable <strong>Settings → Pages → Deploy from branch (main)</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button id="done-host-guide-btn" class="brass-btn px-6 py-2.5 rounded-xl font-display text-sm font-semibold cursor-pointer">
+          Return to Gallery
+        </button>
+      </div>
+    </article>
+  </dialog>
+
+  <!-- Toast Notification Box -->
+  <div id="toast-banner" role="status" aria-live="polite" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden bg-stone-950/95 border border-amber-400 text-amber-100 px-5 py-2.5 rounded-full text-xs sm:text-sm shadow-2xl">
+    Notification
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * 1. CURATORIAL ARCHIVE DATA (Exact 6 Artifacts from 'MK History Project .pptx')
+     * ============================================================================
+     */
+    const STORAGE_KEY = "civil_war_museum_custom_images_v1";
+    const VOICE_DB_NAME = "CivilWarMuseumVoiceDB";
+    const VOICE_STORE_NAME = "exhibitVoices";
+
+    const EXHIBITS = [
+      {
+        id: 0,
+        shortTitle: "1. Lincoln at Antietam",
+        archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
+        title: "President Lincoln on the Battlefield at Antietam",
+        meta1Heading: "DATE & LOCATION",
+        date: "October 3, 1862 (frequently cataloged as October 2, 1862)",
+        location: "Sharpsburg, Maryland",
+        meta2Heading: "PRODUCTION DETAILS",
+        creatorLabel: "Photographer",
+        creator: "Mathew Brady (also attributed to Alexander Gardner)",
+        mediumLabel: "Medium",
+        medium: "Wet-plate collodion negative / Albumen silver print",
+        description:
+          "Standing in front of a headquarters tent just two weeks after the Battle of Antietam—the single bloodiest day in American military history—President Abraham Lincoln confers with Allan Pinkerton (left), head of the Union Intelligence Service, and Major General John A. McClernand (right). Lincoln traveled to Maryland to inspect the Army of the Potomac and press its commander, General George B. McClellan, to pursue retreating Confederate forces. The stark contrast between Lincoln’s towering civilian attire and the rugged field camp underscores the direct, personal burden the Commander-in-Chief carried during a pivotal turning point of the war.",
+        isWeaponCase: false,
+        wallSide: "left",
+        zPos: 8
+      },
+      {
+        id: 1,
+        shortTitle: "2. Gen. Joseph Hooker",
+        archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
+        title: "Major General Joseph Hooker on Horseback",
+        meta1Heading: "DATE & LOCATION",
+        date: "ca. 1862–1863",
+        location: "Washington, D.C., or Northern Virginia",
+        meta2Heading: "PRODUCTION DETAILS",
+        creatorLabel: "Photographer",
+        creator: "Mathew Brady",
+        mediumLabel: "Medium",
+        medium: "Wet-plate collodion negative / Albumen silver print",
+        description:
+          "Posed in crisp profile outside a military encampment, Major General Joseph \"Fighting Joe\" Hooker sits astride his mount in full Union dress uniform. Hooker rose rapidly through the ranks of the Army of the Potomac, earning a reputation for aggressive leadership and reorganizing troop morale before assuming overall command in early 1863. Brady’s equestrian framing draws directly on classical traditions of military portraiture, projecting authority, order, and readiness despite the harsh realities of the ongoing campaign.",
+        isWeaponCase: false,
+        wallSide: "right",
+        zPos: 8
+      },
+      {
+        id: 2,
+        shortTitle: "3. Gen. Ulysses S. Grant",
+        archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
+        title: "Lieutenant General Ulysses S. Grant at Field Headquarters",
+        meta1Heading: "DATE & LOCATION",
+        date: "June 1864",
+        location: "Cold Harbor, Virginia",
+        meta2Heading: "PRODUCTION DETAILS",
+        creatorLabel: "Photographer",
+        creator: "Mathew Brady",
+        mediumLabel: "Medium",
+        medium: "Wet-plate collodion glass negative (damaged plate)",
+        description:
+          "Captured during the grueling Overland Campaign, Lieutenant General Ulysses S. Grant—recently appointed General-in-Chief of all Union armies—stands casually beside a pine tree outside his headquarters tent at Cold Harbor. Unlike the formal, upright poses favored by many Civil War commanders, Grant leans comfortably with one hand on his hip, wearing an unbuttoned field coat that reflects his pragmatic, unpretentious command style. The visible chemical flaking along the edges of the glass plate serves as a physical reminder of the fragile wet-plate process used under active battlefield conditions.",
+        isWeaponCase: false,
+        wallSide: "left",
+        zPos: -6
+      },
+      {
+        id: 3,
+        shortTitle: "4. Gen. Robert E. Lee",
+        archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
+        title: "General Robert E. Lee at His Richmond Residence",
+        meta1Heading: "DATE & LOCATION",
+        date: "April 1865",
+        location: "Richmond, Virginia",
+        meta2Heading: "PRODUCTION DETAILS",
+        creatorLabel: "Photographer",
+        creator: "Mathew Brady",
+        mediumLabel: "Medium",
+        medium: "Wet-plate collodion negative / Albumen silver print",
+        description:
+          "Just days after surrendering the Army of Northern Virginia at Appomattox Court House on April 9, 1865, Confederate General Robert E. Lee agreed to pose for Mathew Brady on the back porch of his rented brick home on East Franklin Street in Richmond. Dressed in the tailored gray uniform he wore at the surrender, Lee stands composed with his hat in hand. As one of Brady’s final wartime portraits, the image captures a quiet, solemn moment of transition as the Confederacy collapsed and the nation entered the uncertain era of Reconstruction.",
+        isWeaponCase: false,
+        wallSide: "right",
+        zPos: -6
+      },
+      {
+        id: 4,
+        shortTitle: "5. Union Hospital Ward",
+        archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
+        title: "Interior of a Union General Hospital Ward",
+        meta1Heading: "DATE & LOCATION",
+        date: "ca. 1863–1865",
+        location: "Washington, D.C.",
+        meta2Heading: "PRODUCTION DETAILS",
+        creatorLabel: "Photographer",
+        creator: "Mathew Brady",
+        mediumLabel: "Medium",
+        medium: "Wet-plate collodion negative / Albumen silver print",
+        description:
+          "Rows of neatly made cots line a wooden pavilion hospital ward in Washington, D.C., decorated with evergreen garlands and Union flags—including a 33-star \"Great Star\" banner—for a holiday or hospital anniversary. Wounded and convalescing soldiers rest alongside medical staff and female nurses, illustrating the unprecedented scale of Civil War medical care. Designed with high ceilings and tall windows to promote cross-ventilation and prevent infection, pavilion hospitals like this transformed American military medicine and nursing practices.",
+        isWeaponCase: false,
+        wallSide: "left",
+        zPos: -20
+      },
+      {
+        id: 5,
+        shortTitle: "6. 1860 Henry Rifle",
+        archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
+        title: "Model 1860 Henry Lever-Action Repeating Rifle",
+        meta1Heading: "DATE & MAKER",
+        date: "Patented Oct 16, 1860 (mfg. 1860–1866)",
+        location: "Maker: New Haven Arms Co., CT",
+        meta2Heading: "SPECIFICATIONS & MATERIALS",
+        creatorLabel: "Materials",
+        creator: "Brass receiver & buttplate, blued octagonal steel barrel",
+        mediumLabel: "Stock & Action",
+        medium: "American walnut stock; 16-shot .44-caliber rimfire lever-action",
+        description:
+          "Designed by Benjamin Tyler Henry, the Model 1860 Henry Rifle was the most technologically advanced infantry firearm of the American Civil War. Featuring a distinctive brass frame and a tubular under-barrel magazine, it held 15 .44-caliber rimfire metallic cartridges plus one in the chamber, allowing a soldier to fire 16 rounds rapidly via its lever action while standard muzzle-loading rifles fired only two to three shots per minute. Though purchased only in limited numbers by the U.S. Ordnance Department, many Union soldiers bought Henry rifles with their own pay—earning the weapon a fearsome reputation among Confederate troops as \"that Yankee rifle that you load on Sunday and shoot all week.\"",
+        isWeaponCase: true,
+        wallSide: "center",
+        zPos: -29
+      }
+    ];
+
+    /**
+     * ============================================================================
+     * 2. HIGH-RESOLUTION PROCEDURAL HTML5 CANVAS ARTWORK + LOCALSTORAGE PERSISTENCE
+     * ============================================================================
+     */
+    function generateArtifactDataURL(exhibitIndex) {
+      const canvas = document.createElement("canvas");
+      const isLandscape = exhibitIndex === 1 || exhibitIndex === 4 || exhibitIndex === 5;
+      canvas.width = isLandscape ? 1200 : 960;
+      canvas.height = isLandscape ? 900 : 1200;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Helper: Wet-plate albumen silver tone gradient & grain
+      function applyAlbumenBase(sepiaStrength = 1) {
+        const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.42, w * 0.1, w * 0.5, h * 0.5, w * 0.85);
+        bgGrad.addColorStop(0, sepiaStrength ? "#d8ccb8" : "#161412");
+        bgGrad.addColorStop(0.65, sepiaStrength ? "#b2a38c" : "#0e0c0a");
+        bgGrad.addColorStop(1, sepiaStrength ? "#6c5f4d" : "#060504");
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      function applyWetPlateVignetteAndFlaking(heavyFlaking = false) {
+        // Subtle silver-nitrate speckles & hairline scratches
+        ctx.save();
+        for (let i = 0; i < 2200; i++) {
+          const x = Math.random() * w;
+          const y = Math.random() * h;
+          const r = Math.random() * 1.4;
+          ctx.fillStyle = Math.random() > 0.5 ? "rgba(255,250,240,0.08)" : "rgba(35,25,18,0.12)";
+          ctx.fillRect(x, y, r, r);
+        }
+
+        // Collodion glass edge imperfections
+        const edgeGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, w * 0.34, w * 0.5, h * 0.5, w * 0.72);
+        edgeGrad.addColorStop(0, "rgba(0,0,0,0)");
+        edgeGrad.addColorStop(1, "rgba(28, 20, 14, 0.72)");
+        ctx.fillStyle = edgeGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Border glass rim
+        ctx.strokeStyle = "rgba(240, 232, 216, 0.55)";
+        ctx.lineWidth = 10;
+        ctx.strokeRect(10, 10, w - 20, h - 20);
+
+        if (heavyFlaking) {
+          // Authentic Cold Harbor Grant glass plate chemical flaking along left & right edges
+          ctx.fillStyle = "#efe9dc";
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(w * 0.16, 0);
+          ctx.lineTo(w * 0.11, h * 0.25);
+          ctx.lineTo(w * 0.18, h * 0.52);
+          ctx.lineTo(w * 0.09, h * 0.78);
+          ctx.lineTo(w * 0.19, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#2b231d";
+          ctx.beginPath();
+          ctx.moveTo(w, h * 0.12);
+          ctx.lineTo(w * 0.83, h * 0.28);
+          ctx.lineTo(w * 0.88, h * 0.62);
+          ctx.lineTo(w * 0.81, h);
+          ctx.lineTo(w, h);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(245, 240, 230, 0.85)";
+          ctx.beginPath();
+          ctx.ellipse(w * 0.9, h * 0.55, w * 0.07, h * 0.28, 0.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      if (exhibitIndex === 0) {
+        // EXHIBIT 1: Lincoln at Antietam (Oct 3, 1862)
+        applyAlbumenBase(1);
+
+        // Background trees & sky
+        ctx.fillStyle = "rgba(88, 77, 63, 0.28)";
+        for (let i = 0; i < 45; i++) {
+          ctx.beginPath();
+          ctx.arc(w * (0.1 + Math.random() * 0.8), h * (0.08 + Math.random() * 0.28), 35 + Math.random() * 55, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Field grass
+        ctx.fillStyle = "#6c5e4b";
+        ctx.fillRect(0, h * 0.76, w, h * 0.24);
+        ctx.strokeStyle = "#483d30";
+        for (let i = 0; i < 400; i++) {
+          const gx = Math.random() * w;
+          const gy = h * 0.76 + Math.random() * h * 0.23;
+          ctx.beginPath();
+          ctx.moveTo(gx, gy);
+          ctx.lineTo(gx + (Math.random() - 0.5) * 14, gy - 18 - Math.random() * 18);
+          ctx.stroke();
+        }
+
+        // Headquarters A-Frame Canvas Tent
+        ctx.fillStyle = "#cfc3ae";
+        ctx.beginPath();
+        ctx.moveTo(w * 0.51, h * 0.24);
+        ctx.lineTo(w * 0.14, h * 0.63);
+        ctx.lineTo(w * 0.89, h * 0.65);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tent shadow interior
+        ctx.fillStyle = "#473c31";
+        ctx.beginPath();
+        ctx.moveTo(w * 0.51, h * 0.26);
+        ctx.lineTo(w * 0.36, h * 0.75);
+        ctx.lineTo(w * 0.68, h * 0.75);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tent guy ropes
+        ctx.strokeStyle = "#ede5d5";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.51, h * 0.24);
+        ctx.lineTo(w * 0.16, h * 0.96);
+        ctx.stroke();
+
+        // Allan Pinkerton (Left)
+        drawStandingFigure(ctx, w * 0.27, h * 0.45, 0.88, {
+          hat: "bowler",
+          coatColor: "#332a23",
+          handInCoat: true
+        });
+
+        // President Abraham Lincoln (Center - tall stovepipe hat)
+        drawStandingFigure(ctx, w * 0.50, h * 0.37, 1.05, {
+          hat: "stovepipe",
+          coatColor: "#241d18",
+          whiteShirt: true
+        });
+
+        // Maj. Gen. John A. McClernand (Right - Union uniform)
+        drawStandingFigure(ctx, w * 0.75, h * 0.44, 0.91, {
+          hat: "slouch",
+          coatColor: "#36302b",
+          brassButtons: true
+        });
+
+        applyWetPlateVignetteAndFlaking(false);
+      } else if (exhibitIndex === 1) {
+        // EXHIBIT 2: Maj. Gen. Joseph Hooker on Horseback
+        applyAlbumenBase(1);
+
+        // Garrison brick building in background
+        ctx.fillStyle = "#8c7d69";
+        ctx.fillRect(w * 0.06, h * 0.08, w * 0.48, h * 0.56);
+        ctx.fillStyle = "#5a4e40";
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 4; col++) {
+            ctx.fillRect(w * (0.10 + col * 0.10), h * (0.14 + row * 0.15), w * 0.045, h * 0.09);
+          }
+        }
+
+        // Field tents behind horse
+        ctx.fillStyle = "#d6cab5";
+        ctx.beginPath();
+        ctx.moveTo(w * 0.42, h * 0.24);
+        ctx.lineTo(w * 0.20, h * 0.68);
+        ctx.lineTo(w * 0.68, h * 0.68);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ground
+        ctx.fillStyle = "#796a56";
+        ctx.fillRect(0, h * 0.67, w, h * 0.33);
+
+        // Horse Silhouette & Shading (Profile facing left)
+        ctx.save();
+        ctx.fillStyle = "#3a2f26";
+        // Torso
+        ctx.beginPath();
+        ctx.ellipse(w * 0.46, h * 0.55, w * 0.13, h * 0.068, -0.05, 0, Math.PI * 2);
+        ctx.fill();
+        // Neck & Head
+        ctx.beginPath();
+        ctx.moveTo(w * 0.36, h * 0.53);
+        ctx.lineTo(w * 0.31, h * 0.41);
+        ctx.lineTo(w * 0.27, h * 0.48);
+        ctx.lineTo(w * 0.34, h * 0.58);
+        ctx.closePath();
+        ctx.fill();
+        // Legs
+        ctx.lineWidth = 11;
+        ctx.strokeStyle = "#322820";
+        [0.37, 0.40, 0.54, 0.57].forEach((lx) => {
+          ctx.beginPath();
+          ctx.moveTo(w * lx, h * 0.59);
+          ctx.lineTo(w * (lx - 0.01), h * 0.77);
+          ctx.stroke();
+        });
+        // Tail
+        ctx.beginPath();
+        ctx.moveTo(w * 0.59, h * 0.53);
+        ctx.quadraticCurveTo(w * 0.63, h * 0.62, w * 0.60, h * 0.72);
+        ctx.lineWidth = 9;
+        ctx.stroke();
+
+        // Saddle Blanket
+        ctx.fillStyle = "#bfb29c";
+        ctx.fillRect(w * 0.43, h * 0.50, w * 0.11, h * 0.07);
+
+        // General Hooker Mounted
+        ctx.fillStyle = "#26201b";
+        ctx.fillRect(w * 0.44, h * 0.38, w * 0.045, h * 0.13); // torso
+        ctx.beginPath();
+        ctx.arc(w * 0.462, h * 0.355, 16, 0, Math.PI * 2); // head
+        ctx.fill();
+        // Officer Hat
+        ctx.fillRect(w * 0.442, h * 0.325, w * 0.04, 16);
+        ctx.fillRect(w * 0.432, h * 0.34, w * 0.06, 5);
+        // Booted leg
+        ctx.fillRect(w * 0.448, h * 0.50, w * 0.024, h * 0.13);
+        ctx.restore();
+
+        applyWetPlateVignetteAndFlaking(false);
+      } else if (exhibitIndex === 2) {
+        // EXHIBIT 3: Lt. Gen. Ulysses S. Grant at Cold Harbor (Damaged Plate)
+        applyAlbumenBase(1);
+
+        // Large headquarters tent behind Grant
+        ctx.fillStyle = "#cfc3ae";
+        ctx.beginPath();
+        ctx.moveTo(w * 0.48, h * 0.18);
+        ctx.lineTo(w * 0.15, h * 0.42);
+        ctx.lineTo(w * 0.85, h * 0.45);
+        ctx.lineTo(w * 0.85, h * 0.74);
+        ctx.lineTo(w * 0.20, h * 0.74);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tent entrance flap shadow
+        ctx.fillStyle = "#4d4135";
+        ctx.beginPath();
+        ctx.moveTo(w * 0.44, h * 0.39);
+        ctx.lineTo(w * 0.34, h * 0.74);
+        ctx.lineTo(w * 0.52, h * 0.74);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ground
+        ctx.fillStyle = "#5f5242";
+        ctx.fillRect(0, h * 0.73, w, h * 0.27);
+
+        // Camp folding chair on left
+        ctx.strokeStyle = "#2f261e";
+        ctx.lineWidth = 6;
+        ctx.strokeRect(w * 0.32, h * 0.62, w * 0.10, h * 0.08);
+        ctx.beginPath();
+        ctx.moveTo(w * 0.32, h * 0.70);
+        ctx.lineTo(w * 0.42, h * 0.79);
+        ctx.moveTo(w * 0.42, h * 0.70);
+        ctx.lineTo(w * 0.32, h * 0.79);
+        ctx.stroke();
+
+        // Pine tree trunk beside Grant
+        ctx.fillStyle = "#3a2f26";
+        ctx.fillRect(w * 0.455, h * 0.06, 24, h * 0.73);
+
+        // Grant leaning casually beside tree with hand on hip
+        drawStandingFigure(ctx, w * 0.54, h * 0.44, 0.90, {
+          hat: "slouch",
+          coatColor: "#2c2621",
+          brassButtons: true,
+          handOnHip: true
+        });
+
+        // Damaged Wet-Plate Collodion Chemical Flaking!
+        applyWetPlateVignetteAndFlaking(true);
+      } else if (exhibitIndex === 3) {
+        // EXHIBIT 4: Gen. Robert E. Lee at His Richmond Residence (April 1865)
+        applyAlbumenBase(1);
+
+        // Brick wall left and right
+        ctx.fillStyle = "#5d4f41";
+        ctx.fillRect(0, 0, w * 0.20, h * 0.84);
+        ctx.fillRect(w * 0.80, 0, w * 0.20, h * 0.84);
+
+        // Brick courses
+        ctx.strokeStyle = "rgba(235, 224, 205, 0.22)";
+        ctx.lineWidth = 2;
+        for (let y = 20; y < h * 0.84; y += 24) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w * 0.20, y);
+          ctx.moveTo(w * 0.80, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+
+        // Tall paneled wooden back door
+        ctx.fillStyle = "#483b30";
+        ctx.fillRect(w * 0.28, h * 0.07, w * 0.44, h * 0.77);
+        ctx.strokeStyle = "#2c221b";
+        ctx.lineWidth = 6;
+        ctx.strokeRect(w * 0.33, h * 0.12, w * 0.34, h * 0.20);
+        ctx.strokeRect(w * 0.33, h * 0.36, w * 0.34, h * 0.20);
+        ctx.strokeRect(w * 0.33, h * 0.60, w * 0.34, h * 0.18);
+
+        // Herringbone brick porch floor
+        ctx.fillStyle = "#9d8e7a";
+        ctx.fillRect(0, h * 0.84, w, h * 0.16);
+
+        // Ornate tufted Victorian chair on left
+        ctx.fillStyle = "#322820";
+        ctx.fillRect(w * 0.12, h * 0.50, w * 0.16, h * 0.26);
+        ctx.fillRect(w * 0.10, h * 0.64, w * 0.19, h * 0.14);
+
+        // General Robert E. Lee in tailored gray Confederate uniform, hat in hand
+        drawStandingFigure(ctx, w * 0.50, h * 0.25, 1.15, {
+          hat: "none",
+          whiteHairBeard: true,
+          coatColor: "#9c9384",
+          trouserColor: "#aba192",
+          brassButtons: true,
+          holdingHat: true
+        });
+
+        applyWetPlateVignetteAndFlaking(false);
+      } else if (exhibitIndex === 4) {
+        // EXHIBIT 5: Interior of a Union General Hospital Ward
+        applyAlbumenBase(1);
+
+        // Perspective ceiling & timber rafters
+        ctx.fillStyle = "#dfd4c0";
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(w, 0);
+        ctx.lineTo(w * 0.64, h * 0.36);
+        ctx.lineTo(w * 0.36, h * 0.36);
+        ctx.closePath();
+        ctx.fill();
+
+        // Side walls
+        ctx.fillStyle = "#c4b69f";
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(w * 0.36, h * 0.36);
+        ctx.lineTo(w * 0.36, h * 0.64);
+        ctx.lineTo(0, h * 0.85);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(w, 0);
+        ctx.lineTo(w * 0.64, h * 0.36);
+        ctx.lineTo(w * 0.64, h * 0.64);
+        ctx.lineTo(w, h * 0.85);
+        ctx.closePath();
+        ctx.fill();
+
+        // Wooden plank floor
+        ctx.fillStyle = "#8a7b66";
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.85);
+        ctx.lineTo(w * 0.36, h * 0.64);
+        ctx.lineTo(w * 0.64, h * 0.64);
+        ctx.lineTo(w, h * 0.85);
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fill();
+
+        // Hanging Union Flags (including 33-star banner)
+        ctx.fillStyle = "#4d4237";
+        ctx.fillRect(w * 0.16, h * 0.10, w * 0.14, h * 0.25);
+        ctx.fillRect(w * 0.72, h * 0.11, w * 0.14, h * 0.25);
+        // Flag stripes & stars
+        ctx.fillStyle = "#e3d9c6";
+        for (let s = 0; s < 6; s++) {
+          ctx.fillRect(w * 0.16 + s * 26, h * 0.10, 12, h * 0.25);
+          ctx.fillRect(w * 0.72 + s * 26, h * 0.11, 12, h * 0.25);
+        }
+        ctx.fillStyle = "#352d25";
+        ctx.fillRect(w * 0.16, h * 0.10, w * 0.075, h * 0.12);
+
+        // Evergreen Garlands draped from rafters
+        ctx.strokeStyle = "#3d332a";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.30, h * 0.11);
+        ctx.quadraticCurveTo(w * 0.40, h * 0.24, w * 0.50, h * 0.14);
+        ctx.quadraticCurveTo(w * 0.60, h * 0.24, w * 0.70, h * 0.11);
+        ctx.stroke();
+
+        // Rows of white linen cots along left and right walls
+        for (let i = 0; i < 5; i++) {
+          const t = i / 5;
+          const yRow = h * (0.62 + t * 0.22);
+          const bedW = w * (0.14 + t * 0.15);
+          const bedH = h * (0.06 + t * 0.07);
+
+          // Left cot
+          ctx.fillStyle = "#efe8da";
+          ctx.fillRect(w * (0.28 - t * 0.25), yRow, bedW, bedH);
+          ctx.strokeStyle = "#9b8d79";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(w * (0.28 - t * 0.25), yRow, bedW, bedH);
+
+          // Right cot
+          ctx.fillRect(w * (0.58 + t * 0.10), yRow, bedW, bedH);
+          ctx.strokeRect(w * (0.58 + t * 0.10), yRow, bedW, bedH);
+        }
+
+        // Convalescing soldiers & nurses seated near beds
+        [
+          [0.11, 0.53],
+          [0.22, 0.52],
+          [0.72, 0.55],
+          [0.93, 0.54]
+        ].forEach(([sx, sy]) => {
+          ctx.fillStyle = "#2b241e";
+          ctx.beginPath();
+          ctx.arc(w * sx, h * sy, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(w * sx - 22, h * (sy + 0.025), 44, 75);
+        });
+
+        applyWetPlateVignetteAndFlaking(false);
+      } else if (exhibitIndex === 5) {
+        // EXHIBIT 6: Model 1860 Henry Lever-Action Repeating Rifle (Color Museum Display)
+        applyAlbumenBase(0);
+
+        // Subtle museum spotlight backdrop on black velvet
+        const spot = ctx.createRadialGradient(w * 0.52, h * 0.45, 40, w * 0.5, h * 0.5, w * 0.62);
+        spot.addColorStop(0, "rgba(218, 179, 102, 0.16)");
+        spot.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = spot;
+        ctx.fillRect(0, 0, w, h);
+
+        // Rustic wooden display cradle stand
+        ctx.fillStyle = "#4d3826";
+        ctx.strokeStyle = "#2b1d12";
+        ctx.lineWidth = 4;
+        // Base slab
+        ctx.beginPath();
+        ctx.moveTo(w * 0.52, h * 0.68);
+        ctx.lineTo(w * 0.88, h * 0.54);
+        ctx.lineTo(w * 0.96, h * 0.66);
+        ctx.lineTo(w * 0.64, h * 0.84);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Crossed wooden struts
+        ctx.save();
+        ctx.translate(w * 0.58, h * 0.48);
+        ctx.rotate(-0.42);
+        ctx.fillStyle = "#5c422c";
+        ctx.fillRect(-16, -150, 34, 310);
+        ctx.strokeRect(-16, -150, 34, 310);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(w * 0.72, h * 0.42);
+        ctx.rotate(-0.42);
+        ctx.fillStyle = "#5c422c";
+        ctx.fillRect(-16, -150, 34, 310);
+        ctx.strokeRect(-16, -150, 34, 310);
+        ctx.restore();
+
+        // Model 1860 Henry Rifle angled diagonally across display stand
+        ctx.save();
+        ctx.translate(w * 0.50, h * 0.42);
+        ctx.rotate(-0.34);
+
+        // 1. Blued Octagonal Steel Barrel + Tubular Under-Barrel Magazine
+        const barrelGrad = ctx.createLinearGradient(0, -18, 0, 18);
+        barrelGrad.addColorStop(0, "#6d747d");
+        barrelGrad.addColorStop(0.5, "#3b4047");
+        barrelGrad.addColorStop(1, "#1e2126");
+        ctx.fillStyle = barrelGrad;
+        ctx.fillRect(20, -18, 490, 16); // Upper octagonal barrel
+        ctx.fillRect(20, -1, 485, 13);  // Under-barrel 15-round tubular magazine
+
+        // 2. Distinctive Brass Receiver Frame
+        const brassGrad = ctx.createLinearGradient(-155, -24, 25, 36);
+        brassGrad.addColorStop(0, "#b88a35");
+        brassGrad.addColorStop(0.45, "#e6be67");
+        brassGrad.addColorStop(0.8, "#c29238");
+        brassGrad.addColorStop(1, "#8f671f");
+        ctx.fillStyle = brassGrad;
+        ctx.beginPath();
+        ctx.moveTo(-155, -18);
+        ctx.lineTo(25, -18);
+        ctx.lineTo(25, 28);
+        ctx.lineTo(-140, 32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#6e4e15";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Side loading/ejection port detail
+        ctx.fillStyle = "#7a5718";
+        ctx.beginPath();
+        ctx.ellipse(-60, 4, 28, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Finger Lever Loop
+        ctx.strokeStyle = "#525860";
+        ctx.lineWidth = 9;
+        ctx.beginPath();
+        ctx.ellipse(-110, 48, 46, 22, 0.12, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Trigger
+        ctx.beginPath();
+        ctx.arc(-115, 36, 12, 0.2, Math.PI * 0.9);
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // 4. American Walnut Stock
+        const woodGrad = ctx.createLinearGradient(-430, -10, -145, 75);
+        woodGrad.addColorStop(0, "#4a2c18");
+        woodGrad.addColorStop(0.5, "#6b4125");
+        woodGrad.addColorStop(1, "#3b2212");
+        ctx.fillStyle = woodGrad;
+        ctx.beginPath();
+        ctx.moveTo(-150, -14);
+        ctx.lineTo(-425, -4);
+        ctx.lineTo(-445, 92);
+        ctx.lineTo(-145, 28);
+        ctx.closePath();
+        ctx.fill();
+
+        // 5. Crescent Brass Buttplate
+        ctx.fillStyle = brassGrad;
+        ctx.beginPath();
+        ctx.moveTo(-425, -8);
+        ctx.quadraticCurveTo(-458, 44, -445, 96);
+        ctx.lineTo(-430, 92);
+        ctx.quadraticCurveTo(-442, 44, -412, -6);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      return canvas.toDataURL("image/png");
+    }
+
+    // Helper function to paint realistic wet-plate standing figures
+    function drawStandingFigure(ctx, cx, topY, scale, opts) {
+      ctx.save();
+      ctx.translate(cx, topY);
+      ctx.scale(scale, scale);
+
+      // Coat & Trousers
+      ctx.fillStyle = opts.coatColor || "#29221c";
+      // Frock coat body
+      ctx.beginPath();
+      ctx.moveTo(-36, 68);
+      ctx.lineTo(36, 68);
+      ctx.lineTo(44, 245);
+      ctx.lineTo(-44, 245);
+      ctx.closePath();
+      ctx.fill();
+
+      // Trousers
+      ctx.fillStyle = opts.trouserColor || "#211b16";
+      ctx.fillRect(-30, 245, 26, 130);
+      ctx.fillRect(4, 245, 26, 130);
+
+      // White shirt front (for Lincoln)
+      if (opts.whiteShirt) {
+        ctx.fillStyle = "#ebe3d3";
+        ctx.beginPath();
+        ctx.moveTo(-14, 70);
+        ctx.lineTo(14, 70);
+        ctx.lineTo(8, 125);
+        ctx.lineTo(-8, 125);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Brass double-breasted buttons
+      if (opts.brassButtons) {
+        ctx.fillStyle = "#d9c8a9";
+        for (let r = 0; r < 5; r++) {
+          ctx.beginPath();
+          ctx.arc(-12, 85 + r * 22, 3.2, 0, Math.PI * 2);
+          ctx.arc(12, 85 + r * 22, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Arms
+      ctx.fillStyle = opts.coatColor || "#29221c";
+      ctx.fillRect(-48, 72, 16, 115);
+      if (opts.handOnHip) {
+        ctx.beginPath();
+        ctx.moveTo(34, 72);
+        ctx.lineTo(58, 122);
+        ctx.lineTo(36, 165);
+        ctx.lineWidth = 15;
+        ctx.strokeStyle = opts.coatColor;
+        ctx.stroke();
+      } else {
+        ctx.fillRect(32, 72, 16, 115);
+      }
+
+      // Holding hat in right hand (for Gen. Lee)
+      if (opts.holdingHat) {
+        ctx.fillStyle = "#b5aa98";
+        ctx.beginPath();
+        ctx.ellipse(-46, 195, 16, 26, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Head & Beard
+      ctx.fillStyle = "#c9bca7";
+      ctx.beginPath();
+      ctx.ellipse(0, 42, 18, 23, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Beard / Hair
+      ctx.fillStyle = opts.whiteHairBeard ? "#e3dccf" : "#2e251e";
+      ctx.beginPath();
+      ctx.arc(0, 48, 17, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.fill();
+
+      // Hats
+      ctx.fillStyle = "#1f1914";
+      if (opts.hat === "stovepipe") {
+        ctx.fillRect(-20, -28, 40, 52);
+        ctx.fillRect(-32, 20, 64, 6);
+      } else if (opts.hat === "bowler") {
+        ctx.beginPath();
+        ctx.arc(0, 24, 21, Math.PI, 0);
+        ctx.fill();
+        ctx.fillRect(-30, 22, 60, 5);
+      } else if (opts.hat === "slouch") {
+        ctx.fillRect(-19, 6, 38, 18);
+        ctx.fillRect(-33, 21, 66, 5);
+      }
+
+      ctx.restore();
+    }
+
+    // Load saved custom images from HTML5 localStorage if available
+    function loadSavedCustomImages() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (err) {
+        return {};
+      }
+    }
+
+    function saveCustomImageToStorage(idx, dataUrl) {
+      try {
+        const saved = loadSavedCustomImages();
+        if (dataUrl) {
+          saved[idx] = dataUrl;
+        } else {
+          delete saved[idx];
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      } catch (err) {
+        showToast("Photo updated for this session (browser storage quota reached).");
+      }
+    }
+
+    const defaultArtifactImages = EXHIBITS.map((_, idx) => generateArtifactDataURL(idx));
+    const savedCustomImages = loadSavedCustomImages();
+    const exhibitImages = EXHIBITS.map((_, idx) => savedCustomImages[idx] || defaultArtifactImages[idx]);
+
+    /**
+     * ============================================================================
+     * 3. THREE.JS 3D SMITHSONIAN MUSEUM GALLERY ARCHITECTURE
+     * ============================================================================
+     */
+    let scene, camera, renderer, raycaster, mouse;
+    const interactiveMeshes = [];
+    const exhibitTextures = [];
+    const exhibitWaypoints = [];
+    let currentTourIndex = 0;
+
+    // Visitor movement & camera look state
+    const player = {
+      pos: new THREE.Vector3(0, 2.2, 18),
+      targetPos: null,
+      yaw: 0,
+      pitch: 0,
+      targetYaw: null,
+      targetPitch: null,
+      speed: 0.14
+    };
+
+    const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let dragDistance = 0;
+    let hoveredMesh = null;
+    let dustParticles = null;
+
+    function createWoodFloorTexture() {
+      const c = document.createElement("canvas");
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#3a2518";
+      ctx.fillRect(0, 0, 512, 512);
+
+      const planks = 8;
+      const pw = 512 / planks;
+      for (let i = 0; i < planks; i++) {
+        ctx.fillStyle = i % 2 === 0 ? "#432b1c" : "#362215";
+        ctx.fillRect(i * pw, 0, pw - 2, 512);
+        // Subtle wood grain lines
+        ctx.strokeStyle = "rgba(20, 10, 5, 0.35)";
+        ctx.lineWidth = 1;
+        for (let g = 0; g < 18; g++) {
+          const gx = i * pw + Math.random() * pw;
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx + (Math.random() - 0.5) * 6, 512);
+          ctx.stroke();
+        }
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(8, 26);
+      return tex;
+    }
+
+    function createWallDamaskTexture() {
+      const c = document.createElement("canvas");
+      c.width = 256;
+      c.height = 256;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#261f1d";
+      ctx.fillRect(0, 0, 256, 256);
+
+      ctx.strokeStyle = "rgba(197, 155, 71, 0.05)";
+      ctx.lineWidth = 2;
+      for (let y = 0; y < 256; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(256, y);
+        ctx.stroke();
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(12, 3);
+      return tex;
+    }
+
+    function createPlacardSignTexture(exhibit) {
+      const c = document.createElement("canvas");
+      c.width = 512;
+      c.height = 256;
+      const ctx = c.getContext("2d");
+
+      ctx.fillStyle = "#f4ede0";
+      ctx.fillRect(0, 0, 512, 256);
+      ctx.strokeStyle = "#b58d3d";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(8, 8, 496, 240);
+
+      ctx.fillStyle = "#7a581c";
+      ctx.font = "bold 18px Georgia";
+      ctx.fillText(exhibit.archiveCategory, 28, 46);
+
+      ctx.fillStyle = "#1c1512";
+      ctx.font = "bold 26px Georgia";
+      const words = exhibit.title.split(" ");
+      let line = "";
+      let y = 92;
+      for (let w of words) {
+        const test = line + w + " ";
+        if (ctx.measureText(test).width > 450) {
+          ctx.fillText(line, 28, y);
+          line = w + " ";
+          y += 32;
+        } else {
+          line = test;
+        }
+      }
+      ctx.fillText(line, 28, y);
+
+      ctx.fillStyle = "#4d3e35";
+      ctx.font = "italic 20px Georgia";
+      ctx.fillText(`${exhibit.date} • ${exhibit.location}`, 28, 200);
+
+      ctx.fillStyle = "#8a621b";
+      ctx.font = "bold 16px Georgia";
+      ctx.fillText("CLICK TO INSPECT & READ FULL PLACARD →", 28, 232);
+
+      return new THREE.CanvasTexture(c);
+    }
+
+    function initMuseumScene() {
+      const canvasEl = document.getElementById("museum-canvas");
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x110d0b);
+      scene.fog = new THREE.FogExp2(0x110d0b, 0.018);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 120);
+      camera.rotation.order = "YXZ";
+
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvasEl,
+        antialias: true,
+        powerPreference: "high-performance"
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      raycaster = new THREE.Raycaster();
+      mouse = new THREE.Vector2();
+
+      // Ambient warm gallery glow
+      const ambientLight = new THREE.AmbientLight(0xffe7c4, 0.42);
+      scene.add(ambientLight);
+
+      // Gallery Dimensions: Width = 14m (-7 to +7), Height = 7.2m, Length = 60m (+24 to -36)
+      const hallWidth = 14;
+      const hallHeight = 7.2;
+      const hallLength = 60;
+      const hallCenterZ = -6;
+
+      // 1. Hardwood Gallery Floor
+      const floorGeo = new THREE.PlaneGeometry(hallWidth, hallLength);
+      const floorMat = new THREE.MeshStandardMaterial({
+        map: createWoodFloorTexture(),
+        roughness: 0.42,
+        metalness: 0.08
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.set(0, 0, hallCenterZ);
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      // Center Persian/Crimson Museum Runner Carpet
+      const runnerGeo = new THREE.PlaneGeometry(3.4, hallLength - 4);
+      const runnerMat = new THREE.MeshStandardMaterial({
+        color: 0x4a1818,
+        roughness: 0.85
+      });
+      const runner = new THREE.Mesh(runnerGeo, runnerMat);
+      runner.rotation.x = -Math.PI / 2;
+      runner.position.set(0, 0.005, hallCenterZ);
+      scene.add(runner);
+
+      // Brass runner trim edges
+      [-1.72, 1.72].forEach((rx) => {
+        const trim = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.08, hallLength - 4),
+          new THREE.MeshStandardMaterial({ color: 0xc59b47, metalness: 0.7, roughness: 0.3 })
+        );
+        trim.rotation.x = -Math.PI / 2;
+        trim.position.set(rx, 0.007, hallCenterZ);
+        scene.add(trim);
+      });
+
+      // 2. Gallery Walls & Coffered Ceiling
+      const wallMat = new THREE.MeshStandardMaterial({
+        map: createWallDamaskTexture(),
+        roughness: 0.78
+      });
+      const wainscotingMat = new THREE.MeshStandardMaterial({
+        color: 0x1a120e,
+        roughness: 0.5
+      });
+      const brassMat = new THREE.MeshStandardMaterial({
+        color: 0xc59b47,
+        metalness: 0.78,
+        roughness: 0.28
+      });
+
+      // Left Wall
+      const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(hallLength, hallHeight), wallMat);
+      leftWall.rotation.y = Math.PI / 2;
+      leftWall.position.set(-hallWidth / 2, hallHeight / 2, hallCenterZ);
+      scene.add(leftWall);
+
+      // Right Wall
+      const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(hallLength, hallHeight), wallMat);
+      rightWall.rotation.y = -Math.PI / 2;
+      rightWall.position.set(hallWidth / 2, hallHeight / 2, hallCenterZ);
+      scene.add(rightWall);
+
+      // End Wall (North Rotunda Backdrop for Exhibit 6: Henry Rifle)
+      const backWall = new THREE.Mesh(new THREE.PlaneGeometry(hallWidth, hallHeight), wallMat);
+      backWall.position.set(0, hallHeight / 2, -36);
+      scene.add(backWall);
+
+      // Entrance Wall behind player
+      const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(hallWidth, hallHeight), wallMat);
+      frontWall.rotation.y = Math.PI;
+      frontWall.position.set(0, hallHeight / 2, 24);
+      scene.add(frontWall);
+
+      // Ceiling
+      const ceiling = new THREE.Mesh(
+        new THREE.PlaneGeometry(hallWidth, hallLength),
+        new THREE.MeshStandardMaterial({ color: 0x14100e, roughness: 0.9 })
+      );
+      ceiling.rotation.x = Math.PI / 2;
+      ceiling.position.set(0, hallHeight, hallCenterZ);
+      scene.add(ceiling);
+
+      // Wainscoting wood paneling & brass chair rail along left/right walls
+      [-hallWidth / 2 + 0.03, hallWidth / 2 - 0.03].forEach((wx) => {
+        const panel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.15, hallLength), wainscotingMat);
+        panel.position.set(wx, 0.575, hallCenterZ);
+        scene.add(panel);
+
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.07, hallLength), brassMat);
+        rail.position.set(wx, 1.18, hallCenterZ);
+        scene.add(rail);
+      });
+
+      // Overhead ceiling rafters & warm hanging museum lanterns
+      for (let z = 16; z >= -32; z -= 12) {
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(hallWidth, 0.35, 0.45), wainscotingMat);
+        beam.position.set(0, hallHeight - 0.17, z);
+        scene.add(beam);
+
+        const fixtureLight = new THREE.PointLight(0xffdca8, 0.55, 18);
+        fixtureLight.position.set(0, hallHeight - 0.8, z);
+        scene.add(fixtureLight);
+      }
+
+      // 3. Build the 6 Exhibits (5 Framed Wet-Plate Photos + 1 Glass Rifle Display Case)
+      EXHIBITS.forEach((exhibit, idx) => {
+        const tex = new THREE.TextureLoader().load(exhibitImages[idx]);
+        exhibitTextures.push(tex);
+
+        if (!exhibit.isWeaponCase) {
+          buildFramedPhotoExhibit(exhibit, idx, tex, hallWidth, brassMat);
+        } else {
+          buildWeaponDisplayCase(exhibit, idx, tex, brassMat, wainscotingMat);
+        }
+      });
+
+      // 4. Subtle Floating Museum Dust Motes in Spotlight Beams
+      const particleCount = 260;
+      const pGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 12;
+        positions[i * 3 + 1] = 0.5 + Math.random() * 5.5;
+        positions[i * 3 + 2] = 18 - Math.random() * 50;
+      }
+      pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0xf7dca4,
+        size: 0.045,
+        transparent: true,
+        opacity: 0.42
+      });
+      dustParticles = new THREE.Points(pGeo, pMat);
+      scene.add(dustParticles);
+
+      // Build bottom pill navigation & bind events
+      buildNavigationPills();
+      bindEvents();
+      animate();
+    }
+
+    function buildFramedPhotoExhibit(exhibit, idx, texture, hallWidth, brassMat) {
+      const isLeft = exhibit.wallSide === "left";
+      const wallX = isLeft ? -hallWidth / 2 + 0.08 : hallWidth / 2 - 0.08;
+      const rotY = isLeft ? Math.PI / 2 : -Math.PI / 2;
+
+      const group = new THREE.Group();
+      group.position.set(wallX, 2.75, exhibit.zPos);
+      group.rotation.y = rotY;
+
+      const isLandscape = idx === 1 || idx === 4;
+      const artW = isLandscape ? 3.2 : 2.55;
+      const artH = isLandscape ? 2.4 : 3.1;
+
+      // Outer Walnut & Gilded Brass Frame
+      const frameOuter = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.44, artH + 0.44, 0.14),
+        new THREE.MeshStandardMaterial({ color: 0x261810, roughness: 0.38, metalness: 0.2 })
+      );
+      group.add(frameOuter);
+
+      const brassInnerLip = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.24, artH + 0.24, 0.16),
+        brassMat
+      );
+      group.add(brassInnerLip);
+
+      // Archival Cream Mat Board
+      const matBoard = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.16, artH + 0.16, 0.17),
+        new THREE.MeshStandardMaterial({ color: 0xede4d3, roughness: 0.85 })
+      );
+      group.add(matBoard);
+
+      // Photograph Plane (Clickable!)
+      const photoMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(artW, artH),
+        new THREE.MeshStandardMaterial({ map: texture, roughness: 0.45 })
+      );
+      photoMesh.position.z = 0.095;
+      photoMesh.userData = { exhibitIndex: idx };
+      group.add(photoMesh);
+      interactiveMeshes.push(photoMesh);
+
+      // Brass Picture Light above Frame
+      const lampBar = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, artW * 0.65, 12), brassMat);
+      lampBar.rotation.z = Math.PI / 2;
+      lampBar.position.set(0, artH / 2 + 0.36, 0.34);
+      group.add(lampBar);
+
+      // Wall Museum Placard next to Frame
+      const placardOffsetX = isLeft ? 2.15 : -2.15;
+      const placardMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.15, 0.58),
+        new THREE.MeshStandardMaterial({ map: createPlacardSignTexture(exhibit), roughness: 0.6 })
+      );
+      placardMesh.position.set(placardOffsetX, -0.35, 0.04);
+      placardMesh.userData = { exhibitIndex: idx };
+      group.add(placardMesh);
+      interactiveMeshes.push(placardMesh);
+
+      scene.add(group);
+
+      // Brass Museum Stanchions & Velvet Rope in front of exhibit
+      const ropeX = isLeft ? wallX + 1.15 : wallX - 1.15;
+      [-1.6, 1.6].forEach((dz) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.92, 12), brassMat);
+        post.position.set(ropeX, 0.46, exhibit.zPos + dz);
+        scene.add(post);
+
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.05, 16), brassMat);
+        base.position.set(ropeX, 0.025, exhibit.zPos + dz);
+        scene.add(base);
+      });
+
+      const velvetRope = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.022, 3.2, 8),
+        new THREE.MeshStandardMaterial({ color: 0x6b1818, roughness: 0.8 })
+      );
+      velvetRope.rotation.x = Math.PI / 2;
+      velvetRope.position.set(ropeX, 0.82, exhibit.zPos);
+      scene.add(velvetRope);
+
+      // Dedicated Warm Gallery Spotlight illuminating the frame
+      const spot = new THREE.SpotLight(0xffe4b5, 1.65, 14, Math.PI / 4, 0.55, 1.2);
+      spot.position.set(isLeft ? wallX + 3.2 : wallX - 3.2, 6.2, exhibit.zPos);
+      spot.target = photoMesh;
+      scene.add(spot);
+
+      // Register Guided Tour Waypoint facing this exhibit
+      exhibitWaypoints[idx] = {
+        pos: new THREE.Vector3(isLeft ? -2.3 : 2.3, 2.2, exhibit.zPos),
+        yaw: isLeft ? Math.PI / 2 : -Math.PI / 2,
+        pitch: 0.04
+      };
+    }
+
+    function buildWeaponDisplayCase(exhibit, idx, texture, brassMat, woodMat) {
+      const group = new THREE.Group();
+      group.position.set(0, 0, exhibit.zPos);
+
+      // Mahogany Pedestal Base
+      const pedestal = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.15, 1.7), woodMat);
+      pedestal.position.y = 0.575;
+      group.add(pedestal);
+
+      // Brass Trim Molding on Pedestal
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.08, 1.8), brassMat);
+      trim.position.y = 1.16;
+      group.add(trim);
+
+      // Angled Museum Display Easel & Framed Archival Photograph (No 3D digital rifle)
+      const easelGroup = new THREE.Group();
+      easelGroup.position.set(0, 2.15, -0.05);
+      easelGroup.rotation.x = -0.14;
+
+      const artW = 3.2;
+      const artH = 2.15;
+
+      // Rear Mahogany Easel Support Strut
+      const easelBackLeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.85, 0.14), woodMat);
+      easelBackLeg.position.set(0, -0.18, -0.46);
+      easelBackLeg.rotation.x = 0.42;
+      easelGroup.add(easelBackLeg);
+
+      // Outer Walnut & Gilded Brass Frame
+      const frameOuter = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.42, artH + 0.42, 0.14),
+        new THREE.MeshStandardMaterial({ color: 0x261810, roughness: 0.38, metalness: 0.2 })
+      );
+      easelGroup.add(frameOuter);
+
+      const brassInnerLip = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.22, artH + 0.22, 0.16),
+        brassMat
+      );
+      easelGroup.add(brassInnerLip);
+
+      // Archival Cream Mat Board
+      const matBoard = new THREE.Mesh(
+        new THREE.BoxGeometry(artW + 0.14, artH + 0.14, 0.17),
+        new THREE.MeshStandardMaterial({ color: 0xede4d3, roughness: 0.85 })
+      );
+      easelGroup.add(matBoard);
+
+      // Framed Archival Photograph Plane of the Model 1860 Henry Rifle (Clickable!)
+      const riflePlate = new THREE.Mesh(
+        new THREE.PlaneGeometry(artW, artH),
+        new THREE.MeshStandardMaterial({ map: texture, roughness: 0.38 })
+      );
+      riflePlate.position.set(0, 0, 0.095);
+      riflePlate.userData = { exhibitIndex: idx };
+      easelGroup.add(riflePlate);
+      interactiveMeshes.push(riflePlate);
+
+      // Brass Picture Light mounted on top of the frame
+      const lampBar = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, artW * 0.6, 12), brassMat);
+      lampBar.rotation.z = Math.PI / 2;
+      lampBar.position.set(0, artH / 2 + 0.32, 0.3);
+      easelGroup.add(lampBar);
+
+      group.add(easelGroup);
+
+      // Angled Front Curatorial Placard Lectern
+      const placardLectern = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.5, 0.75),
+        new THREE.MeshStandardMaterial({ map: createPlacardSignTexture(exhibit), roughness: 0.6 })
+      );
+      placardLectern.position.set(0, 1.24, 0.68);
+      placardLectern.rotation.x = -Math.PI / 4.5;
+      placardLectern.userData = { exhibitIndex: idx };
+      group.add(placardLectern);
+      interactiveMeshes.push(placardLectern);
+
+      scene.add(group);
+
+      // Dramatic overhead spotlight on the Henry Rifle framed exhibit
+      const spot = new THREE.SpotLight(0xffe6ba, 2.2, 16, Math.PI / 4, 0.5, 1);
+      spot.position.set(0, 6.5, exhibit.zPos + 2.5);
+      spot.target = riflePlate;
+      scene.add(spot);
+
+      // Waypoint directly in front of the pedestal
+      exhibitWaypoints[idx] = {
+        pos: new THREE.Vector3(0, 2.2, exhibit.zPos + 4.4),
+        yaw: 0,
+        pitch: -0.02
+      };
+    }
+
+    /**
+     * ============================================================================
+     * 4. GUIDED TOUR NAVIGATION, RAYCASTING & HTML5 <DIALOG> PLACARD LOGIC
+     * ============================================================================
+     */
+    function buildNavigationPills() {
+      const container = document.getElementById("exhibit-pills");
+      container.innerHTML = "";
+      EXHIBITS.forEach((ex, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = ex.shortTitle;
+        btn.className =
+          "exhibit-pill brass-btn px-3 py-1.5 rounded-lg text-xs whitespace-nowrap cursor-pointer";
+        btn.dataset.idx = idx;
+        btn.addEventListener("click", () => walkToExhibit(idx, false));
+        container.appendChild(btn);
+      });
+      updateActivePill(0);
+    }
+
+    function updateActivePill(idx) {
+      currentTourIndex = idx;
+      document.querySelectorAll(".exhibit-pill").forEach((pill, i) => {
+        if (i === idx) {
+          pill.classList.add("brass-pill-active");
+        } else {
+          pill.classList.remove("brass-pill-active");
+        }
+      });
+    }
+
+    function walkToExhibit(idx, openModalOnArrival = false) {
+      const wp = exhibitWaypoints[idx];
+      if (!wp) return;
+      updateActivePill(idx);
+      player.targetPos = wp.pos.clone();
+      player.targetYaw = wp.yaw;
+      player.targetPitch = wp.pitch;
+      if (openModalOnArrival) {
+        setTimeout(() => openPlacardModal(idx), 520);
+      }
+    }
+
+    // Zoom & Pan state for the Placard Loupe
+    let zoomLevel = 1;
+    let panOffset = { x: 0, y: 0 };
+    let isPanningImg = false;
+    let panStart = { x: 0, y: 0 };
+
+    function updateImageTransform() {
+      const img = document.getElementById("modal-artifact-img");
+      const viewport = document.getElementById("loupe-viewport");
+      const indicator = document.getElementById("zoom-indicator");
+      img.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`;
+      indicator.textContent = `${zoomLevel.toFixed(1)}x Zoom`;
+      viewport.style.cursor = zoomLevel > 1 ? "grab" : "zoom-in";
+    }
+
+    function resetImageZoom() {
+      zoomLevel = 1;
+      panOffset = { x: 0, y: 0 };
+      updateImageTransform();
+    }
+
+    function openPlacardModal(idx) {
+      stopAudioGuide();
+      stopVoiceRecording(false);
+      updateActivePill(idx);
+      const ex = EXHIBITS[idx];
+
+      document.getElementById("modal-archive-tag").textContent = ex.archiveCategory;
+      document.getElementById("modal-exhibit-number").textContent = `EXHIBIT 0${idx + 1} OF 0${EXHIBITS.length}`;
+      document.getElementById("modal-title").textContent = ex.title;
+      document.getElementById("modal-meta1-label").textContent = ex.meta1Heading;
+      document.getElementById("modal-date").textContent = ex.date;
+      document.getElementById("modal-location").textContent = ex.location;
+      document.getElementById("modal-meta2-label").textContent = ex.meta2Heading;
+      document.getElementById("modal-creator").textContent = `${ex.creatorLabel}: ${ex.creator}`;
+      document.getElementById("modal-medium").textContent = `${ex.mediumLabel}: ${ex.medium}`;
+      document.getElementById("modal-description").textContent = ex.description;
+
+      const imgEl = document.getElementById("modal-artifact-img");
+      imgEl.src = exhibitImages[idx];
+      resetImageZoom();
+
+      // Show "Default" button if user has uploaded a custom image for this exhibit
+      const restoreBtn = document.getElementById("restore-default-img-btn");
+      if (exhibitImages[idx] !== defaultArtifactImages[idx]) {
+        restoreBtn.classList.remove("hidden");
+      } else {
+        restoreBtn.classList.add("hidden");
+      }
+
+      updateVoiceUIState(idx);
+
+      const dialog = document.getElementById("placard-dialog");
+      dialog.classList.add("flex");
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    }
+
+    function closePlacardModal() {
+      stopAudioGuide();
+      stopVoiceRecording(false);
+      const dialog = document.getElementById("placard-dialog");
+      dialog.classList.remove("flex");
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+
+    function applyExhibitImage(idx, dataUrl, labelText) {
+      exhibitImages[idx] = dataUrl;
+      saveCustomImageToStorage(idx, dataUrl === defaultArtifactImages[idx] ? null : dataUrl);
+
+      if (currentTourIndex === idx) {
+        document.getElementById("modal-artifact-img").src = dataUrl;
+        resetImageZoom();
+        const restoreBtn = document.getElementById("restore-default-img-btn");
+        if (dataUrl !== defaultArtifactImages[idx]) {
+          restoreBtn.classList.remove("hidden");
+        } else {
+          restoreBtn.classList.add("hidden");
+        }
+      }
+
+      // Update 3D Gallery Wall Texture dynamically
+      const newTex = new THREE.TextureLoader().load(dataUrl);
+      interactiveMeshes.forEach((mesh) => {
+        if (mesh.userData.exhibitIndex === idx && mesh.geometry.parameters.width > 1.8) {
+          mesh.material.map = newTex;
+          mesh.material.needsUpdate = true;
+        }
+      });
+
+      if (labelText) {
+        showToast(labelText);
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 4B. CUSTOM VOICE RECORDING & UPLOAD (IndexedDB Persistence + HTML5 Audio)
+     * ============================================================================
+     */
+    const customVoiceURLs = {};
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordingStream = null;
+    let recordTimerInterval = null;
+    let recordSeconds = 0;
+    let isRecordingVoice = false;
+
+    function openVoiceDatabase() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("IndexedDB not supported"));
+          return;
+        }
+        const req = indexedDB.open(VOICE_DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(VOICE_STORE_NAME)) {
+            db.createObjectStore(VOICE_STORE_NAME);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function loadAllSavedVoices() {
+      try {
+        const db = await openVoiceDatabase();
+        const tx = db.transaction(VOICE_STORE_NAME, "readonly");
+        const store = tx.objectStore(VOICE_STORE_NAME);
+        EXHIBITS.forEach((_, idx) => {
+          const getReq = store.get(idx);
+          getReq.onsuccess = () => {
+            if (getReq.result instanceof Blob) {
+              customVoiceURLs[idx] = URL.createObjectURL(getReq.result);
+              if (currentTourIndex === idx) updateVoiceUIState(idx);
+            }
+          };
+        });
+      } catch (err) {
+        // Fallback to in-memory session storage if IndexedDB is blocked
+      }
+    }
+
+    async function saveVoiceBlobToDB(idx, blob) {
+      if (customVoiceURLs[idx]) {
+        URL.revokeObjectURL(customVoiceURLs[idx]);
+      }
+      customVoiceURLs[idx] = URL.createObjectURL(blob);
+      updateVoiceUIState(idx);
+
+      try {
+        const db = await openVoiceDatabase();
+        const tx = db.transaction(VOICE_STORE_NAME, "readwrite");
+        tx.objectStore(VOICE_STORE_NAME).put(blob, idx);
+      } catch (err) {
+        // Kept in memory for current session
+      }
+    }
+
+    async function deleteVoiceFromDB(idx) {
+      stopAudioGuide();
+      if (customVoiceURLs[idx]) {
+        URL.revokeObjectURL(customVoiceURLs[idx]);
+        delete customVoiceURLs[idx];
+      }
+      updateVoiceUIState(idx);
+
+      try {
+        const db = await openVoiceDatabase();
+        const tx = db.transaction(VOICE_STORE_NAME, "readwrite");
+        tx.objectStore(VOICE_STORE_NAME).delete(idx);
+      } catch (err) {
+        // Ignored
+      }
+      showToast(`Removed custom voice for Exhibit 0${idx + 1}.`);
+    }
+
+    function updateVoiceUIState(idx) {
+      const hasCustom = Boolean(customVoiceURLs[idx]);
+      const badge = document.getElementById("voice-status-badge");
+      const delBtn = document.getElementById("delete-voice-btn");
+      const audioLabel = document.getElementById("audio-label");
+
+      if (hasCustom) {
+        badge.textContent = "Narrator: Your Custom Voice";
+        badge.className = "text-[11px] font-bold text-emerald-900";
+        delBtn.classList.remove("hidden");
+        if (!isSpeaking) audioLabel.textContent = "Play Your Voice Guide";
+      } else {
+        badge.textContent = "Narrator: Built-in Guide";
+        badge.className = "text-[11px] font-semibold text-stone-600";
+        delBtn.classList.add("hidden");
+        if (!isSpeaking) audioLabel.textContent = "Play Audio Guide";
+      }
+    }
+
+    async function toggleVoiceRecording() {
+      if (isRecordingVoice) {
+        stopVoiceRecording(true);
+        return;
+      }
+
+      stopAudioGuide();
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast("Microphone recording is not supported in this browser. Use Upload Audio instead.");
+        return;
+      }
+
+      try {
+        recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(recordingStream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const mimeType = mediaRecorder.mimeType || "audio/webm";
+          const audioBlob = new Blob(recordedChunks, { type: mimeType });
+          if (audioBlob.size > 0) {
+            await saveVoiceBlobToDB(currentTourIndex, audioBlob);
+            showToast(`Saved your voice recording for Exhibit 0${currentTourIndex + 1}!`);
+          }
+          if (recordingStream) {
+            recordingStream.getTracks().forEach((track) => track.stop());
+            recordingStream = null;
+          }
+        };
+
+        mediaRecorder.start();
+        isRecordingVoice = true;
+        recordSeconds = 0;
+
+        const timerEl = document.getElementById("record-timer");
+        timerEl.textContent = "00:00";
+        timerEl.classList.remove("hidden");
+        document.getElementById("record-label").textContent = "Stop & Save";
+        document.getElementById("record-dot").classList.add("animate-ping");
+
+        recordTimerInterval = setInterval(() => {
+          recordSeconds += 1;
+          const mins = String(Math.floor(recordSeconds / 60)).padStart(2, "0");
+          const secs = String(recordSeconds % 60).padStart(2, "0");
+          timerEl.textContent = `${mins}:${secs}`;
+        }, 1000);
+      } catch (err) {
+        showToast("Microphone access denied. You can still upload an audio file (MP3/WAV/M4A).");
+      }
+    }
+
+    function stopVoiceRecording(saveOutput = true) {
+      if (!isRecordingVoice) return;
+      isRecordingVoice = false;
+      clearInterval(recordTimerInterval);
+
+      document.getElementById("record-timer").classList.add("hidden");
+      document.getElementById("record-label").textContent = "Record Your Voice";
+      document.getElementById("record-dot").classList.remove("animate-ping");
+
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        if (!saveOutput) {
+          mediaRecorder.onstop = null;
+        }
+        mediaRecorder.stop();
+      }
+      if (!saveOutput && recordingStream) {
+        recordingStream.getTracks().forEach((track) => track.stop());
+        recordingStream = null;
+      }
+    }
+
+    // Museum Audio Guide (Plays User's Custom Voice first, falls back to Web Speech API)
+    let isSpeaking = false;
+    function toggleAudioGuide() {
+      if (isSpeaking) {
+        stopAudioGuide();
+        return;
+      }
+
+      const customURL = customVoiceURLs[currentTourIndex];
+      if (customURL) {
+        const player = document.getElementById("custom-voice-player");
+        player.src = customURL;
+        player.onended = () => stopAudioGuide();
+        player.onerror = () => stopAudioGuide();
+        player.play().then(() => {
+          isSpeaking = true;
+          document.getElementById("audio-icon").textContent = "⏹";
+          document.getElementById("audio-label").textContent = "Stop Voice Narration";
+        }).catch(() => {
+          showToast("Unable to play audio recording.");
+        });
+        return;
+      }
+
+      if (!("speechSynthesis" in window)) {
+        showToast("Audio narration is not supported in this browser.");
+        return;
+      }
+      const ex = EXHIBITS[currentTourIndex];
+      const text = `${ex.title}. ${ex.date}, ${ex.location}. ${ex.description}`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.94;
+      utterance.pitch = 0.96;
+      utterance.onend = () => stopAudioGuide();
+      utterance.onerror = () => stopAudioGuide();
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+      isSpeaking = true;
+      document.getElementById("audio-icon").textContent = "⏹";
+      document.getElementById("audio-label").textContent = "Stop Narration";
+    }
+
+    function stopAudioGuide() {
+      const player = document.getElementById("custom-voice-player");
+      if (player) {
+        player.pause();
+        player.currentTime = 0;
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      isSpeaking = false;
+      document.getElementById("audio-icon").textContent = "🔊";
+      updateVoiceUIState(currentTourIndex);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast-banner");
+      toast.textContent = msg;
+      toast.classList.remove("hidden");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.add("hidden"), 3200);
+    }
+
+    /**
+     * ============================================================================
+     * 5. EVENT LISTENERS & MAIN ANIMATION LOOP
+     * ============================================================================
+     */
+    function bindEvents() {
+      // Welcome curtain
+      document.getElementById("enter-museum-btn").addEventListener("click", () => {
+        const overlay = document.getElementById("welcome-overlay");
+        overlay.classList.add("opacity-0");
+        setTimeout(() => overlay.classList.add("hidden"), 700);
+        walkToExhibit(0, false);
+      });
+
+      // Header buttons
+      document.getElementById("open-host-guide-btn").addEventListener("click", () => {
+        const hostDialog = document.getElementById("host-guide-dialog");
+        hostDialog.classList.add("flex");
+        if (!hostDialog.open) hostDialog.showModal();
+      });
+
+      const closeHostGuide = () => {
+        const hostDialog = document.getElementById("host-guide-dialog");
+        hostDialog.classList.remove("flex");
+        if (hostDialog.open) hostDialog.close();
+      };
+      document.getElementById("close-host-guide-btn").addEventListener("click", closeHostGuide);
+      document.getElementById("done-host-guide-btn").addEventListener("click", closeHostGuide);
+
+      document.getElementById("toggle-controls-btn").addEventListener("click", () => {
+        document.getElementById("controls-panel").classList.toggle("hidden");
+      });
+
+      document.getElementById("reset-view-btn").addEventListener("click", () => {
+        player.targetPos = new THREE.Vector3(0, 2.2, 18);
+        player.targetYaw = 0;
+        player.targetPitch = 0;
+      });
+
+      // Guided Tour Prev / Next / Read Placard
+      document.getElementById("prev-exhibit-btn").addEventListener("click", () => {
+        const prev = (currentTourIndex - 1 + EXHIBITS.length) % EXHIBITS.length;
+        walkToExhibit(prev, false);
+      });
+
+      document.getElementById("next-exhibit-btn").addEventListener("click", () => {
+        const next = (currentTourIndex + 1) % EXHIBITS.length;
+        walkToExhibit(next, false);
+      });
+
+      document.getElementById("inspect-current-btn").addEventListener("click", () => {
+        openPlacardModal(currentTourIndex);
+      });
+
+      // Modal controls & backdrop click dismissal
+      const placardDialog = document.getElementById("placard-dialog");
+      placardDialog.addEventListener("close", () => {
+        stopAudioGuide();
+        placardDialog.classList.remove("flex");
+      });
+      placardDialog.addEventListener("click", (e) => {
+        if (e.target === placardDialog) closePlacardModal();
+      });
+
+      document.getElementById("close-placard-btn").addEventListener("click", closePlacardModal);
+      document.getElementById("audio-guide-btn").addEventListener("click", toggleAudioGuide);
+      document.getElementById("record-voice-btn").addEventListener("click", toggleVoiceRecording);
+      document.getElementById("delete-voice-btn").addEventListener("click", () => {
+        deleteVoiceFromDB(currentTourIndex);
+      });
+
+      document.getElementById("upload-audio-input").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        stopAudioGuide();
+        await saveVoiceBlobToDB(currentTourIndex, file);
+        showToast(`Loaded "${file.name}" as voice narration for Exhibit 0${currentTourIndex + 1}!`);
+        e.target.value = "";
+      });
+
+      document.getElementById("modal-prev-btn").addEventListener("click", () => {
+        const prev = (currentTourIndex - 1 + EXHIBITS.length) % EXHIBITS.length;
+        walkToExhibit(prev, false);
+        openPlacardModal(prev);
+      });
+
+      document.getElementById("modal-next-btn").addEventListener("click", () => {
+        const next = (currentTourIndex + 1) % EXHIBITS.length;
+        walkToExhibit(next, false);
+        openPlacardModal(next);
+      });
+
+      // Loupe Zoom & Pan controls
+      document.getElementById("zoom-in-btn").addEventListener("click", () => {
+        zoomLevel = Math.min(3.5, zoomLevel + 0.5);
+        updateImageTransform();
+      });
+
+      document.getElementById("zoom-out-btn").addEventListener("click", () => {
+        zoomLevel = Math.max(1, zoomLevel - 0.5);
+        if (zoomLevel === 1) panOffset = { x: 0, y: 0 };
+        updateImageTransform();
+      });
+
+      document.getElementById("zoom-reset-btn").addEventListener("click", resetImageZoom);
+
+      const loupeViewport = document.getElementById("loupe-viewport");
+      loupeViewport.addEventListener("mousedown", (e) => {
+        isPanningImg = true;
+        panStart = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+        dragDistance = 0;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (isPanningImg && zoomLevel > 1) {
+          panOffset.x = e.clientX - panStart.x;
+          panOffset.y = e.clientY - panStart.y;
+          dragDistance += 3;
+          updateImageTransform();
+        }
+      });
+
+      window.addEventListener("mouseup", () => {
+        isPanningImg = false;
+      });
+
+      loupeViewport.addEventListener("click", () => {
+        if (dragDistance > 8) return;
+        zoomLevel = zoomLevel > 1 ? 1 : 2.2;
+        if (zoomLevel === 1) panOffset = { x: 0, y: 0 };
+        updateImageTransform();
+      });
+
+      // HTML5 Drag & Drop Image Replacement directly onto Loupe Viewport
+      loupeViewport.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        loupeViewport.classList.add("drop-active");
+      });
+      loupeViewport.addEventListener("dragleave", () => {
+        loupeViewport.classList.remove("drop-active");
+      });
+      loupeViewport.addEventListener("drop", (e) => {
+        e.preventDefault();
+        loupeViewport.classList.remove("drop-active");
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            applyExhibitImage(
+              currentTourIndex,
+              ev.target.result,
+              `Saved "${file.name}" to Exhibit 0${currentTourIndex + 1}`
+            );
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Local Photo Swap via File Picker (Persisted in localStorage)
+      document.getElementById("upload-artifact-input").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          applyExhibitImage(
+            currentTourIndex,
+            ev.target.result,
+            `Saved "${file.name}" to Exhibit 0${currentTourIndex + 1}`
+          );
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+      });
+
+      // Restore Default Archival Plate Button
+      document.getElementById("restore-default-img-btn").addEventListener("click", () => {
+        applyExhibitImage(
+          currentTourIndex,
+          defaultArtifactImages[currentTourIndex],
+          `Restored default archival plate for Exhibit 0${currentTourIndex + 1}`
+        );
+      });
+
+      // Keyboard Navigation
+      window.addEventListener("keydown", (e) => {
+        if (document.getElementById("placard-dialog").open || document.getElementById("host-guide-dialog").open) return;
+        if (e.key in keys) keys[e.key] = true;
+        if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
+      });
+
+      window.addEventListener("keyup", (e) => {
+        if (e.key in keys) keys[e.key] = false;
+        if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
+      });
+
+      // Mobile on-screen walk buttons
+      document.querySelectorAll(".mobile-walk-btn").forEach((btn) => {
+        const dir = btn.dataset.move;
+        const setDir = (val) => {
+          if (dir === "forward") keys.w = val;
+          if (dir === "backward") keys.s = val;
+          if (dir === "left") keys.a = val;
+          if (dir === "right") keys.d = val;
+        };
+        btn.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          setDir(true);
+        });
+        btn.addEventListener("touchend", () => setDir(false));
+        btn.addEventListener("mousedown", () => setDir(true));
+        btn.addEventListener("mouseup", () => setDir(false));
+      });
+
+      // 3D Canvas Mouse & Touch Drag-to-Look + Raycast Clicking
+      const canvasEl = renderer.domElement;
+      canvasEl.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        dragStart = { x: e.clientX, y: e.clientY };
+        dragDistance = 0;
+        player.targetPos = null;
+        player.targetYaw = null;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        // Update raycast pointer
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        if (!isDragging) return;
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+        dragDistance += Math.abs(dx) + Math.abs(dy);
+        dragStart = { x: e.clientX, y: e.clientY };
+
+        player.yaw -= dx * 0.0035;
+        player.pitch = Math.max(-0.55, Math.min(0.55, player.pitch - dy * 0.003));
+      });
+
+      window.addEventListener("mouseup", (e) => {
+        if (isDragging && dragDistance < 8) {
+          handleSceneClick(e.clientX, e.clientY);
+        }
+        isDragging = false;
+      });
+
+      // Touch Look on Canvas
+      canvasEl.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          dragDistance = 0;
+          player.targetPos = null;
+          player.targetYaw = null;
+        }
+      });
+
+      canvasEl.addEventListener("touchmove", (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - dragStart.x;
+        const dy = e.touches[0].clientY - dragStart.y;
+        dragDistance += Math.abs(dx) + Math.abs(dy);
+        dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+        player.yaw -= dx * 0.0045;
+        player.pitch = Math.max(-0.55, Math.min(0.55, player.pitch - dy * 0.004));
+      });
+
+      canvasEl.addEventListener("touchend", (e) => {
+        if (isDragging && dragDistance < 10 && e.changedTouches.length > 0) {
+          handleSceneClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+        isDragging = false;
+      });
+
+      // Responsive Window Resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    function handleSceneClick(clientX, clientY) {
+      mouse.x = (clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(interactiveMeshes);
+      if (hits.length > 0) {
+        const idx = hits[0].object.userData.exhibitIndex;
+        walkToExhibit(idx, true);
+      }
+    }
+
+    function shortestAngleDiff(from, to) {
+      let diff = ((to - from + Math.PI) % (Math.PI * 2)) - Math.PI;
+      return diff < -Math.PI ? diff + Math.PI * 2 : diff;
+    }
+
+    function updateVisitorMovement() {
+      const forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
+      const right = new THREE.Vector3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+
+      let manualMoving = false;
+      if (keys.w || keys.ArrowUp) {
+        player.pos.addScaledVector(forward, player.speed);
+        manualMoving = true;
+      }
+      if (keys.s || keys.ArrowDown) {
+        player.pos.addScaledVector(forward, -player.speed);
+        manualMoving = true;
+      }
+      if (keys.a) {
+        player.pos.addScaledVector(right, -player.speed);
+        manualMoving = true;
+      }
+      if (keys.d) {
+        player.pos.addScaledVector(right, player.speed);
+        manualMoving = true;
+      }
+      if (keys.ArrowLeft) {
+        player.yaw += 0.03;
+        manualMoving = true;
+      }
+      if (keys.ArrowRight) {
+        player.yaw -= 0.03;
+        manualMoving = true;
+      }
+
+      if (manualMoving) {
+        player.targetPos = null;
+        player.targetYaw = null;
+      }
+
+      // Smooth Guided Tour autopilot interpolation
+      if (player.targetPos) {
+        player.pos.lerp(player.targetPos, 0.075);
+        if (player.pos.distanceTo(player.targetPos) < 0.05) {
+          player.pos.copy(player.targetPos);
+          player.targetPos = null;
+        }
+      }
+
+      if (player.targetYaw !== null) {
+        const diff = shortestAngleDiff(player.yaw, player.targetYaw);
+        player.yaw += diff * 0.09;
+        if (Math.abs(diff) < 0.01) {
+          player.yaw = player.targetYaw;
+          player.targetYaw = null;
+        }
+      }
+
+      if (player.targetPitch !== null) {
+        player.pitch += (player.targetPitch - player.pitch) * 0.09;
+        if (Math.abs(player.targetPitch - player.pitch) < 0.01) {
+          player.pitch = player.targetPitch;
+          player.targetPitch = null;
+        }
+      }
+
+      // Gallery boundary collision clamping (keeps visitor inside the hall & outside stanchions)
+      player.pos.x = Math.max(-4.8, Math.min(4.8, player.pos.x));
+      player.pos.z = Math.max(-25.8, Math.min(21.5, player.pos.z));
+
+      camera.position.copy(player.pos);
+      camera.rotation.y = player.yaw;
+      camera.rotation.x = player.pitch;
+    }
+
+    function updateHoverHighlight() {
+      if (document.getElementById("placard-dialog").open || document.getElementById("host-guide-dialog").open) return;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(interactiveMeshes);
+      const tooltip = document.getElementById("hover-tooltip");
+      const crosshair = document.getElementById("crosshair");
+
+      if (hits.length > 0 && hits[0].distance < 18) {
+        const idx = hits[0].object.userData.exhibitIndex;
+        hoveredMesh = hits[0].object;
+        tooltip.textContent = `Inspect: ${EXHIBITS[idx].title}`;
+        tooltip.classList.remove("hidden");
+        crosshair.classList.add("hovered");
+        document.getElementById("museum-canvas").style.cursor = "pointer";
+      } else {
+        hoveredMesh = null;
+        tooltip.classList.add("hidden");
+        crosshair.classList.remove("hovered");
+        document.getElementById("museum-canvas").style.cursor = isDragging ? "grabbing" : "grab";
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      updateVisitorMovement();
+      updateHoverHighlight();
+
+      // Gentle ambient dust drift
+      if (dustParticles) {
+        dustParticles.rotation.y += 0.0004;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    window.onload = function () {
+      loadAllSavedVoices();
+      initMuseumScene();
+    };
+  </script>
+</body>
+</html>
