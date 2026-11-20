@@ -554,7 +554,7 @@
       },
       {
         slug: "enfield-rifle",
-        imageCandidates: ["./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
+        imageCandidates: ["./enfield-rifle-dark.jpg", "./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
         audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.m4a"],
         shortTitle: "11. Enfield Rifle (South)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
@@ -570,9 +570,121 @@
         description:
           "The Enfield was the rifle most used by Confederate soldiers. The South had few factories that could make guns, so Confederate agents bought rifles from private makers in England. About 900,000 Enfields were imported during the war, mostly by the Confederacy, and blockade runners smuggled hundreds of thousands past the Union navy. The Enfield was 55¼ inches long, weighed about 9 pounds, and was accurate out to 500 yards. To load it, a soldier tore open a paper cartridge with his teeth, poured the gunpowder down the barrel, rammed the bullet down after it, and placed a percussion cap under the hammer. A trained soldier could fire only about three or four shots a minute. Across the aisle, the Union's Henry rifle could fire sixteen shots before reloading. Because Union .58-caliber bullets also fit the .577 Enfield, soldiers on both sides could use captured ammunition.",
         isWeaponCase: true,
+        darkMat: true, // black mat so the rifle stands out
         wallSide: "center",
         xPos: 3.2,
         zPos: -29
+      },
+      {
+        slug: "flag-us34",
+        isFlag: true,
+        flagType: "us34",
+        imageCandidates: [],
+        audioCandidates: ["./flag-us34.mp3", "./flag-us34.m4a"],
+        shortTitle: "12. U.S. Flag, 34 Stars (1861)",
+        archiveCategory: "FLAGS OF THE WAR • UNION",
+        title: "The Stars and Stripes, 34 Stars (1861–1863)",
+        meta1Heading: "DATE & USE",
+        date: "Official flag July 4, 1861 – July 3, 1863",
+        location: "National flag of the United States (the Union)",
+        meta2Heading: "DESIGN",
+        creatorLabel: "Stars",
+        creator: "34 — one for every state, including Kansas (admitted January 1861)",
+        mediumLabel: "Stripes",
+        medium: "13 red and white, for the original 13 colonies",
+        description:
+          "This is the flag Union soldiers carried into the first two years of the war. It has a star for every state, including the Southern states that had seceded. President Lincoln and the federal government never accepted that any state could leave the Union, so no stars were ever removed. A new star was added on the Fourth of July after a new state joined, which is how Kansas became the 34th star. HOW TO TELL IT APART: thirteen narrow red and white stripes, with rows of stars on a blue corner. Compare it with the Confederate Stars and Bars, which has only three wide bars and a circle of stars.",
+        hangsOn: "south wall, above the entrance",
+        view: { x: 1.6, z: 15.5, yaw: Math.PI, pitch: 0.28 }
+      },
+      {
+        slug: "flag-csa-first",
+        isFlag: true,
+        flagType: "csa7",
+        imageCandidates: [],
+        audioCandidates: ["./flag-csa-first.mp3", "./flag-csa-first.m4a"],
+        shortTitle: "13. Stars and Bars (1861)",
+        archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
+        title: "The Stars and Bars: First Confederate National Flag",
+        meta1Heading: "DATE & USE",
+        date: "Adopted March 4, 1861 (13-star version December 10, 1861)",
+        location: "First national flag of the Confederate States, used until May 1, 1863",
+        meta2Heading: "DESIGN",
+        creatorLabel: "Stars",
+        creator: "A circle of 7 stars for the first seceded states, later 13",
+        mediumLabel: "Bars",
+        medium: "Three wide bars: red, white, red",
+        description:
+          "The Confederacy's first national flag was nicknamed the \"Stars and Bars.\" It began with seven stars, one for each of the first seven states to secede, and grew to thirteen stars as more states joined the Confederacy. This hall shows the 7-star version by the exhibition sign and a 13-star version over the entrance. The flag was deliberately similar to the U.S. flag, and that became a problem: in the smoke of battle, soldiers had trouble telling it apart from the Stars and Stripes. Many Southerners also disliked how much it resembled the flag of the nation they were fighting. Confederate armies began carrying a separate battle flag, and in 1863 the Stars and Bars was replaced. HOW TO TELL IT APART: three wide bars instead of thirteen stripes, and its stars sit in a circle.",
+        hangsOn: "flagpole beside the exhibition sign",
+        view: { x: 3.0, z: -24.6, yaw: -0.35, pitch: 0.2 }
+      },
+      {
+        slug: "flag-us35",
+        isFlag: true,
+        flagType: "us35",
+        imageCandidates: [],
+        audioCandidates: ["./flag-us35.mp3", "./flag-us35.m4a"],
+        shortTitle: "14. U.S. Flag, 35 Stars (1863)",
+        archiveCategory: "FLAGS OF THE WAR • UNION",
+        title: "The Stars and Stripes, 35 Stars (1863–1865)",
+        meta1Heading: "DATE & USE",
+        date: "Official flag July 4, 1863 – July 3, 1865",
+        location: "National flag of the United States (the Union)",
+        meta2Heading: "DESIGN",
+        creatorLabel: "Stars",
+        creator: "35 — the new star was for West Virginia (admitted June 20, 1863)",
+        mediumLabel: "Stripes",
+        medium: "13 red and white, for the original 13 colonies",
+        description:
+          "The 35th star stood for West Virginia. When Virginia seceded in 1861, counties in its western mountains stayed loyal to the Union, broke away, and were admitted as a new state in June 1863. The star became official on July 4, 1863, one day after the Union victory at Gettysburg and the same day Vicksburg surrendered. This is the flag that flew over Union armies through the end of the war in 1865. HOW TO TELL IT APART: it looks almost exactly like the 34-star flag over the entrance. Count the stars: this one has five full rows of seven.",
+        hangsOn: "flagpole beside the exhibition sign",
+        view: { x: -3.0, z: -24.6, yaw: 0.35, pitch: 0.2 }
+      },
+      {
+        slug: "flag-csa-second",
+        isFlag: true,
+        flagType: "csa2",
+        imageCandidates: [],
+        audioCandidates: ["./flag-csa-second.mp3", "./flag-csa-second.m4a"],
+        shortTitle: "15. Stainless Banner (1863)",
+        archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
+        title: "The Stainless Banner: Second Confederate National Flag",
+        meta1Heading: "DATE & USE",
+        date: "Adopted May 1, 1863 – replaced March 4, 1865",
+        location: "Second national flag of the Confederate States",
+        meta2Heading: "DESIGN",
+        creatorLabel: "Corner (canton)",
+        creator: "The Confederate battle flag: red, with a blue X-shaped cross and 13 white stars",
+        mediumLabel: "Field",
+        medium: "All white, twice as long as it is tall",
+        description:
+          "To get away from a flag that looked like the Stars and Stripes, the Confederate Congress adopted this new design on May 1, 1863. It placed the army's battle flag, a red square with a blue X-shaped cross (a St. Andrew's cross) holding 13 stars, in the corner of a large, pure white field. The battle flag itself was never made the national flag; it appeared only as part of this flag and the one that followed. The white field gave this flag its nickname, the \"Stainless Banner.\" It soon showed a serious weakness: on a calm day, when the flag hung limp, all anyone could see was white, and it could be mistaken for a white flag of truce or surrender. HOW TO TELL IT APART: a big white flag with the red battle flag in the corner, and nothing else.",
+        hangsOn: "right wall, near the end of the hall",
+        view: { x: 2.6, z: -16.3, yaw: -Math.PI / 2, pitch: 0.1 }
+      },
+      {
+        slug: "flag-csa-third",
+        isFlag: true,
+        flagType: "csa3",
+        imageCandidates: [],
+        audioCandidates: ["./flag-csa-third.mp3", "./flag-csa-third.m4a"],
+        shortTitle: "16. Blood-Stained Banner (1865)",
+        archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
+        title: "The Blood-Stained Banner: Third Confederate National Flag",
+        meta1Heading: "DATE & USE",
+        date: "Adopted March 4, 1865",
+        location: "Third and final national flag of the Confederate States",
+        meta2Heading: "DESIGN",
+        creatorLabel: "Corner (canton)",
+        creator: "The Confederate battle flag, a little smaller than before",
+        mediumLabel: "Red bar",
+        medium: "A wide red stripe down the far (fly) end of the white field",
+        description:
+          "Because the Stainless Banner could be mistaken for a flag of truce, the Confederate Congress changed it on March 4, 1865, by adding a wide red bar down the outer edge. The flag was also made shorter, two-thirds as tall as it is long, and its battle-flag corner became a little smaller. Later generations nicknamed it the \"Blood-Stained Banner\" because of that red edge. It flew for only a few weeks: General Lee surrendered at Appomattox Court House on April 9, 1865, and the remaining Confederate armies surrendered soon after, so very few of these flags were ever made. HOW TO TELL IT APART: it looks like the Stainless Banner next to it, but with a red stripe on the end.",
+        hangsOn: "right wall, near the end of the hall",
+        view: { x: 2.6, z: -21.3, yaw: -Math.PI / 2, pitch: 0.1 }
+
       }
     ];
 
@@ -587,7 +699,16 @@
       c.height = 1050;
       const ctx = c.getContext("2d");
 
-      if (EXHIBITS[index].isWeaponCase) {
+      if (EXHIBITS[index].isFlag) {
+        ctx.fillStyle = "#16110c";
+        ctx.fillRect(0, 0, c.width, c.height);
+        const flagCanvas = createFlagCanvas(EXHIBITS[index].flagType);
+        const fw = 780, fh = fw * (flagCanvas.height / flagCanvas.width);
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 30;
+        ctx.drawImage(flagCanvas, (c.width - fw) / 2, (c.height - fh) / 2 - 40, fw, fh);
+        ctx.shadowBlur = 0;
+      } else if (EXHIBITS[index].isWeaponCase) {
         // Weapon exhibits: Studio archival photograph of the Model 1860 Henry Rifle on rustic cradle
         const bg = ctx.createRadialGradient(450, 480, 60, 450, 525, 650);
         bg.addColorStop(0, "#241d17");
@@ -1501,9 +1622,43 @@
       }
     }
 
-    // type: "us34" (1861–63), "us35" (1863–65), "csa7" (Stars and Bars, 1861), "csa13" (Stars and Bars, late 1861)
-    function createFlagTexture(type) {
-      const w = 760, h = 400;
+    // The Confederate battle flag (used as the corner of the 2nd and 3rd national flags):
+    // red square, white-edged blue St. Andrew's cross, 13 white stars.
+    function drawBattleFlag(ctx, x, y, size) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, size, size);
+      ctx.clip();
+      ctx.fillStyle = "#a3242b";
+      ctx.fillRect(x, y, size, size);
+      const lineAt = (w, color) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = w;
+        ctx.beginPath();
+        ctx.moveTo(x, y); ctx.lineTo(x + size, y + size);
+        ctx.moveTo(x + size, y); ctx.lineTo(x, y + size);
+        ctx.stroke();
+      };
+      lineAt(size * 0.2, "#efe8d8");
+      lineAt(size * 0.15, "#1f2f5c");
+      ctx.fillStyle = "#efe8d8";
+      const c = size / 2, r = size * 0.032;
+      drawStar(ctx, x + c, y + c, r);
+      [1, 2, 3].forEach((k) => {
+        const d = k * size * 0.125;
+        drawStar(ctx, x + c - d, y + c - d, r);
+        drawStar(ctx, x + c + d, y + c - d, r);
+        drawStar(ctx, x + c - d, y + c + d, r);
+        drawStar(ctx, x + c + d, y + c + d, r);
+      });
+      ctx.restore();
+    }
+
+    // type: "us34" (1861–63), "us35" (1863–65), "csa7" / "csa13" (Stars and Bars, 1861),
+    // "csa2" (Stainless Banner, 1863), "csa3" (Blood-Stained Banner, 1865)
+    function createFlagCanvas(type) {
+      const sizes = { us34: [760, 400], us35: [760, 400], csa7: [720, 400], csa13: [720, 400], csa2: [800, 400], csa3: [720, 480] };
+      const [w, h] = sizes[type] || [760, 400];
       const c = document.createElement("canvas");
       c.width = w;
       c.height = h;
@@ -1528,6 +1683,16 @@
             drawStar(ctx, x, y, 11);
           }
         });
+      } else if (type === "csa2" || type === "csa3") {
+        ctx.fillStyle = white;
+        ctx.fillRect(0, 0, w, h);
+        if (type === "csa2") {
+          drawBattleFlag(ctx, 0, 0, h * (2 / 3));
+        } else {
+          drawBattleFlag(ctx, 0, 0, h * 0.6);
+          ctx.fillStyle = red;
+          ctx.fillRect(w - w * 0.22, 0, w * 0.22, h);
+        }
       } else {
         const barH = h / 3;
         ctx.fillStyle = red;
@@ -1549,7 +1714,19 @@
         if (n === 13) drawStar(ctx, cx, cy, 15);
       }
       ageFlag(ctx, w, h);
-      return new THREE.CanvasTexture(c);
+      return c;
+    }
+
+    function createFlagTexture(type) {
+      return new THREE.CanvasTexture(createFlagCanvas(type));
+    }
+
+    // Lets a flag be clicked to open its information placard
+    function makeFlagClickable(mesh, slug) {
+      const idx = EXHIBITS.findIndex((e) => e.slug === slug);
+      if (idx < 0) return;
+      mesh.userData = { exhibitIndex: idx };
+      interactiveMeshes.push(mesh);
     }
 
     // A flag hanging from a vertical or tilted pole with soft folds.
@@ -1569,7 +1746,8 @@
         addMesh(g, new THREE.CylinderGeometry(0.22, 0.28, 0.08, 20), gold, 0, 0.04, 0);
       }
 
-      const fw = options.flagW || 1.9, fh = fw * (400 / 760);
+      const flagCanvas = createFlagCanvas(type);
+      const fw = options.flagW || 1.9, fh = fw * (flagCanvas.height / flagCanvas.width);
       const geo = new THREE.PlaneGeometry(fw, fh, 30, 12);
       const pos = geo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
@@ -1580,14 +1758,60 @@
       }
       geo.computeVertexNormals();
       const flag = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-        map: createFlagTexture(type), roughness: 0.92, side: THREE.DoubleSide
+        map: new THREE.CanvasTexture(flagCanvas), roughness: 0.92, side: THREE.DoubleSide
       }));
       const dir = options.flyLeft ? -1 : 1;
       flag.position.set(dir * (fw / 2 + 0.03), poleH - fh / 2 - 0.12, 0);
       if (options.flyLeft) flag.rotation.y = Math.PI; // hoist (canton) stays against the pole
       flag.castShadow = true;
       g.add(flag);
+      if (options.slug) makeFlagClickable(flag, options.slug);
       return g;
+    }
+
+    // A flag displayed flat against a side wall, hanging from a brass rod, with a placard below.
+    function buildWallFlag(slug, wallSide, z, flagW, hallWidth) {
+      const exhibit = EXHIBITS.find((e) => e.slug === slug);
+      const isLeft = wallSide === "left";
+      const g = new THREE.Group();
+      g.position.set(isLeft ? -hallWidth / 2 + 0.26 : hallWidth / 2 - 0.26, 0, z);
+      g.rotation.y = isLeft ? Math.PI / 2 : -Math.PI / 2;
+      scene.add(g);
+
+      const flagCanvas = createFlagCanvas(exhibit.flagType);
+      const fh = flagW * (flagCanvas.height / flagCanvas.width);
+      const topY = 4.55;
+      const geo = new THREE.PlaneGeometry(flagW, fh, 30, 12);
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        pos.setZ(i, 0.06 + Math.sin(pos.getX(i) * 5) * 0.025);
+      }
+      geo.computeVertexNormals();
+      const flag = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        map: new THREE.CanvasTexture(flagCanvas), roughness: 0.92, side: THREE.DoubleSide
+      }));
+      flag.position.set(0, topY - fh / 2 - 0.05, 0);
+      g.add(flag);
+      makeFlagClickable(flag, slug);
+
+      // Brass hanging rod with ball finials
+      const brass = stdMat(0xc9a24a, 0.3, 0.8);
+      addMesh(g, new THREE.CylinderGeometry(0.025, 0.025, flagW + 0.35, 12), brass, 0, topY, 0.07, 0, 0, Math.PI / 2);
+      [-1, 1].forEach((sx) => addMesh(g, new THREE.SphereGeometry(0.05, 12, 10), brass, sx * (flagW / 2 + 0.2), topY, 0.07));
+
+      // Small placard under the flag
+      const placard = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.15, 0.72),
+        new THREE.MeshStandardMaterial({ map: createPlacardTexture(exhibit), roughness: 0.6 })
+      );
+      placard.position.set(0, topY - fh - 0.75, 0.04);
+      makeFlagClickable(placard, slug);
+      g.add(placard);
+
+      const spot = new THREE.SpotLight(0xffe6bd, 1.6, 12, Math.PI / 6, 0.5, 1.2);
+      spot.position.set(isLeft ? -hallWidth / 2 + 3.4 : hallWidth / 2 - 3.4, 6.3, z);
+      spot.target = flag;
+      scene.add(spot);
     }
 
     // --- Walnut museum bench with cast-iron legs ---
@@ -1623,16 +1847,20 @@
 
       // Standing flags in the far corners beside the exhibition sign
       const northZ = centerZ - hallLength / 2 + 1.1;
-      buildFlagOnPole("us35", -6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: 0.35 });
+      buildFlagOnPole("us35", -6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: 0.35, slug: "flag-us35" });
       // Both flags fly to the right of their poles so visitors see the front of each flag
       // (stars in the upper-left corner, next to the pole).
-      buildFlagOnPole("csa7", 4.35, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: -0.3 });
+      buildFlagOnPole("csa7", 4.35, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: -0.3, slug: "flag-csa-first" });
 
       // Two flags on angled wall brackets above the entrance (south wall), facing into the hall.
       // The group is turned to face the hall, so x is mirrored: +x here is the visitor's left.
       const southZ = centerZ + hallLength / 2 - 0.35;
-      buildFlagOnPole("us34", 3.6, southZ, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5 });
-      buildFlagOnPole("csa13", -0.4, southZ - 0.05, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5 });
+      buildFlagOnPole("us34", 3.6, southZ, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5, slug: "flag-us34" });
+      buildFlagOnPole("csa13", -0.4, southZ - 0.05, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5, slug: "flag-csa-first" });
+
+      // The 2nd and 3rd Confederate national flags, side by side on the right wall for comparison
+      buildWallFlag("flag-csa-second", "right", -16.3, 2.6, hallWidth);
+      buildWallFlag("flag-csa-third", "right", -21.3, 2.2, hallWidth);
     }
 
     function initMuseumScene() {
@@ -1816,6 +2044,7 @@
       const ropeMat = new THREE.MeshStandardMaterial({ color: 0x6e141a, roughness: 0.85 });
 
       EXHIBITS.forEach((exhibit, idx) => {
+        if (exhibit.isFlag) return; // flags are built with the hall decorations
         if (exhibit.isGlassCase) {
           buildGlassCase(exhibit, idx, frameGoldMat);
           return;
@@ -1922,10 +2151,10 @@
           outerFrame.castShadow = true;
           easelGroup.add(outerFrame);
 
-          // Archival Cream Matboard
+          // Matboard: cream, or black for photos with a dark background
           const matBoard = new THREE.Mesh(
             new THREE.BoxGeometry(2.26, 1.78, 0.16),
-            new THREE.MeshStandardMaterial({ color: 0xf2ead7, roughness: 0.85 })
+            new THREE.MeshStandardMaterial({ color: exhibit.darkMat ? 0x120e0b : 0xf2ead7, roughness: 0.85 })
           );
           easelGroup.add(matBoard);
 
@@ -1995,7 +2224,12 @@
       const ex = EXHIBITS[idx];
       updateActiveTourPill(idx);
 
-      if (ex.isGlassCase) {
+      if (ex.view) {
+        player.targetX = ex.view.x;
+        player.targetZ = ex.view.z;
+        player.targetYaw = ex.view.yaw;
+        player.targetPitch = ex.view.pitch;
+      } else if (ex.isGlassCase) {
         player.targetX = ex.xPos || 0;
         player.targetZ = ex.zPos + 3.1;
         player.targetYaw = 0;
