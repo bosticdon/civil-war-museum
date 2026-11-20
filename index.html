@@ -1624,12 +1624,15 @@
       // Standing flags in the far corners beside the exhibition sign
       const northZ = centerZ - hallLength / 2 + 1.1;
       buildFlagOnPole("us35", -6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: 0.35 });
-      buildFlagOnPole("csa7", 6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, flyLeft: true, ry: -0.35 });
+      // Both flags fly to the right of their poles so visitors see the front of each flag
+      // (stars in the upper-left corner, next to the pole).
+      buildFlagOnPole("csa7", 4.35, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: -0.3 });
 
-      // Crossed flags mounted above the entrance (south wall), facing into the hall
+      // Two flags on angled wall brackets above the entrance (south wall), facing into the hall.
+      // The group is turned to face the hall, so x is mirrored: +x here is the visitor's left.
       const southZ = centerZ + hallLength / 2 - 0.35;
-      buildFlagOnPole("us34", -1.1, southZ, { y: 2.0, poleH: 4.0, flagW: 2.3, ry: Math.PI, rz: 0.42, flyLeft: true });
-      buildFlagOnPole("csa13", 1.1, southZ - 0.08, { y: 2.0, poleH: 4.0, flagW: 2.3, ry: Math.PI, rz: -0.42 });
+      buildFlagOnPole("us34", 3.6, southZ, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5 });
+      buildFlagOnPole("csa13", -0.4, southZ - 0.05, { y: 2.9, poleH: 2.9, flagW: 2.3, ry: Math.PI, rz: -0.5 });
     }
 
     function initMuseumScene() {
