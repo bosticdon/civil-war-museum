@@ -628,6 +628,7 @@
       },
       {
         slug: "envelope",
+        darkMat: true, // black mat + softer light so the old paper doesn't wash out
         imageCandidates: ["./war%20time%20envolope.jpg", "./war%20time%20envelope.jpg", "./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
         audioCandidates: ["./envelope.mp3", "./envelope.m4a"],
         shortTitle: "8. Confederate Envelope",
@@ -672,6 +673,7 @@
       },
       {
         slug: "letter",
+        darkMat: true, // black mat + softer light so the old paper doesn't wash out
         imageCandidates: ["./War%20time%20letter.jpg", "./war%20time%20letter.jpg", "./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
         audioCandidates: ["./letter.mp3", "./letter.m4a"],
         shortTitle: "10. Letter Home",
@@ -2869,10 +2871,10 @@
           outerFrame.castShadow = true;
           group.add(outerFrame);
 
-          // Cream Archival Matboard
+          // Matboard: cream, or black for light-colored paper documents
           const matBoard = new THREE.Mesh(
             new THREE.BoxGeometry(2.42, 2.92, 0.18),
-            new THREE.MeshStandardMaterial({ color: 0xf2ead7, roughness: 0.85 })
+            new THREE.MeshStandardMaterial({ color: exhibit.darkMat ? 0x120e0b : 0xf2ead7, roughness: 0.85 })
           );
           group.add(matBoard);
 
@@ -2915,7 +2917,7 @@
           scene.add(group);
 
           // Dedicated Gallery Spotlight on each frame
-          const spot = new THREE.SpotLight(0xffe6bd, 1.75, 14, Math.PI / 5, 0.45, 1.2);
+          const spot = new THREE.SpotLight(0xffe6bd, exhibit.darkMat ? 0.7 : 1.75, 14, Math.PI / 5, 0.45, 1.2);
           spot.position.set(isLeft ? wallX + 3.2 : wallX - 3.2, 6.2, exhibit.zPos);
           spot.target = outerFrame;
           scene.add(spot);
