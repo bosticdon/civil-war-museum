@@ -122,6 +122,9 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.45; transform: scale(1.18); }
     }
+    .sources-list { list-style: disc; padding-left: 1.25rem; font-size: 0.92rem; line-height: 1.45; }
+    .sources-list li { margin-bottom: 0.45rem; }
+    .sources-list a { color: #7a581d; text-decoration: underline; word-break: break-word; }
     .recording-dot {
       animation: pulseRecord 1s infinite ease-in-out;
     }
@@ -146,6 +149,9 @@
     </div>
 
     <nav aria-label="Gallery Utilities" class="pointer-events-auto flex items-center gap-2">
+      <button type="button" onclick="openSources()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
+        Sources
+      </button>
       <button id="fullscreen-btn" type="button" onclick="toggleFullscreen()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
         &#x26F6; Full Screen
       </button>
@@ -333,6 +339,62 @@
     </article>
   </dialog>
 
+  <!-- Sources & Credits -->
+  <dialog id="sources-dialog" class="p-0 bg-transparent max-w-3xl w-[95vw] rounded-xl overflow-visible">
+    <article class="plaque-card w-full max-h-[90vh] rounded-xl overflow-y-auto placard-scroll p-6 sm:p-8 text-stone-800">
+      <div class="flex items-start justify-between gap-4">
+        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-cinzel font-bold tracking-widest uppercase brass-badge">Museum records</span>
+        <button type="button" onclick="document.getElementById('sources-dialog').close()" aria-label="Close sources" class="w-8 h-8 rounded-full bg-stone-800/10 hover:bg-stone-800/20 text-stone-800 flex items-center justify-center text-lg font-bold">&times;</button>
+      </div>
+      <h2 class="font-serif-editorial text-3xl font-bold text-stone-900 mt-3">Sources &amp; Credits</h2>
+      <p class="font-serif-editorial text-lg mt-2">The photographs, artifacts, and facts in this exhibition come from the sources below.</p>
+
+      <h3 class="font-cinzel text-sm font-bold tracking-wider text-amber-900 mt-6 mb-2 uppercase">Photographs &amp; Artifacts</h3>
+      <ul class="sources-list">
+        <li><b>Mathew Brady and his studio</b>, Civil War photographs of Lincoln, Hooker, Grant, Lee, and the hospital ward. National Archives and Records Administration. <a href="https://www.archives.gov/research/military/civil-war/photos" target="_blank" rel="noopener">archives.gov/research/military/civil-war/photos</a></li>
+        <li><b>Mathew Brady's Civil War photographs</b>, book from the student's personal collection.</li>
+        <li><b>Civil War surgical instruments</b> (medical supplies photograph). National Archives and Records Administration. <a href="https://www.archives.gov" target="_blank" rel="noopener">archives.gov</a></li>
+        <li><b>Harriet Tubman</b>, portrait by Harvey B. Lindsley, about 1871–1876. Library of Congress, Prints &amp; Photographs Division. <a href="https://www.loc.gov/item/2018645051/" target="_blank" rel="noopener">loc.gov/item/2018645051</a></li>
+        <li><b>First Confederate National Flag</b>, wool, Record ID nmah_461713. Smithsonian Institution, National Museum of American History. Used for a non-commercial school project under the <a href="https://www.si.edu/Termsofuse" target="_blank" rel="noopener">Smithsonian Terms of Use</a>.</li>
+        <li><b>Civil War photograph collections.</b> Library of Congress, Brady Civil War Photograph Collection. <a href="https://www.loc.gov/pictures/collection/cwp/" target="_blank" rel="noopener">loc.gov/pictures/collection/cwp</a></li>
+      </ul>
+
+      <h3 class="font-cinzel text-sm font-bold tracking-wider text-amber-900 mt-6 mb-2 uppercase">Research</h3>
+      <ul class="sources-list">
+        <li>National Park Service. "Harriet Tubman and the Underground Railroad." <a href="https://www.nps.gov/articles/harriet-tubman-and-the-underground-railroad.htm" target="_blank" rel="noopener">nps.gov</a></li>
+        <li>National Park Service. "Myths &amp; Facts About Harriet Tubman." <a href="https://www.nps.gov/hatu/planyourvisit/upload/MD_TubmanFactSheet_MythsFacts_2.pdf" target="_blank" rel="noopener">nps.gov</a></li>
+        <li>National Park Service. "We Called Ourselves Combee" (Combahee River Raid). <a href="https://www.nps.gov/articles/000/we-called-ourselves-combee.htm" target="_blank" rel="noopener">nps.gov</a></li>
+        <li>Smithsonian National Museum of African American History and Culture. "The Combahee Ferry Raid." <a href="https://nmaahc.si.edu/explore/stories/combahee-ferry-raid" target="_blank" rel="noopener">nmaahc.si.edu</a></li>
+        <li>The Canadian Encyclopedia. "Harriet Tubman." <a href="https://www.thecanadianencyclopedia.ca/en/article/harriet-tubman" target="_blank" rel="noopener">thecanadianencyclopedia.ca</a></li>
+        <li>National Park Service. "Civil War Weapons in the Shenandoah Valley." <a href="https://www.nps.gov/articles/000/civil-war-weapons-in-the-shenandoah-valley.htm" target="_blank" rel="noopener">nps.gov</a></li>
+        <li>Smithsonian. "Civil War @ Smithsonian: Enfield Rifle" and "Henry Rifle." <a href="https://civilwar.si.edu/weapons_enfield.html" target="_blank" rel="noopener">civilwar.si.edu</a></li>
+        <li>Smithsonian National Museum of American History. "British Pattern 1853 Rifle." <a href="https://www.si.edu/object/nmah_414637" target="_blank" rel="noopener">si.edu</a></li>
+        <li>American Rifleman. "English Enfields in Confederate Service." <a href="https://www.americanrifleman.org/content/english-enfields-in-confederate-service" target="_blank" rel="noopener">americanrifleman.org</a></li>
+        <li>Encyclopedia Virginia. "Confederate Battle Flag." <a href="https://encyclopediavirginia.org/entries/confederate-battle-flag/" target="_blank" rel="noopener">encyclopediavirginia.org</a></li>
+        <li>Missouri State Parks. "Confederate Flags." <a href="https://mostateparks.com/parks/confederate-memorial-hs/confederate-flags" target="_blank" rel="noopener">mostateparks.com</a></li>
+        <li>Florida Department of State. "Second National Flag" and "Third National Flag." <a href="https://dos.fl.gov/florida-facts/florida-state-symbols/state-flag/floridas-historic-flags/confederate-flags/third-national-flag/" target="_blank" rel="noopener">dos.fl.gov</a></li>
+        <li>American Battlefield Trust. "Flag Guide." <a href="https://www.battlefields.org" target="_blank" rel="noopener">battlefields.org</a></li>
+        <li>Civil War Philatelic Society. "Confederate Postage Rates." <a href="https://www.civilwarphilatelicsociety.org/basics/confederate-postage-rates-new/basic-rates" target="_blank" rel="noopener">civilwarphilatelicsociety.org</a></li>
+        <li>United States Senate. "Freedmen's Bureau Acts of 1865 and 1866." <a href="https://www.senate.gov/artandhistory/history/common/generic/FreedmensBureau.htm" target="_blank" rel="noopener">senate.gov</a></li>
+        <li>Smithsonian National Museum of African American History and Culture, Searchable Museum. "Reconstruction, Rights, and Retaliation." <a href="https://searchablemuseum.com/reconstruction-rights-and-retaliation" target="_blank" rel="noopener">searchablemuseum.com</a></li>
+        <li>Library of Congress. "Band Music from the Civil War Era." <a href="https://www.loc.gov/collections/civil-war-band-music/" target="_blank" rel="noopener">loc.gov</a></li>
+      </ul>
+
+      <h3 class="font-cinzel text-sm font-bold tracking-wider text-amber-900 mt-6 mb-2 uppercase">Primary Sources</h3>
+      <ul class="sources-list">
+        <li>Abraham Lincoln. Second Inaugural Address, March 4, 1865.</li>
+        <li>Ulysses S. Grant. <i>Personal Memoirs of U. S. Grant</i>, 1885.</li>
+        <li>Letter from the camp of the 5th Indiana Cavalry, Pulaski, Tennessee, May 28, 1865.</li>
+        <li>Confederate envelope addressed to Spartanburg Court House, South Carolina.</li>
+      </ul>
+
+      <h3 class="font-cinzel text-sm font-bold tracking-wider text-amber-900 mt-6 mb-2 uppercase">Music</h3>
+      <ul class="sources-list">
+        <li><i>Our Musical Past, Vol. 1</i>, tracks 3 and 9 (background music in the hall).</li>
+      </ul>
+    </article>
+  </dialog>
+
   <!-- Tintype Photo Booth -->
   <dialog id="booth-dialog" class="p-0 bg-transparent max-w-5xl w-[95vw] rounded-xl overflow-visible">
     <article class="plaque-card w-full max-h-[92vh] rounded-xl overflow-hidden flex flex-col md:flex-row">
@@ -383,7 +445,7 @@
         slug: "underground-railroad",
         builtSeparately: true,
         ugrr: true,
-        imageCandidates: ["./tubman.jpg", "./tubman.png"],
+        imageCandidates: ["./harriettubman%20library%20of%20congress.jpg", "./tubman.jpg"],
         audioCandidates: ["./underground-railroad.mp3", "./underground-railroad.m4a"],
         shortTitle: "1. The Underground Railroad",
         archiveCategory: "BEFORE THE WAR • THE ROAD TO FREEDOM",
@@ -542,7 +604,7 @@
       },
       {
         slug: "medical-supplies",
-        imageCandidates: ["./medical-supplies.jpg", "./medical%20supplies.jpg", "./medical-supplies.png"],
+        imageCandidates: ["./national%20archive%20medical%20supplies.jpg", "./medical-supplies.jpg"],
         audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a"],
         shortTitle: "4. Medical Supplies",
         archiveCategory: "CIVIL WAR MEDICAL ARCHIVE",
@@ -552,7 +614,7 @@
         location: "Field hospitals of the Union and Confederate armies",
         meta2Heading: "CONTENTS",
         creatorLabel: "Instruments",
-        creator: "Bone saw, scalpels, forceps, tourniquet",
+        creator: "Amputation saw, knives, screw tourniquet, scissors, probes and hooks",
         mediumLabel: "Supplies",
         medium: "Chloroform and ether, quinine, bandages, medicine bottles",
         description:
@@ -764,7 +826,7 @@
         slug: "flag-csa-first",
         isFlag: true,
         flagType: "csa7",
-        imageCandidates: [],
+        imageCandidates: ["./NMAH-2004-19157-08.jpg"],
         audioCandidates: ["./flag-csa-first.mp3", "./flag-csa-first.m4a"],
         shortTitle: "14. Stars and Bars (1861)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
@@ -778,7 +840,7 @@
         mediumLabel: "Bars",
         medium: "Three wide bars: red, white, red",
         description:
-          "The Confederacy's first national flag was nicknamed the \"Stars and Bars.\" It began with seven stars, one for each of the first seven states to secede, and grew to thirteen stars as more states joined the Confederacy. This hall shows the 7-star version by the exhibition sign and a 13-star version over the entrance. The flag was deliberately similar to the U.S. flag, and that became a problem: in the smoke of battle, soldiers had trouble telling it apart from the Stars and Stripes. Many Southerners also disliked how much it resembled the flag of the nation they were fighting. Confederate armies began carrying a separate battle flag, and in 1863 the Stars and Bars was replaced. HOW TO TELL IT APART: three wide bars instead of thirteen stripes, and its stars sit in a circle.",
+          "The Confederacy's first national flag was nicknamed the \"Stars and Bars.\" It began with seven stars, one for each of the first seven states to secede, and grew to thirteen stars as more states joined the Confederacy. Flags were made with different numbers of stars as more states joined. This hall shows a 7-star version by the exhibition sign and a 13-star version over the entrance, and the original wool flag in the photograph, from the Smithsonian's National Museum of American History, has eight. The flag was deliberately similar to the U.S. flag, and that became a problem: in the smoke of battle, soldiers had trouble telling it apart from the Stars and Stripes. At the First Battle of Bull Run (First Manassas) in 1861, the confusion led to troops firing on their own men. Many Southerners also disliked how much it resembled the flag of the nation they were fighting. Confederate armies began carrying a separate battle flag, and in 1863 the Stars and Bars was replaced. HOW TO TELL IT APART: three wide bars instead of thirteen stripes, and its stars sit in a circle.",
         hangsOn: "flagpole beside the exhibition sign",
         view: { x: 3.0, z: -24.6, yaw: -0.35, pitch: 0.2 }
       },
@@ -808,7 +870,7 @@
         slug: "flag-csa-second",
         isFlag: true,
         flagType: "csa2",
-        imageCandidates: [],
+        imageCandidates: ["./stainlessbanner.jpg"],
         audioCandidates: ["./flag-csa-second.mp3", "./flag-csa-second.m4a"],
         shortTitle: "16. Stainless Banner (1863)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
@@ -2136,6 +2198,7 @@
       buildWallFlag("flag-csa-third", "right", -21.3, 2.2, hallWidth);
 
       buildUGRRMap(hallWidth);
+      buildSourcesPlaque(hallLength, centerZ);
       buildHealWall(hallWidth);
       buildPhotoBooth(hallWidth);
     }
@@ -2669,6 +2732,51 @@
       scene.add(spot);
     }
 
+    // ---------- Sources & Credits plaque (south wall, beside the entrance) ----------
+    function openSources() {
+      const d = document.getElementById("sources-dialog");
+      const art = document.getElementById("artifact-dialog");
+      if (art.open) art.close();
+      if (!d.open) d.showModal();
+    }
+
+    function buildSourcesPlaque(hallLength, centerZ) {
+      const c = document.createElement("canvas");
+      c.width = 1000; c.height = 640;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#f4ebd7";
+      ctx.fillRect(0, 0, 1000, 640);
+      agePaper(ctx, 1000, 640, 2000);
+      ctx.strokeStyle = "#8c6928"; ctx.lineWidth = 12; ctx.strokeRect(12, 12, 976, 616);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#7a581d";
+      ctx.font = "bold 34px Georgia, serif";
+      ctx.fillText("M U S E U M   R E C O R D S", 500, 95);
+      ctx.fillStyle = "#1e160d";
+      ctx.font = "bold 72px Georgia, serif";
+      ctx.fillText("Sources & Credits", 500, 200);
+      ctx.fillStyle = "#4a3b2c";
+      ctx.font = "italic 34px Georgia, serif";
+      wrapCanvasText(ctx, "Photographs and facts from the National Archives, the Library of Congress, the Smithsonian, the National Park Service, and more.", 500, 290, 860, 46);
+      ctx.fillStyle = "#8c6928";
+      ctx.font = "bold 32px Georgia, serif";
+      ctx.fillText("CLICK TO VIEW THE FULL LIST  →", 500, 570);
+
+      const plaque = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.75, 1.12),
+        new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(c), roughness: 0.6 })
+      );
+      const z = centerZ + hallLength / 2 - 0.22;
+      plaque.position.set(-5.0, 2.45, z);
+      plaque.rotation.y = Math.PI; // faces into the hall
+      plaque.userData = { sources: true };
+      interactiveMeshes.push(plaque);
+      scene.add(plaque);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.27, 0.05), stdMat(0xc59b45, 0.3, 0.68));
+      frame.position.set(-5.0, 2.45, z + 0.03);
+      scene.add(frame);
+    }
+
     function initMuseumScene() {
       const canvas = document.getElementById("museum-canvas");
       scene = new THREE.Scene();
@@ -3080,7 +3188,7 @@
       });
 
       window.addEventListener("keydown", (e) => {
-        if (document.getElementById("booth-dialog").open) return;
+        if (document.getElementById("booth-dialog").open || document.getElementById("sources-dialog").open) return;
         const dialog = document.getElementById("artifact-dialog");
         if (dialog.open) {
           if (e.key === "ArrowRight") navigateModal(1);
@@ -3139,6 +3247,10 @@
     function handleCanvasClick() {
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects(interactiveMeshes, false);
+      if (hits.length > 0 && hits[0].object.userData.sources) {
+        openSources();
+        return;
+      }
       if (hits.length > 0) {
         let idx = hits[0].object.userData.exhibitIndex;
         if (hits[0].object.userData.ugrrMap) {
@@ -3205,7 +3317,7 @@
 
     function updateHoverReticle() {
       const dialog = document.getElementById("artifact-dialog");
-      if (dialog.open || document.getElementById("booth-dialog").open) return;
+      if (dialog.open || document.getElementById("booth-dialog").open || document.getElementById("sources-dialog").open) return;
 
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects(interactiveMeshes, false);
@@ -3215,7 +3327,7 @@
 
       if (hits.length > 0) {
         hoveredMesh = hits[0].object;
-        const ex = EXHIBITS[hoveredMesh.userData.exhibitIndex];
+        const ex = EXHIBITS[hoveredMesh.userData.exhibitIndex] || { title: "Sources & Credits" };
         ring.classList.add("scale-150", "border-amber-300", "bg-amber-400/20");
         const stop = hoveredMesh.userData.ugrrMap ? ugrrStopAtUV(hits[0].uv) : null;
         label.textContent = stop ? `Stop ${stop.stop}: ${stop.name}` : ex.isBooth ? "Click to sit for your tintype portrait" : `Inspect: ${ex.title}`;
