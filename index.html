@@ -146,6 +146,9 @@
     </div>
 
     <nav aria-label="Gallery Utilities" class="pointer-events-auto flex items-center gap-2">
+      <button id="fullscreen-btn" type="button" onclick="toggleFullscreen()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
+        &#x26F6; Full Screen
+      </button>
       <button id="music-btn" type="button" onclick="toggleMusic()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
         &#9835; Music: Off
       </button>
@@ -2687,7 +2690,53 @@
       }
     }
 
+    /**
+     * FULL SCREEN
+     * Browsers only allow full screen right after a click, so it turns on when the
+     * visitor presses "Enter the Hall". Press Esc (or the Full Screen button) to leave.
+     */
+    function isFullscreen() {
+      return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    }
+
+    function enterFullscreen() {
+      const el = document.documentElement;
+      const request = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (!request) return; // e.g. iPhone Safari does not support full screen pages
+      try {
+        const result = request.call(el);
+        if (result && result.catch) result.catch(() => {});
+      } catch (_) {}
+    }
+
+    function exitFullscreen() {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit && isFullscreen()) {
+        try {
+          const result = exit.call(document);
+          if (result && result.catch) result.catch(() => {});
+        } catch (_) {}
+      }
+    }
+
+    function toggleFullscreen() {
+      if (isFullscreen()) exitFullscreen();
+      else enterFullscreen();
+    }
+
+    function updateFullscreenButton() {
+      const btn = document.getElementById("fullscreen-btn");
+      if (!btn) return;
+      const supported = Boolean(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+      btn.classList.toggle("hidden", !supported);
+      btn.innerHTML = isFullscreen() ? "&#x2715; Exit Full Screen" : "&#x26F6; Full Screen";
+    }
+
+    document.addEventListener("fullscreenchange", updateFullscreenButton);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
+
     function enterMuseum(withMusic) {
+      enterFullscreen();
       document.getElementById("enter-overlay").classList.add("hidden");
       musicEnabled = withMusic;
       updateMusicButton();
@@ -2710,6 +2759,7 @@
     window.onload = async function () {
       initMuseumScene();
       initHallMusic();
+      updateFullscreenButton();
       await Promise.all([
         autoLoadHostedImages(),
         autoLoadHostedAudio()
