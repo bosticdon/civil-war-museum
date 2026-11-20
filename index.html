@@ -214,7 +214,7 @@
         <div class="w-14 h-14 mx-auto rounded-full brass-badge flex items-center justify-center font-cinzel font-bold text-lg shadow-lg">1861</div>
         <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-stone-900 mt-4 tracking-wide">A Nation Divided</h2>
         <p class="font-serif-editorial text-lg text-stone-700 mt-2 leading-snug">
-          An exhibition of Civil War photographs, letters, and weapons.
+          An exhibition of Civil War photographs, letters, weapons, flags, and the road to freedom.
         </p>
         <button type="button" onclick="enterMuseum(true)" class="mt-6 px-6 py-2.5 rounded-lg brass-badge font-cinzel font-bold text-sm tracking-wider shadow hover:brightness-110 transition">
           Enter the Hall &#9835;
@@ -333,6 +333,45 @@
     </article>
   </dialog>
 
+  <!-- Tintype Photo Booth -->
+  <dialog id="booth-dialog" class="p-0 bg-transparent max-w-5xl w-[95vw] rounded-xl overflow-visible">
+    <article class="plaque-card w-full max-h-[92vh] rounded-xl overflow-hidden flex flex-col md:flex-row">
+      <section aria-label="Your tintype portrait" class="md:w-1/2 bg-[#16110c] p-4 sm:p-6 flex flex-col items-center justify-center gap-3">
+        <div class="relative w-full flex justify-center">
+          <canvas id="booth-canvas" width="720" height="900" class="max-h-[60vh] w-auto max-w-full rounded shadow-2xl border border-amber-700/40"></canvas>
+          <div id="booth-countdown" class="hidden absolute inset-0 flex items-center justify-center font-cinzel text-8xl font-bold text-amber-100" style="text-shadow:0 0 30px #000">3</div>
+        </div>
+        <video id="booth-video" playsinline muted class="hidden"></video>
+        <div class="flex flex-wrap justify-center gap-2">
+          <button id="booth-start-btn" type="button" onclick="startBoothCamera()" class="px-4 py-2 rounded-lg brass-badge text-xs font-bold shadow">Start Camera</button>
+          <button id="booth-snap-btn" type="button" onclick="takeBoothPortrait()" class="hidden px-4 py-2 rounded-lg brass-badge text-xs font-bold shadow">Take Portrait (3, 2, 1)</button>
+          <button id="booth-retake-btn" type="button" onclick="retakeBoothPortrait()" class="hidden px-4 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-medium">Try Again</button>
+          <button id="booth-save-btn" type="button" onclick="downloadBoothPortrait()" class="hidden px-4 py-2 rounded-lg brass-badge text-xs font-bold shadow">Download Portrait</button>
+        </div>
+        <label class="text-[11px] text-stone-400 underline cursor-pointer">
+          No camera? Use a photo instead
+          <input type="file" accept="image/*" class="hidden" onchange="useBoothUpload(event)" />
+        </label>
+      </section>
+      <section class="md:w-1/2 p-5 sm:p-8 overflow-y-auto placard-scroll max-h-[92vh] text-stone-800">
+        <div class="flex items-start justify-between gap-4">
+          <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-cinzel font-bold tracking-widest uppercase brass-badge">Hands-on • 1860s photography</span>
+          <button type="button" onclick="closeBooth()" aria-label="Close photo booth" class="w-8 h-8 rounded-full bg-stone-800/10 hover:bg-stone-800/20 text-stone-800 flex items-center justify-center text-lg font-bold">&times;</button>
+        </div>
+        <h2 class="font-serif-editorial text-2xl sm:text-3xl font-bold text-stone-900 mt-3 leading-tight">Sit for Your Tintype Portrait</h2>
+        <p id="booth-status" class="mt-3 text-sm font-semibold text-amber-900"></p>
+        <label class="block mt-4 text-xs font-cinzel font-bold tracking-wider text-amber-900 uppercase" for="booth-name">Name engraved on your portrait (optional)</label>
+        <input id="booth-name" type="text" maxlength="40" placeholder="e.g. Pvt. Jordan Smith" class="mt-1 w-full px-3 py-2 rounded border border-amber-900/30 bg-white/70 text-sm" />
+        <div class="font-serif-editorial text-lg leading-relaxed mt-5 space-y-3">
+          <p>During the Civil War, a soldier could walk into a traveling photographer's tent and have his picture made on a thin sheet of iron coated in black lacquer. These <em>tintypes</em> were cheap and tough enough to mail home, so thousands of soldiers sent one to their families before marching off to war.</p>
+          <p>The pictures were made with the wet-plate process. The plate had to be coated, exposed, and developed within minutes, and the exposure could take several seconds. Sitters were told not to move, and an iron head brace behind the chair helped them hold still. That is one reason so few people smiled in old photographs.</p>
+          <p>A tintype is also a mirror image: the camera recorded the scene directly on the plate, so left and right are reversed, just like your portrait here.</p>
+          <p class="text-sm text-stone-600">Your picture stays on this computer. Nothing is uploaded.</p>
+        </div>
+      </section>
+    </article>
+  </dialog>
+
   <script>
     /**
      * ============================================================================
@@ -341,10 +380,129 @@
      */
     const EXHIBITS = [
       {
+        slug: "underground-railroad",
+        builtSeparately: true,
+        ugrr: true,
+        imageCandidates: ["./tubman.jpg", "./tubman.png"],
+        audioCandidates: ["./underground-railroad.mp3", "./underground-railroad.m4a"],
+        shortTitle: "1. The Underground Railroad",
+        archiveCategory: "BEFORE THE WAR • THE ROAD TO FREEDOM",
+        title: "Harriet Tubman and the Underground Railroad",
+        meta1Heading: "DATE & PLACE",
+        date: "1849–1860",
+        location: "From Maryland's Eastern Shore to Canada West (Ontario)",
+        meta2Heading: "THE CONDUCTOR",
+        creatorLabel: "Born",
+        creator: "Araminta \"Minty\" Ross, enslaved in Dorchester County, Maryland, about 1822",
+        mediumLabel: "Missions",
+        medium: "About 13 trips; about 70 people led to freedom",
+        description:
+          "The Underground Railroad was not a railroad at all. It was a secret network of people, Black and white, who helped enslaved men, women, and children escape to freedom. They borrowed railroad words to keep it hidden: guides were \"conductors,\" safe houses were \"stations,\" and the people escaping were \"passengers.\" Its most famous conductor was Harriet Tubman. She escaped from slavery in Maryland in 1849, then went back again and again. Over about ten years and about thirteen trips, she led roughly 70 people to freedom, including much of her own family, and gave directions to dozens more who escaped on their own. She traveled at night, often in winter, guided by the North Star. Her faith was deep: the Quaker stationmaster Thomas Garrett said he never met anyone \"who had more confidence in the voice of God.\" During the Civil War she served the Union as a scout, spy, and nurse. On June 2, 1863, she helped lead the Combahee River Raid in South Carolina, which freed more than 700 enslaved people. CLICK THE NUMBERED STOPS ON THE MAP to follow her route north.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-dorchester",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 1,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-dorchester.mp3"],
+        shortTitle: "Stop 1: Dorchester County",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 1",
+        title: "Dorchester County, Maryland: Where the Journey Began",
+        meta1Heading: "DATE & PLACE", date: "Born about 1822; escaped 1849", location: "Eastern Shore of Maryland, a slave state",
+        meta2Heading: "WHY SHE LEFT", creatorLabel: "Fear", creator: "Being sold away to the Deep South", mediumLabel: "Landscape", medium: "Marshes, forests, and rivers she knew well",
+        description:
+          "Harriet Tubman was born Araminta \"Minty\" Ross, one of nine children of enslaved parents in Dorchester County, on Maryland's Eastern Shore. As a child she was beaten and whipped, and as a teenager she suffered a terrible head wound when an overseer threw a heavy weight. Working in the marshes and timber fields taught her the land, the rivers, and the secret paths she would later use. In 1849, afraid she would be sold to a plantation farther south, she escaped on foot to Pennsylvania. Then she made a choice few people would make: she came back to this same county again and again to lead her family and friends out.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-wilmington",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 2,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-wilmington.mp3"],
+        shortTitle: "Stop 2: Wilmington",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 2",
+        title: "Wilmington, Delaware: Thomas Garrett's Station",
+        meta1Heading: "DATE & PLACE", date: "1850s", location: "Wilmington, Delaware — the last stop before free Pennsylvania",
+        meta2Heading: "THE STATIONMASTER", creatorLabel: "Helper", creator: "Thomas Garrett, a Quaker businessman", mediumLabel: "Help given", medium: "Food, shelter, shoes, money, and safe passage north",
+        description:
+          "Delaware was still a slave state, but in the city of Wilmington lived Thomas Garrett, a Quaker who believed slavery was a sin. His home was one of the most important \"stations\" on the Underground Railroad, and Tubman brought many of her passengers to his door. Garrett gave them food, new shoes, and money, and helped them across the line into Pennsylvania. He was fined heavily for helping freedom seekers but never stopped. Garrett said of Tubman that he \"never met with any person of any color who had more confidence in the voice of God, as spoken direct to her soul.\"",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-philadelphia",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 3,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-philadelphia.mp3"],
+        shortTitle: "Stop 3: Philadelphia",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 3",
+        title: "Philadelphia, Pennsylvania: Across the Mason–Dixon Line",
+        meta1Heading: "DATE & PLACE", date: "1849 and after", location: "Philadelphia, in the free state of Pennsylvania",
+        meta2Heading: "THE STATIONMASTER", creatorLabel: "Helper", creator: "William Still, a free Black abolitionist", mediumLabel: "Border", medium: "The Mason–Dixon Line between Maryland and Pennsylvania",
+        description:
+          "Crossing the Mason–Dixon Line into Pennsylvania meant crossing from a slave state into a free state. Tubman reached Philadelphia in 1849 and found work as a cook and housekeeper, saving money for her rescue missions. Here she met William Still, a free Black man who helped run the city's Vigilance Committee. Still sheltered hundreds of freedom seekers and wrote down their names and stories, a record that later became one of our best sources about the Underground Railroad. But after Congress passed the Fugitive Slave Act of 1850, escaped people could be captured even in free states and sent back, so Philadelphia was no longer safe enough.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-syracuse",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 4,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-syracuse.mp3"],
+        shortTitle: "Stop 4: Syracuse",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 4",
+        title: "Syracuse, New York: Jermaine Loguen's Station",
+        meta1Heading: "DATE & PLACE", date: "1850s", location: "Syracuse, in central New York",
+        meta2Heading: "THE STATIONMASTER", creatorLabel: "Helper", creator: "Rev. Jermaine Loguen, who had escaped slavery himself", mediumLabel: "Route", medium: "North from New York City and Albany toward the Great Lakes",
+        description:
+          "From Philadelphia, Tubman's route often ran through New York City and up the Hudson River valley, then west across New York State. In Syracuse, the Reverend Jermaine Loguen, a minister who had escaped slavery himself, openly welcomed freedom seekers into his home and was known as the city's Underground Railroad \"king.\" Churches and ministers like Loguen were an important part of the network, giving food, shelter, and courage to the travelers.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-rochester",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 5,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-rochester.mp3"],
+        shortTitle: "Stop 5: Rochester",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 5",
+        title: "Rochester, New York: Frederick Douglass's Station",
+        meta1Heading: "DATE & PLACE", date: "1850s", location: "Rochester, on Lake Ontario",
+        meta2Heading: "THE STATIONMASTER", creatorLabel: "Helper", creator: "Frederick Douglass, writer, speaker, and abolitionist", mediumLabel: "Next step", medium: "West to the Niagara River and the Canadian border",
+        description:
+          "Frederick Douglass, who had escaped slavery in Maryland himself, lived in Rochester, where he published an antislavery newspaper. His home was also a station on the Underground Railroad, and he helped Tubman and the people traveling with her. From Rochester, the last part of the journey led west toward the Niagara River, the border between the United States and Canada.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-st-catharines",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 6,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-st-catharines.mp3"],
+        shortTitle: "Stop 6: St. Catharines",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 6",
+        title: "St. Catharines, Canada West: Freedom at Last",
+        meta1Heading: "DATE & PLACE", date: "1851–1858", location: "St. Catharines, Canada West (today Ontario, Canada)",
+        meta2Heading: "WHY CANADA", creatorLabel: "Law", creator: "Slavery had been abolished in Canada", mediumLabel: "Community", medium: "Hundreds of formerly enslaved people lived here",
+        description:
+          "After the Fugitive Slave Act of 1850, no free state was truly safe, so Tubman began ending her journeys in Canada, where slavery had been abolished. She moved to St. Catharines, just across the Niagara River, in 1851. \"I wouldn't trust Uncle Sam with my people no longer,\" she later said, \"but I brought 'em clear off to Canada.\" Hundreds of freedom seekers made new lives in the town. Tubman lived there with members of her family, helped newly arrived refugees with food and clothing, and set out from there on her rescue missions.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
+        slug: "ugrr-auburn",
+        builtSeparately: true, ugrr: true, hidden: true, parent: "underground-railroad", stop: 7,
+        imageCandidates: [],
+        audioCandidates: ["./ugrr-auburn.mp3"],
+        shortTitle: "Stop 7: Auburn",
+        archiveCategory: "THE ROAD TO FREEDOM • STOP 7",
+        title: "Auburn, New York: Harriet Tubman's Home",
+        meta1Heading: "DATE & PLACE", date: "From 1859 until her death on March 10, 1913", location: "Auburn, in central New York",
+        meta2Heading: "LATER LIFE", creatorLabel: "Civil War", creator: "Union scout, spy, and nurse; helped lead the Combahee River Raid (1863)", mediumLabel: "Later work", medium: "Cared for elderly and poor people; supported women's right to vote",
+        description:
+          "Tubman settled in Auburn, New York, and brought her parents to live with her. When the Civil War began, she went south to serve the Union Army as a scout, spy, and nurse. On June 2, 1863, she helped lead the Combahee River Raid in South Carolina with about 150 Black Union soldiers, freeing more than 700 enslaved people; she is remembered as the first woman to lead a major military operation in U.S. history. After the war she returned to Auburn, where she cared for elderly and poor people and spoke for women's right to vote. She died there on March 10, 1913.",
+        view: { x: -2.0, z: 17.4, yaw: Math.PI / 2, pitch: 0.12 }
+      },
+      {
         slug: "lincoln",
         imageCandidates: ["./lincoln.jpg", "./lincoln.JPG", "./lincoln.jpeg", "./lincoln.png"],
         audioCandidates: ["./lincoln.mp3", "./lincoln.m4a"],
-        shortTitle: "1. Lincoln at Antietam",
+        shortTitle: "2. Lincoln at Antietam",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "President Lincoln on the Battlefield at Antietam",
         meta1Heading: "DATE & LOCATION",
@@ -365,7 +523,7 @@
         slug: "hooker",
         imageCandidates: ["./hooker.jpg", "./hooker.JPG", "./hooker.jpeg", "./hooker.png"],
         audioCandidates: ["./hooker.mp3", "./hooker.m4a"],
-        shortTitle: "2. Gen. Joseph Hooker",
+        shortTitle: "3. Gen. Joseph Hooker",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Major General Joseph Hooker on Horseback",
         meta1Heading: "DATE & LOCATION",
@@ -386,7 +544,7 @@
         slug: "medical-supplies",
         imageCandidates: ["./medical-supplies.jpg", "./medical%20supplies.jpg", "./medical-supplies.png"],
         audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a"],
-        shortTitle: "3. Medical Supplies",
+        shortTitle: "4. Medical Supplies",
         archiveCategory: "CIVIL WAR MEDICAL ARCHIVE",
         title: "The Field Surgeon's Kit: Civil War Medical Supplies",
         meta1Heading: "DATE & USE",
@@ -409,7 +567,7 @@
         slug: "grant",
         imageCandidates: ["./grant.jpg", "./grant.JPG", "./grant.jpeg", "./grant.png"],
         audioCandidates: ["./grant.mp3", "./grant.m4a"],
-        shortTitle: "4. Gen. Ulysses S. Grant",
+        shortTitle: "5. Gen. Ulysses S. Grant",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Lieutenant General Ulysses S. Grant at Field Headquarters",
         meta1Heading: "DATE & LOCATION",
@@ -430,7 +588,7 @@
         slug: "lee",
         imageCandidates: ["./lee.jpg", "./lee.JPG", "./lee.jpeg", "./lee.png"],
         audioCandidates: ["./lee.mp3", "./lee.m4a"],
-        shortTitle: "5. Gen. Robert E. Lee",
+        shortTitle: "6. Gen. Robert E. Lee",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "General Robert E. Lee at His Richmond Residence",
         meta1Heading: "DATE & LOCATION",
@@ -451,7 +609,7 @@
         slug: "hospital",
         imageCandidates: ["./hospital.jpg", "./hospital.JPG", "./hospital.jpeg", "./hospital.png"],
         audioCandidates: ["./hospital.mp3", "./hospital.m4a"],
-        shortTitle: "6. Union Hospital Ward",
+        shortTitle: "7. Union Hospital Ward",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Interior of a Union General Hospital Ward",
         meta1Heading: "DATE & LOCATION",
@@ -472,7 +630,7 @@
         slug: "envelope",
         imageCandidates: ["./war%20time%20envolope.jpg", "./war%20time%20envelope.jpg", "./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
         audioCandidates: ["./envelope.mp3", "./envelope.m4a"],
-        shortTitle: "7. Confederate Envelope",
+        shortTitle: "8. Confederate Envelope",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "Wartime Envelope Addressed to Spartanburg, South Carolina",
         meta1Heading: "DATE & DESTINATION",
@@ -493,7 +651,7 @@
         slug: "instruments",
         imageCandidates: ["./instruments.jpg", "./instruments.png"],
         audioCandidates: ["./instruments.mp3", "./instruments.m4a"],
-        shortTitle: "8. Instruments & Songs",
+        shortTitle: "9. Instruments & Songs",
         archiveCategory: "CIVIL WAR MUSIC ARCHIVE",
         title: "Drums, Bugles & Fifes: The Sounds of Camp and Battle",
         meta1Heading: "DATE & USE",
@@ -516,7 +674,7 @@
         slug: "letter",
         imageCandidates: ["./War%20time%20letter.jpg", "./war%20time%20letter.jpg", "./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
         audioCandidates: ["./letter.mp3", "./letter.m4a"],
-        shortTitle: "9. Letter Home",
+        shortTitle: "10. Letter Home",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "\"Trust in the Lord\": A Condolence Letter from the 5th Indiana Cavalry",
         meta1Heading: "DATE & LOCATION",
@@ -537,7 +695,7 @@
         slug: "henry-rifle",
         imageCandidates: ["./henry-rifle.jpg", "./henry-rifle.JPG", "./henry-rifle.jpeg", "./henry-rifle.png"],
         audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.m4a"],
-        shortTitle: "10. Henry Rifle (North)",
+        shortTitle: "11. Henry Rifle (North)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "Model 1860 Henry Lever-Action Repeating Rifle",
         meta1Heading: "DATE & MAKER",
@@ -559,7 +717,7 @@
         slug: "enfield-rifle",
         imageCandidates: ["./enfield-rifle-dark.jpg", "./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
         audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.m4a"],
-        shortTitle: "11. Enfield Rifle (South)",
+        shortTitle: "12. Enfield Rifle (South)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "British Pattern 1853 Enfield Rifle-Musket",
         meta1Heading: "DATE & MAKER",
@@ -584,7 +742,7 @@
         flagType: "us34",
         imageCandidates: [],
         audioCandidates: ["./flag-us34.mp3", "./flag-us34.m4a"],
-        shortTitle: "12. U.S. Flag, 34 Stars (1861)",
+        shortTitle: "13. U.S. Flag, 34 Stars (1861)",
         archiveCategory: "FLAGS OF THE WAR • UNION",
         title: "The Stars and Stripes, 34 Stars (1861–1863)",
         meta1Heading: "DATE & USE",
@@ -606,7 +764,7 @@
         flagType: "csa7",
         imageCandidates: [],
         audioCandidates: ["./flag-csa-first.mp3", "./flag-csa-first.m4a"],
-        shortTitle: "13. Stars and Bars (1861)",
+        shortTitle: "14. Stars and Bars (1861)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Stars and Bars: First Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -628,7 +786,7 @@
         flagType: "us35",
         imageCandidates: [],
         audioCandidates: ["./flag-us35.mp3", "./flag-us35.m4a"],
-        shortTitle: "14. U.S. Flag, 35 Stars (1863)",
+        shortTitle: "15. U.S. Flag, 35 Stars (1863)",
         archiveCategory: "FLAGS OF THE WAR • UNION",
         title: "The Stars and Stripes, 35 Stars (1863–1865)",
         meta1Heading: "DATE & USE",
@@ -650,7 +808,7 @@
         flagType: "csa2",
         imageCandidates: [],
         audioCandidates: ["./flag-csa-second.mp3", "./flag-csa-second.m4a"],
-        shortTitle: "15. Stainless Banner (1863)",
+        shortTitle: "16. Stainless Banner (1863)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Stainless Banner: Second Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -672,7 +830,7 @@
         flagType: "csa3",
         imageCandidates: [],
         audioCandidates: ["./flag-csa-third.mp3", "./flag-csa-third.m4a"],
-        shortTitle: "16. Blood-Stained Banner (1865)",
+        shortTitle: "17. Blood-Stained Banner (1865)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Blood-Stained Banner: Third Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -688,8 +846,101 @@
         hangsOn: "right wall, near the end of the hall",
         view: { x: 2.6, z: -21.3, yaw: -Math.PI / 2, pitch: 0.1 }
 
+      },
+      {
+        slug: "america-heals",
+        builtSeparately: true,
+        heal: "main",
+        imageCandidates: [],
+        audioCandidates: ["./america-heals.mp3", "./america-heals.m4a"],
+        shortTitle: "18. America Begins to Heal",
+        archiveCategory: "AMERICA BEGINS TO HEAL • 1865",
+        title: "\"With Malice Toward None\": Lincoln's Second Inaugural Address",
+        meta1Heading: "DATE & PLACE",
+        date: "March 4, 1865",
+        location: "U.S. Capitol, Washington, D.C.",
+        meta2Heading: "THE SPEECH",
+        creatorLabel: "Speaker",
+        creator: "President Abraham Lincoln, beginning his second term",
+        mediumLabel: "Length",
+        medium: "About 700 words, one of the shortest inaugural addresses ever given",
+        description:
+          "With the war almost won, many people expected President Lincoln to celebrate. Instead, his second inaugural speech sounded more like a sermon. He reminded the nation that both sides \"read the same Bible and pray to the same God,\" and he spoke humbly about God's purposes in the war. Then he closed with words that pointed the country toward healing instead of revenge: \"With malice toward none, with charity for all, with firmness in the right as God gives us to see the right, let us strive on to finish the work we are in, to bind up the nation's wounds, to care for him who shall have borne the battle and for his widow and his orphan, to do all which may achieve and cherish a just and lasting peace among ourselves and with all nations.\" Lincoln did not live to lead that healing. Forty-one days later, on April 14, 1865, he was shot at Ford's Theatre, and he died the next morning. The plaques below show three steps the nation took in 1865 as it began to heal.",
+        view: { x: -2.6, z: -26.5, yaw: Math.PI / 2, pitch: 0.16 }
+      },
+      {
+        slug: "freedmens-bureau",
+        builtSeparately: true, heal: "plaque", hidden: true, parent: "america-heals",
+        imageCandidates: [],
+        audioCandidates: ["./freedmens-bureau.mp3"],
+        shortTitle: "Freedmen's Bureau",
+        archiveCategory: "AMERICA BEGINS TO HEAL • MARCH 3, 1865",
+        title: "The Freedmen's Bureau",
+        meta1Heading: "DATE & PLACE", date: "Created March 3, 1865", location: "Act of Congress, signed by President Lincoln",
+        meta2Heading: "ITS WORK", creatorLabel: "Gave", creator: "Food, clothing, shelter, and medical care", mediumLabel: "Built", medium: "Schools for formerly enslaved people",
+        description:
+          "Four million people were freed by the end of the war, and most had no money, land, or schooling. A month before the fighting ended, Congress created the Bureau of Refugees, Freedmen, and Abandoned Lands, better known as the Freedmen's Bureau. It handed out food, clothing, and medical care to freed people and poor white Southerners, helped families find relatives who had been sold away, and started schools, giving many formerly enslaved people their first chance to learn to read. The Bureau's leader, General Oliver O. Howard, later helped found Howard University in Washington, D.C., which is named for him.",
+        view: { x: -2.6, z: -26.5, yaw: Math.PI / 2, pitch: 0.16 }
+      },
+      {
+        slug: "appomattox",
+        builtSeparately: true, heal: "plaque", hidden: true, parent: "america-heals",
+        imageCandidates: [],
+        audioCandidates: ["./appomattox.mp3"],
+        shortTitle: "Surrender at Appomattox",
+        archiveCategory: "AMERICA BEGINS TO HEAL • APRIL 9, 1865",
+        title: "The Surrender at Appomattox Court House",
+        meta1Heading: "DATE & PLACE", date: "April 9, 1865", location: "McLean House, Appomattox Court House, Virginia",
+        meta2Heading: "THE TERMS", creatorLabel: "Generals", creator: "Robert E. Lee surrendered to Ulysses S. Grant", mediumLabel: "Mercy shown", medium: "Soldiers sent home, allowed to keep their horses, and given food",
+        description:
+          "After four years of war, General Lee surrendered the Army of Northern Virginia to General Grant in the parlor of Wilmer McLean's farmhouse. Grant's terms were generous. Confederate soldiers were allowed to go home instead of to prison camps, officers kept their side arms, and men who owned horses or mules could keep them for spring planting. Grant also sent food to Lee's hungry army. When Union soldiers began firing celebration salutes, Grant had them stopped, later writing, \"The war is over; the rebels are our countrymen again.\" The surrender became a first step toward bringing the nation back together.",
+        view: { x: -2.6, z: -26.5, yaw: Math.PI / 2, pitch: 0.16 }
+      },
+      {
+        slug: "thirteenth-amendment",
+        builtSeparately: true, heal: "plaque", hidden: true, parent: "america-heals",
+        imageCandidates: [],
+        audioCandidates: ["./thirteenth-amendment.mp3"],
+        shortTitle: "13th Amendment",
+        archiveCategory: "AMERICA BEGINS TO HEAL • DECEMBER 6, 1865",
+        title: "The Thirteenth Amendment: Slavery Abolished",
+        meta1Heading: "DATE & PLACE", date: "Passed by Congress January 31, 1865; ratified December 6, 1865", location: "U.S. Constitution",
+        meta2Heading: "WHAT IT DID", creatorLabel: "Ended", creator: "Slavery everywhere in the United States", mediumLabel: "Exception", medium: "Except as punishment for a crime",
+        description:
+          "Lincoln's Emancipation Proclamation of January 1, 1863, freed enslaved people only in the states that were fighting against the Union, and it was a wartime order that could be challenged later. To end slavery permanently and everywhere, Congress passed the Thirteenth Amendment to the Constitution in January 1865. When enough states ratified it on December 6, 1865, slavery became illegal throughout the United States, except as punishment for a crime. It was the first of three amendments after the war, the 13th, 14th, and 15th, that began to define freedom and citizenship for all Americans.",
+        view: { x: -2.6, z: -26.5, yaw: Math.PI / 2, pitch: 0.16 }
+      },
+      {
+        slug: "photo-booth",
+        builtSeparately: true,
+        isBooth: true,
+        imageCandidates: [],
+        audioCandidates: [],
+        shortTitle: "19. Tintype Photo Booth",
+        archiveCategory: "HANDS-ON • 1860s PHOTOGRAPHY",
+        title: "Sit for Your Tintype Portrait",
+        meta1Heading: "", date: "", location: "", meta2Heading: "", creatorLabel: "", creator: "", mediumLabel: "", medium: "",
+        description: "",
+        view: { x: 0.6, z: 17.9, yaw: -Math.PI / 2 + 0.08, pitch: 0.02 }
       }
+
     ];
+
+    // Guided tour order (main stops only) and placard reading order
+    // (each main stop followed by its "hidden" parts, e.g. the map's numbered stops).
+    const TOUR = EXHIBITS.map((_, i) => i).filter((i) => !EXHIBITS[i].hidden);
+    const READING = [];
+    TOUR.forEach((i) => {
+      if (EXHIBITS[i].isBooth) return;
+      READING.push(i);
+      EXHIBITS.forEach((e, j) => { if (e.parent === EXHIBITS[i].slug) READING.push(j); });
+    });
+
+    function mainIndexOf(idx) {
+      const parent = EXHIBITS[idx].parent;
+      return parent ? EXHIBITS.findIndex((e) => e.slug === parent) : idx;
+    }
+
 
     /**
      * ============================================================================
@@ -702,6 +953,18 @@
       c.height = 1050;
       const ctx = c.getContext("2d");
 
+      if (EXHIBITS[index].ugrr) {
+        return drawUGRRMap(EXHIBITS[index].stop || 0).toDataURL("image/jpeg", 0.88);
+      }
+      if (EXHIBITS[index].heal === "main") {
+        return drawHealPanel().toDataURL("image/jpeg", 0.9);
+      }
+      if (EXHIBITS[index].heal === "plaque") {
+        return drawHealPlaque(EXHIBITS[index]).toDataURL("image/jpeg", 0.9);
+      }
+      if (EXHIBITS[index].isBooth) {
+        return drawBackdropCanvas().toDataURL("image/jpeg", 0.85);
+      }
       if (EXHIBITS[index].isFlag) {
         ctx.fillStyle = "#16110c";
         ctx.fillRect(0, 0, c.width, c.height);
@@ -934,8 +1197,12 @@
       return c.toDataURL("image/jpeg", 0.9);
     }
 
-    const defaultArtifactImages = EXHIBITS.map((_, idx) => generateArtifactDataURL(idx));
-    const exhibitImages = EXHIBITS.map((_, idx) => defaultArtifactImages[idx]);
+    // Placeholder pictures are drawn at startup (see window.onload), after all map,
+    // flag, and wall data further down this file has been defined.
+    const exhibitImages = [];
+    function createPlaceholderImages() {
+      EXHIBITS.forEach((_, idx) => { exhibitImages[idx] = generateArtifactDataURL(idx); });
+    }
 
     // Load a photo onto a frame and resize the picture so it keeps its true shape
     // (wide rifles stay wide, tall letters stay tall) inside the frame's matboard.
@@ -1286,10 +1553,11 @@
         depthWrite: false,
         blending: THREE.AdditiveBlending
       });
-      const sconceZs = [17, 6.3, -3.7, -13.7, -24];
+      // Gaps between exhibits on each wall (left: -1, right: +1)
+      const sconceZsBySide = { "-1": [6.3, -3.7, -13.7], "1": [6.3, -3.7, -13.7, -24] };
       [-1, 1].forEach((side) => {
         const wallX = side * (hallWidth / 2 - 0.2);
-        sconceZs.forEach((z) => {
+        sconceZsBySide[String(side)].forEach((z) => {
           const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.04, 20), brassMat);
           plate.rotation.z = Math.PI / 2;
           plate.position.set(wallX, 3.4, z);
@@ -1864,6 +2132,539 @@
       // The 2nd and 3rd Confederate national flags, side by side on the right wall for comparison
       buildWallFlag("flag-csa-second", "right", -16.3, 2.6, hallWidth);
       buildWallFlag("flag-csa-third", "right", -21.3, 2.2, hallWidth);
+
+      buildUGRRMap(hallWidth);
+      buildHealWall(hallWidth);
+      buildPhotoBooth(hallWidth);
+    }
+
+    /**
+     * ============================================================================
+     * 3C. UNDERGROUND RAILROAD MAP, "AMERICA BEGINS TO HEAL" WALL, TINTYPE BOOTH
+     * ============================================================================
+     */
+    function exhibitIndexBySlug(slug) {
+      return EXHIBITS.findIndex((e) => e.slug === slug);
+    }
+
+    function wrapCanvasText(ctx, text, x, y, maxW, lineH) {
+      const words = text.split(" ");
+      let line = "";
+      for (const w of words) {
+        const test = line ? line + " " + w : w;
+        if (ctx.measureText(test).width > maxW && line) {
+          ctx.fillText(line, x, y);
+          line = w;
+          y += lineH;
+        } else {
+          line = test;
+        }
+      }
+      if (line) ctx.fillText(line, x, y);
+      return y + lineH;
+    }
+
+    function agePaper(ctx, w, h, specks = 6000) {
+      for (let i = 0; i < specks; i++) {
+        ctx.fillStyle = Math.random() < 0.5 ? "rgba(60,40,20,0.05)" : "rgba(255,250,235,0.05)";
+        ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+      }
+      for (let i = 0; i < 6; i++) {
+        const sx = Math.random() * w, sy = Math.random() * h, r = 80 + Math.random() * 200;
+        const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+        g.addColorStop(0, "rgba(140, 100, 50, 0.10)");
+        g.addColorStop(1, "rgba(140, 100, 50, 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }
+    }
+
+    // ---------- Underground Railroad map ----------
+    const UGRR_MAP = { w: 2240, h: 1280, left: 640, lonMin: -81.2, lonMax: -70.8, latMin: 37.9, latMax: 44.2 };
+    const UGRR_STOPS = [
+      { stop: 1, slug: "ugrr-dorchester", name: "Dorchester County, Md.", lon: -76.08, lat: 38.55, dx: 34, dy: 10 },
+      { stop: 2, slug: "ugrr-wilmington", name: "Wilmington, Del.", lon: -75.55, lat: 39.74, dx: -36, dy: 34, alignRight: true },
+      { stop: 3, slug: "ugrr-philadelphia", name: "Philadelphia, Pa.", lon: -75.16, lat: 39.95, dx: 34, dy: 10 },
+      { stop: 4, slug: "ugrr-syracuse", name: "Syracuse, N.Y.", lon: -76.15, lat: 43.05, dx: 34, dy: -14 },
+      { stop: 5, slug: "ugrr-rochester", name: "Rochester, N.Y.", lon: -77.61, lat: 43.16, dx: -10, dy: 52, alignRight: false },
+      { stop: 6, slug: "ugrr-st-catharines", name: "St. Catharines, Canada West", lon: -79.24, lat: 43.16, dx: -36, dy: -30, alignRight: true },
+      { stop: 7, slug: "ugrr-auburn", name: "Auburn, N.Y. (her later home)", lon: -76.57, lat: 42.93, dx: -6, dy: 54 }
+    ];
+
+    function ugrrXY(lon, lat) {
+      const m = UGRR_MAP;
+      const x = m.left + ((lon - m.lonMin) / (m.lonMax - m.lonMin)) * (m.w - m.left);
+      const y = ((m.latMax - lat) / (m.latMax - m.latMin)) * m.h;
+      return [x, y];
+    }
+
+    function drawUGRRMap(highlightStop = 0) {
+      const m = UGRR_MAP;
+      const c = document.createElement("canvas");
+      c.width = m.w;
+      c.height = m.h;
+      const ctx = c.getContext("2d");
+
+      // Parchment
+      const bg = ctx.createLinearGradient(0, 0, m.w, m.h);
+      bg.addColorStop(0, "#efe1bf");
+      bg.addColorStop(1, "#e2cfa3");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, m.w, m.h);
+
+      const water = "#a9bcb4";
+      const poly = (pts) => {
+        ctx.beginPath();
+        pts.forEach(([lon, lat], i) => {
+          const [x, y] = ugrrXY(lon, lat);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = water;
+        ctx.fill();
+        ctx.strokeStyle = "rgba(60,70,65,0.55)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      };
+      const river = (pts, width = 5) => {
+        ctx.beginPath();
+        pts.forEach(([lon, lat], i) => {
+          const [x, y] = ugrrXY(lon, lat);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = water;
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.stroke();
+      };
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(m.left, 0, m.w - m.left, m.h);
+      ctx.clip();
+      // Atlantic Ocean (coast from Virginia's Eastern Shore to Rhode Island)
+      poly([[-75.38, 37.9], [-75.08, 38.33], [-75.05, 38.6], [-75.09, 38.8], [-74.96, 38.93], [-74.42, 39.36], [-74.1, 39.8],
+        [-73.98, 40.45], [-73.95, 40.57], [-73.6, 40.58], [-72.9, 40.73], [-72.0, 40.98], [-71.86, 41.07], [-71.5, 41.38],
+        [-71.0, 41.5], [-70.8, 41.6], [-70.8, 37.9]]);
+      poly([[-73.78, 40.85], [-73.6, 40.98], [-73.0, 41.1], [-72.3, 41.25], [-71.9, 41.3], [-72.0, 41.15], [-72.4, 41.1], [-73.0, 40.97], [-73.6, 40.88]]); // Long Island Sound
+      poly([[-75.09, 38.8], [-75.3, 39.0], [-75.42, 39.25], [-75.55, 39.45], [-75.58, 39.62], [-75.5, 39.55], [-75.3, 39.3], [-75.05, 39.05], [-74.96, 38.93]]); // Delaware Bay
+      poly([[-76.0, 37.9], [-76.3, 38.3], [-76.35, 38.6], [-76.45, 38.95], [-76.4, 39.2], [-76.1, 39.55], [-75.98, 39.5], [-76.15, 39.15], [-76.05, 38.75], [-76.12, 38.45], [-75.95, 38.15], [-75.8, 37.9]]); // Chesapeake Bay
+      poly([[-79.8, 43.3], [-79.2, 43.25], [-78.5, 43.37], [-77.6, 43.28], [-76.8, 43.33], [-76.2, 43.53], [-76.25, 44.05], [-76.6, 44.2], [-77.0, 44.05], [-78.0, 43.95], [-79.0, 43.75], [-79.4, 43.65], [-79.8, 43.4]]); // Lake Ontario
+      poly([[-78.9, 42.88], [-79.3, 42.6], [-80.1, 42.15], [-80.5, 42.05], [-81.2, 41.8], [-81.2, 42.45], [-80.4, 42.6], [-79.8, 42.8], [-79.1, 42.9]]); // Lake Erie
+      river([[-75.58, 39.62], [-75.4, 39.82], [-75.13, 39.95], [-74.76, 40.22], [-75.05, 40.6], [-75.1, 41.0], [-74.75, 41.4], [-75.05, 41.9]]); // Delaware River
+      river([[-74.02, 40.62], [-73.95, 41.0], [-73.95, 41.5], [-73.85, 42.0], [-73.75, 42.65], [-73.68, 42.85]]); // Hudson River
+      river([[-76.3, 38.05], [-76.8, 38.3], [-77.04, 38.88], [-77.5, 39.3], [-78.3, 39.6]], 4); // Potomac River
+      river([[-76.1, 39.55], [-76.5, 39.9], [-76.88, 40.27], [-76.85, 40.9], [-76.5, 41.3], [-75.9, 41.7]], 4); // Susquehanna River
+      river([[-78.9, 42.9], [-79.0, 43.1], [-79.06, 43.26]], 5); // Niagara River
+      river([[-73.7, 42.75], [-74.5, 42.95], [-75.2, 43.1], [-75.9, 43.2]], 3); // Mohawk River / Erie Canal
+      ctx.restore();
+
+      // Region labels
+      ctx.fillStyle = "rgba(70, 50, 30, 0.45)";
+      ctx.textAlign = "center";
+      ctx.font = "italic 36px Georgia, serif";
+      [["VIRGINIA", -78.7, 38.3], ["MARYLAND", -77.6, 39.35], ["PENNSYLVANIA", -78.0, 40.9], ["NEW YORK", -75.2, 42.3],
+        ["NEW JERSEY", -74.55, 40.05], ["CANADA WEST", -80.15, 43.95]].forEach(([t, lon, lat]) => {
+        const [x, y] = ugrrXY(lon, lat);
+        ctx.fillText(t, x, y);
+      });
+      ctx.font = "italic 30px Georgia, serif";
+      ctx.fillStyle = "rgba(40, 60, 60, 0.6)";
+      [["ATLANTIC OCEAN", -72.4, 39.2], ["Lake Ontario", -77.9, 43.62], ["Lake Erie", -80.4, 42.32], ["Chesapeake Bay", -76.95, 37.98]].forEach(([t, lon, lat]) => {
+        const [x, y] = ugrrXY(lon, lat);
+        ctx.fillText(t, x, y);
+      });
+
+      // Mason–Dixon Line (Maryland–Pennsylvania border)
+      const [mdx1, mdy] = ugrrXY(-80.52, 39.72);
+      const [mdx2] = ugrrXY(-75.79, 39.72);
+      ctx.setLineDash([18, 12]);
+      ctx.strokeStyle = "#2c2418";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(Math.max(mdx1, m.left + 4), mdy);
+      ctx.lineTo(mdx2, mdy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#2c2418";
+      ctx.font = "bold 26px Georgia, serif";
+      ctx.textAlign = "left";
+      ctx.fillText("MASON–DIXON LINE", m.left + 30, mdy - 14);
+      ctx.font = "italic 22px Georgia, serif";
+      ctx.fillText("free states above", m.left + 30, mdy - 46);
+      ctx.fillText("slave states below", m.left + 30, mdy + 34);
+
+      // The route north (dashed red line)
+      const route = [[-76.08, 38.55], [-75.85, 39.2], [-75.55, 39.74], [-75.16, 39.95], [-74.0, 40.72], [-73.8, 41.6], [-73.75, 42.65],
+        [-75.2, 43.0], [-76.15, 43.05], [-77.61, 43.16], [-78.6, 43.05], [-79.05, 43.1], [-79.24, 43.16]];
+      ctx.strokeStyle = "#8f1d1d";
+      ctx.lineWidth = 9;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.setLineDash([26, 16]);
+      ctx.beginPath();
+      route.forEach(([lon, lat], i) => {
+        const [x, y] = ugrrXY(lon, lat);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Small route towns
+      ctx.fillStyle = "#2c2418";
+      ctx.font = "italic 24px Georgia, serif";
+      ctx.textAlign = "left";
+      [["New York City", -74.0, 40.72], ["Albany", -73.75, 42.65], ["Niagara Falls", -79.05, 43.1]].forEach(([t, lon, lat]) => {
+        const [x, y] = ugrrXY(lon, lat);
+        ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.fillText(t, x + 14, y + (t === "Niagara Falls" ? 34 : -10));
+      });
+
+      // Numbered stops
+      UGRR_STOPS.forEach((s) => {
+        const [x, y] = ugrrXY(s.lon, s.lat);
+        const isHi = highlightStop === s.stop;
+        if (isHi) {
+          const glow = ctx.createRadialGradient(x, y, 10, x, y, 80);
+          glow.addColorStop(0, "rgba(255, 210, 90, 0.9)");
+          glow.addColorStop(1, "rgba(255, 210, 90, 0)");
+          ctx.fillStyle = glow;
+          ctx.beginPath(); ctx.arc(x, y, 80, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, isHi ? 30 : 26, 0, Math.PI * 2);
+        ctx.fillStyle = s.stop === 7 ? "#2f4a6b" : "#8f1d1d";
+        ctx.fill();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#f3e2b4";
+        ctx.stroke();
+        ctx.fillStyle = "#fff6dc";
+        ctx.font = "bold 30px Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText(String(s.stop), x, y + 11);
+        ctx.fillStyle = "#1e160d";
+        ctx.font = (isHi ? "bold " : "") + "27px Georgia, serif";
+        ctx.textAlign = s.alignRight ? "right" : "left";
+        ctx.fillText(s.name, x + s.dx, y + s.dy);
+      });
+
+      // North Star compass
+      const [nx, ny] = [m.w - 120, 130];
+      ctx.fillStyle = "#c8a258";
+      drawStar(ctx, nx, ny, 46);
+      ctx.strokeStyle = "#5a4320";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#2c2418";
+      ctx.font = "bold 34px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.fillText("N", nx, ny - 60);
+      ctx.font = "italic 22px Georgia, serif";
+      ctx.fillText("Follow the North Star", nx - 10, ny + 82);
+
+      // Left title panel
+      ctx.fillStyle = "rgba(40, 26, 14, 0.92)";
+      ctx.fillRect(0, 0, m.left, m.h);
+      ctx.fillStyle = "#e6c786";
+      ctx.textAlign = "left";
+      ctx.font = "bold 58px Georgia, serif";
+      ctx.fillText("THE ROAD", 50, 120);
+      ctx.fillText("TO FREEDOM", 50, 185);
+      ctx.fillStyle = "#e9dcc0";
+      ctx.font = "italic 31px Georgia, serif";
+      let ty = wrapCanvasText(ctx, "Harriet Tubman and the Underground Railroad, 1849–1860", 50, 250, 540, 40);
+      ctx.font = "26px Georgia, serif";
+      ctx.fillStyle = "#d8c9a8";
+      ty = wrapCanvasText(ctx, "About 13 trips. About 70 people led to freedom, including much of her own family.", 50, ty + 20, 540, 36);
+      ty += 30;
+      // legend
+      ctx.strokeStyle = "#c8574e"; ctx.lineWidth = 8; ctx.setLineDash([22, 14]);
+      ctx.beginPath(); ctx.moveTo(50, ty); ctx.lineTo(150, ty); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#e9dcc0"; ctx.font = "26px Georgia, serif";
+      ctx.fillText("Route north", 170, ty + 9);
+      ty += 50;
+      ctx.strokeStyle = "#e9dcc0"; ctx.lineWidth = 4; ctx.setLineDash([16, 10]);
+      ctx.beginPath(); ctx.moveTo(50, ty); ctx.lineTo(150, ty); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillText("Mason–Dixon Line", 170, ty + 9);
+      ty += 70;
+      ctx.fillStyle = "#e6c786";
+      ctx.font = "bold 26px Georgia, serif";
+      ty = wrapCanvasText(ctx, "During the war: on June 2, 1863, Tubman helped lead the Combahee River Raid in South Carolina, freeing more than 700 people.", 50, ty, 540, 36);
+      ctx.fillStyle = "#f3d796";
+      ctx.font = "bold 28px Georgia, serif";
+      wrapCanvasText(ctx, "CLICK A NUMBERED STOP ON THE MAP TO LEARN MORE  →", 50, m.h - 100, 540, 38);
+
+      // Frame lines & aging
+      agePaper(ctx, m.w, m.h, 5000);
+      ctx.strokeStyle = "#5a4320";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(5, 5, m.w - 10, m.h - 10);
+      return c;
+    }
+
+    function buildUGRRMap(hallWidth) {
+      const mainIdx = exhibitIndexBySlug("underground-railroad");
+      const g = new THREE.Group();
+      g.position.set(-hallWidth / 2 + 0.26, 3.35, 17.4);
+      g.rotation.y = Math.PI / 2;
+      scene.add(g);
+
+      const mapW = 5.6, mapH = 3.2;
+      const frameMat = stdMat(0x3a2212, 0.5);
+      addMesh(g, new THREE.BoxGeometry(mapW + 0.3, mapH + 0.3, 0.1), frameMat, 0, 0, 0);
+      addMesh(g, new THREE.BoxGeometry(mapW + 0.12, mapH + 0.12, 0.12), stdMat(0xc59b45, 0.3, 0.68), 0, 0, 0.01);
+      const map = new THREE.Mesh(
+        new THREE.PlaneGeometry(mapW, mapH),
+        new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(drawUGRRMap(0)), roughness: 0.8 })
+      );
+      map.position.z = 0.08;
+      map.userData = { exhibitIndex: mainIdx, ugrrMap: true };
+      interactiveMeshes.push(map);
+      g.add(map);
+
+      const spot = new THREE.SpotLight(0xffe6bd, 0.75, 14, Math.PI / 5, 0.5, 1.2);
+      spot.position.set(-hallWidth / 2 + 3.6, 6.3, 17.4);
+      spot.target = map;
+      scene.add(spot);
+    }
+
+    // Which numbered stop (if any) is under a point on the map (uv = 0..1 texture coordinates)
+    function ugrrStopAtUV(uv) {
+      if (!uv) return null;
+      const px = uv.x * UGRR_MAP.w;
+      const py = (1 - uv.y) * UGRR_MAP.h;
+      let best = null, bestD = 60;
+      UGRR_STOPS.forEach((s) => {
+        const [x, y] = ugrrXY(s.lon, s.lat);
+        const d = Math.hypot(px - x, py - y);
+        if (d < bestD) { bestD = d; best = s; }
+      });
+      return best;
+    }
+
+    // ---------- "America Begins to Heal" wall ----------
+    const SECOND_INAUGURAL_QUOTE =
+      "With malice toward none, with charity for all, with firmness in the right as God gives us to see the right, let us strive on to finish the work we are in, to bind up the nation's wounds, to care for him who shall have borne the battle and for his widow and his orphan, to do all which may achieve and cherish a just and lasting peace among ourselves and with all nations.";
+
+    function drawHealPanel() {
+      const w = 2080, h = 1040;
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#f3ead3";
+      ctx.fillRect(0, 0, w, h);
+      agePaper(ctx, w, h, 4000);
+      ctx.strokeStyle = "#8c6928"; ctx.lineWidth = 12; ctx.strokeRect(24, 24, w - 48, h - 48);
+      ctx.lineWidth = 3; ctx.strokeRect(48, 48, w - 96, h - 96);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#7a581d";
+      ctx.font = "bold 44px Georgia, serif";
+      ctx.fillText("A M E R I C A   B E G I N S   T O   H E A L  •  1 8 6 5", w / 2, 130);
+      ctx.strokeStyle = "#b8924a"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(w / 2 - 520, 160); ctx.lineTo(w / 2 + 520, 160); ctx.stroke();
+      ctx.fillStyle = "#1e160d";
+      ctx.font = "italic 54px Georgia, serif";
+      let y = wrapCanvasText(ctx, "“" + SECOND_INAUGURAL_QUOTE + "”", w / 2, 250, 1820, 74);
+      ctx.fillStyle = "#4a3b2c";
+      ctx.font = "36px Georgia, serif";
+      ctx.fillText("— Abraham Lincoln, Second Inaugural Address, March 4, 1865", w / 2, y + 30);
+      ctx.fillStyle = "#8c6928";
+      ctx.font = "bold 30px Georgia, serif";
+      ctx.fillText("CLICK TO READ MORE  →", w / 2, h - 80);
+      return c;
+    }
+
+    function drawHealPlaque(ex) {
+      const w = 900, h = 420;
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#f4ebd7";
+      ctx.fillRect(0, 0, w, h);
+      agePaper(ctx, w, h, 1500);
+      ctx.strokeStyle = "#8c6928"; ctx.lineWidth = 10; ctx.strokeRect(10, 10, w - 20, h - 20);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#7a581d";
+      ctx.font = "bold 34px Georgia, serif";
+      ctx.fillText(ex.archiveCategory.split("•")[1].trim(), w / 2, 90);
+      ctx.fillStyle = "#1e160d";
+      ctx.font = "bold 50px Georgia, serif";
+      wrapCanvasText(ctx, ex.title, w / 2, 175, 800, 60);
+      ctx.fillStyle = "#8c6928";
+      ctx.font = "bold 26px Georgia, serif";
+      ctx.fillText("CLICK TO LEARN MORE  →", w / 2, h - 50);
+      return c;
+    }
+
+    function buildHealWall(hallWidth) {
+      const g = new THREE.Group();
+      g.position.set(-hallWidth / 2 + 0.26, 0, -26.5);
+      g.rotation.y = Math.PI / 2; // local +x runs toward the visitor's right
+      scene.add(g);
+
+      const panelW = 5.2, panelH = 2.6, panelY = 4.15;
+      addMesh(g, new THREE.BoxGeometry(panelW + 0.32, panelH + 0.32, 0.1), stdMat(0x2a160c, 0.45), 0, panelY, 0);
+      addMesh(g, new THREE.BoxGeometry(panelW + 0.12, panelH + 0.12, 0.12), stdMat(0xc59b45, 0.3, 0.68), 0, panelY, 0.01);
+      const panel = new THREE.Mesh(
+        new THREE.PlaneGeometry(panelW, panelH),
+        new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(drawHealPanel()), roughness: 0.75 })
+      );
+      panel.position.set(0, panelY, 0.08);
+      panel.userData = { exhibitIndex: exhibitIndexBySlug("america-heals") };
+      interactiveMeshes.push(panel);
+      g.add(panel);
+
+      // Three dated plaques, in time order from left to right
+      [["freedmens-bureau", -1.7], ["appomattox", 0], ["thirteenth-amendment", 1.7]].forEach(([slug, x]) => {
+        const idx = exhibitIndexBySlug(slug);
+        addMesh(g, new THREE.BoxGeometry(1.6, 0.8, 0.06), stdMat(0xc59b45, 0.3, 0.68), x, 2.05, 0.02);
+        const plaque = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.5, 0.7),
+          new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(drawHealPlaque(EXHIBITS[idx])), roughness: 0.6 })
+        );
+        plaque.position.set(x, 2.05, 0.06);
+        plaque.userData = { exhibitIndex: idx };
+        interactiveMeshes.push(plaque);
+        g.add(plaque);
+      });
+
+      const spot = new THREE.SpotLight(0xffeccc, 0.7, 14, Math.PI / 4.5, 0.5, 1.1);
+      spot.position.set(-hallWidth / 2 + 3.8, 6.5, -26.5);
+      spot.target = panel;
+      scene.add(spot);
+    }
+
+    // ---------- Tintype photo booth (3D set) ----------
+    function drawBackdropCanvas() {
+      const w = 900, h = 1040;
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const ctx = c.getContext("2d");
+      const g = ctx.createRadialGradient(w * 0.55, h * 0.4, 50, w * 0.5, h * 0.5, 700);
+      g.addColorStop(0, "#c9c4b6");
+      g.addColorStop(1, "#5d5a52");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      // soft painted clouds
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = `rgba(235,230,215,${0.04 + Math.random() * 0.05})`;
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * w, Math.random() * h * 0.7, 60 + Math.random() * 140, 30 + Math.random() * 60, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // painted column on the left
+      ctx.fillStyle = "#8c877a";
+      ctx.fillRect(70, 160, 130, 700);
+      ctx.fillStyle = "#a8a395";
+      ctx.fillRect(50, 130, 170, 40);
+      ctx.fillRect(50, 850, 170, 50);
+      for (let x = 90; x < 200; x += 22) {
+        ctx.fillStyle = "rgba(60,55,45,0.25)";
+        ctx.fillRect(x, 170, 6, 680);
+      }
+      // painted drape on the right
+      ctx.fillStyle = "#5b2a24";
+      ctx.beginPath();
+      ctx.moveTo(w, 0); ctx.lineTo(w - 260, 0);
+      ctx.quadraticCurveTo(w - 140, 380, w - 60, 1040); ctx.lineTo(w, 1040);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = "rgba(20,8,6,0.4)"; ctx.lineWidth = 6;
+      for (let k = 0; k < 4; k++) {
+        ctx.beginPath(); ctx.moveTo(w - 230 + k * 50, 0); ctx.quadraticCurveTo(w - 120 + k * 30, 420, w - 50 + k * 12, 1040); ctx.stroke();
+      }
+      // balustrade along the bottom
+      ctx.fillStyle = "#77736a";
+      ctx.fillRect(0, 880, w, 30);
+      for (let x = 20; x < w - 40; x += 70) {
+        ctx.fillStyle = "#8f8a7e";
+        ctx.beginPath(); ctx.ellipse(x + 20, 960, 18, 60, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = "#6b675e";
+      ctx.fillRect(0, 1010, w, 30);
+      agePaper(ctx, w, h, 2500);
+      return c;
+    }
+
+    function drawBoothSign() {
+      const c = document.createElement("canvas");
+      c.width = 1400; c.height = 280;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#1c130d";
+      ctx.fillRect(0, 0, 1400, 280);
+      ctx.strokeStyle = "#c8a258"; ctx.lineWidth = 10; ctx.strokeRect(12, 12, 1376, 256);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#e6c786";
+      ctx.font = "bold 92px Georgia, serif";
+      ctx.fillText("TINTYPE PORTRAITS", 700, 135);
+      ctx.fillStyle = "#d9c8a4";
+      ctx.font = "italic 46px Georgia, serif";
+      ctx.fillText("Sit for your likeness • Click to begin", 700, 215);
+      return c;
+    }
+
+    function buildPhotoBooth(hallWidth) {
+      const idx = exhibitIndexBySlug("photo-booth");
+      const clickable = (mesh) => { mesh.userData = { exhibitIndex: idx }; interactiveMeshes.push(mesh); return mesh; };
+      const wallX = hallWidth / 2 - 0.26;
+      const z = 17.6;
+
+      // Painted studio backdrop on a wooden stand
+      const backdrop = new THREE.Group();
+      backdrop.position.set(wallX - 0.55, 0, z);
+      backdrop.rotation.y = -Math.PI / 2;
+      scene.add(backdrop);
+      const wood = stdMat(0x3a2212, 0.5);
+      clickable(addMesh(backdrop, new THREE.PlaneGeometry(2.6, 3.0), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(drawBackdropCanvas()), roughness: 0.9 }), 0, 1.6, 0));
+      [-1.35, 1.35].forEach((x) => addMesh(backdrop, new THREE.BoxGeometry(0.08, 3.25, 0.08), wood, x, 1.62, -0.02));
+      addMesh(backdrop, new THREE.BoxGeometry(2.8, 0.08, 0.08), wood, 0, 3.15, -0.02);
+      [-1.35, 1.35].forEach((x) => addMesh(backdrop, new THREE.BoxGeometry(0.1, 0.05, 0.6), wood, x, 0.03, 0));
+
+      // Sign on the wall above
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 0.56), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(drawBoothSign()), roughness: 0.6 }));
+      sign.position.set(wallX, 4.0, z);
+      sign.rotation.y = -Math.PI / 2;
+      clickable(sign);
+      scene.add(sign);
+
+      // Posing chair (faces the camera, into the hall)
+      const chair = new THREE.Group();
+      chair.position.set(wallX - 1.35, 0, z);
+      scene.add(chair);
+      const velvet = stdMat(0x6b1a1e, 0.9);
+      clickable(addMesh(chair, new THREE.BoxGeometry(0.55, 0.08, 0.55), velvet, 0, 0.5, 0));
+      [[-0.23, -0.23], [-0.23, 0.23], [0.23, -0.23], [0.23, 0.23]].forEach(([x, zz]) => addMesh(chair, new THREE.CylinderGeometry(0.025, 0.02, 0.5, 8), wood, x, 0.25, zz));
+      addMesh(chair, new THREE.BoxGeometry(0.06, 0.7, 0.55), wood, 0.25, 0.9, 0);
+      addMesh(chair, new THREE.BoxGeometry(0.03, 0.55, 0.45), velvet, 0.22, 0.92, 0);
+
+      // Iron head brace (kept sitters still during long exposures)
+      const iron = stdMat(0x222222, 0.5, 0.6);
+      addMesh(scene, new THREE.CylinderGeometry(0.18, 0.2, 0.05, 16), iron, wallX - 0.95, 0.03, z);
+      addMesh(scene, new THREE.CylinderGeometry(0.018, 0.018, 1.25, 8), iron, wallX - 0.95, 0.65, z);
+      addMesh(scene, new THREE.TorusGeometry(0.09, 0.012, 6, 16, Math.PI), iron, wallX - 0.98, 1.3, z, 0, Math.PI / 2, Math.PI);
+
+      // Wooden view camera on a tripod, aimed at the chair
+      const cam = new THREE.Group();
+      cam.position.set(wallX - 3.7, 0, z - 1.7);
+      cam.rotation.y = -Math.atan2(1.7, 2.35);
+      scene.add(cam);
+      const walnut = stdMat(0x5b3219, 0.45);
+      const brass = stdMat(0xc9a24a, 0.3, 0.8);
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 3) * Math.PI * 2;
+        const leg = addMesh(cam, new THREE.CylinderGeometry(0.025, 0.02, 1.35, 8), walnut, Math.cos(a) * 0.2, 0.62, Math.sin(a) * 0.2);
+        leg.rotation.set(Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3);
+      }
+      clickable(addMesh(cam, new THREE.BoxGeometry(0.42, 0.38, 0.38), walnut, -0.1, 1.42, 0));
+      addMesh(cam, new THREE.CylinderGeometry(0.15, 0.2, 0.32, 4), stdMat(0x111111, 0.85), 0.27, 1.42, 0, Math.PI / 4, 0, Math.PI / 2);
+      addMesh(cam, new THREE.BoxGeometry(0.06, 0.3, 0.3), walnut, 0.45, 1.42, 0);
+      addMesh(cam, new THREE.CylinderGeometry(0.07, 0.07, 0.2, 18), brass, 0.57, 1.42, 0, 0, 0, Math.PI / 2);
+      addMesh(cam, new THREE.CylinderGeometry(0.06, 0.06, 0.02, 18), stdMat(0x0a0a0a, 0.2), 0.68, 1.42, 0, 0, 0, Math.PI / 2);
+      addMesh(cam, new THREE.BoxGeometry(0.25, 0.42, 0.44), stdMat(0x0d0d0d, 0.95), -0.4, 1.36, 0); // focusing cloth
+
+      const spot = new THREE.SpotLight(0xfff0d8, 2.0, 12, Math.PI / 4.5, 0.5, 1.1);
+      spot.position.set(wallX - 3.6, 6.3, z);
+      spot.target = chair;
+      scene.add(spot);
     }
 
     function initMuseumScene() {
@@ -2047,7 +2848,7 @@
       const ropeMat = new THREE.MeshStandardMaterial({ color: 0x6e141a, roughness: 0.85 });
 
       EXHIBITS.forEach((exhibit, idx) => {
-        if (exhibit.isFlag) return; // flags are built with the hall decorations
+        if (exhibit.isFlag || exhibit.builtSeparately) return; // built with the hall decorations
         if (exhibit.isGlassCase) {
           buildGlassCase(exhibit, idx, frameGoldMat);
           return;
@@ -2196,15 +2997,17 @@
         }
       });
 
-      // Build Bottom Dock Navigation Pills
+      // Build Bottom Dock Navigation Pills (main tour stops only)
       const dock = document.getElementById("tour-dock");
-      EXHIBITS.forEach((ex, i) => {
+      TOUR.forEach((i) => {
+        const ex = EXHIBITS[i];
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "tour-pill px-3.5 py-2 rounded-full text-xs text-stone-200 whitespace-nowrap flex items-center gap-2";
         btn.id = `tour-pill-${i}`;
+        btn.dataset.idx = String(i);
         btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>${ex.shortTitle}</span>`;
-        btn.onclick = () => moveToExhibit(i, false);
+        btn.onclick = () => (ex.isBooth ? moveToExhibit(i, true) : moveToExhibit(i, false));
         dock.appendChild(btn);
       });
 
@@ -2220,8 +3023,11 @@
      */
     function updateActiveTourPill(idx) {
       currentTourIndex = idx;
-      document.querySelectorAll(".tour-pill").forEach((el, i) => {
-        el.classList.toggle("active", i === idx);
+      const main = mainIndexOf(idx);
+      document.querySelectorAll(".tour-pill").forEach((el) => {
+        const on = Number(el.dataset.idx) === main;
+        el.classList.toggle("active", on);
+        if (on) el.scrollIntoView({ block: "nearest", inline: "nearest" });
       });
     }
 
@@ -2259,7 +3065,8 @@
     }
 
     function stepTour(delta) {
-      const next = (currentTourIndex + delta + EXHIBITS.length) % EXHIBITS.length;
+      const pos = TOUR.indexOf(mainIndexOf(currentTourIndex));
+      const next = TOUR[(pos + delta + TOUR.length) % TOUR.length];
       moveToExhibit(next, false);
     }
 
@@ -2271,6 +3078,7 @@
       });
 
       window.addEventListener("keydown", (e) => {
+        if (document.getElementById("booth-dialog").open) return;
         const dialog = document.getElementById("artifact-dialog");
         if (dialog.open) {
           if (e.key === "ArrowRight") navigateModal(1);
@@ -2320,13 +3128,21 @@
         stopAudioGuide();
         resumeHallMusic(); // placard closed -> music comes back
       });
+      document.getElementById("booth-dialog").addEventListener("close", () => {
+        stopBoothCamera();
+        resumeHallMusic();
+      });
     }
 
     function handleCanvasClick() {
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects(interactiveMeshes, false);
       if (hits.length > 0) {
-        const idx = hits[0].object.userData.exhibitIndex;
+        let idx = hits[0].object.userData.exhibitIndex;
+        if (hits[0].object.userData.ugrrMap) {
+          const stop = ugrrStopAtUV(hits[0].uv);
+          if (stop) idx = exhibitIndexBySlug(stop.slug);
+        }
         moveToExhibit(idx, true);
       }
     }
@@ -2378,7 +3194,7 @@
 
       // Keep visitor inside gallery walls
       player.x = Math.max(-5.2, Math.min(5.2, player.x));
-      player.z = Math.max(-24.8, Math.min(19.5, player.z));
+      player.z = Math.max(-27.2, Math.min(19.5, player.z));
 
       camera.position.set(player.x, player.y, player.z);
       camera.rotation.y = player.yaw;
@@ -2387,7 +3203,7 @@
 
     function updateHoverReticle() {
       const dialog = document.getElementById("artifact-dialog");
-      if (dialog.open) return;
+      if (dialog.open || document.getElementById("booth-dialog").open) return;
 
       raycaster.setFromCamera(mouse, camera);
       const hits = raycaster.intersectObjects(interactiveMeshes, false);
@@ -2399,7 +3215,8 @@
         hoveredMesh = hits[0].object;
         const ex = EXHIBITS[hoveredMesh.userData.exhibitIndex];
         ring.classList.add("scale-150", "border-amber-300", "bg-amber-400/20");
-        label.textContent = `Inspect: ${ex.title}`;
+        const stop = hoveredMesh.userData.ugrrMap ? ugrrStopAtUV(hits[0].uv) : null;
+        label.textContent = stop ? `Stop ${stop.stop}: ${stop.name}` : ex.isBooth ? "Click to sit for your tintype portrait" : `Inspect: ${ex.title}`;
         label.classList.remove("opacity-0");
         if (!isDragging) canvas.style.cursor = "pointer";
       } else {
@@ -2425,12 +3242,21 @@
     let isZoomed = false;
 
     function openModalForExhibit(idx) {
+      if (EXHIBITS[idx].isBooth) {
+        updateActiveTourPill(idx);
+        openBooth();
+        return;
+      }
       pauseHallMusic(); // placard opened -> music stops so the visitor can read / hear narration
       stopAudioGuide();
       updateActiveTourPill(idx);
       const ex = EXHIBITS[idx];
 
-      document.getElementById("modal-catalog-id").textContent = `ARTIFACT ${String(idx + 1).padStart(2, "0")} / ${String(EXHIBITS.length).padStart(2, "0")}`;
+      document.getElementById("modal-catalog-id").textContent = ex.stop
+        ? `MAP STOP ${ex.stop} OF ${UGRR_STOPS.length}`
+        : ex.parent
+          ? `PART OF: ${EXHIBITS[mainIndexOf(idx)].shortTitle.replace(/^\d+\.\s*/, "").toUpperCase()}`
+          : `EXHIBIT ${String(TOUR.indexOf(idx) + 1).padStart(2, "0")} / ${String(TOUR.length).padStart(2, "0")}`;
       document.getElementById("modal-archive-tag").textContent = ex.archiveCategory;
       document.getElementById("modal-title").textContent = ex.title;
       document.getElementById("modal-meta1-heading").textContent = ex.meta1Heading;
@@ -2461,7 +3287,8 @@
     }
 
     function navigateModal(delta) {
-      const next = (currentTourIndex + delta + EXHIBITS.length) % EXHIBITS.length;
+      const pos = Math.max(0, READING.indexOf(currentTourIndex));
+      const next = READING[(pos + delta + READING.length) % READING.length];
       moveToExhibit(next, false);
       openModalForExhibit(next);
     }
@@ -2662,7 +3489,7 @@
         // Move to the next song, then loop back to the first
         musicTrackIndex = (musicTrackIndex + 1) % MUSIC_PLAYLIST.length;
         music.src = MUSIC_PLAYLIST[musicTrackIndex];
-        if (musicEnabled && !document.getElementById("artifact-dialog").open) playCurrentTrack();
+        if (musicEnabled && !document.getElementById("artifact-dialog").open && !document.getElementById("booth-dialog").open) playCurrentTrack();
       });
     }
 
@@ -2675,6 +3502,7 @@
     function resumeHallMusic() {
       if (!musicEnabled) return;
       if (document.getElementById("artifact-dialog").open) return;
+      if (document.getElementById("booth-dialog").open) return;
       playCurrentTrack();
     }
 
@@ -2758,7 +3586,259 @@
       toastTimer = setTimeout(() => el.classList.add("opacity-0"), 3400);
     }
 
+    /**
+     * ============================================================================
+     * 8. TINTYPE PHOTO BOOTH
+     * Uses the visitor's webcam (or an uploaded photo). Everything happens on the
+     * visitor's own computer; no picture is uploaded anywhere.
+     * ============================================================================
+     */
+    let boothStream = null;
+    let boothLoop = null;
+    let boothState = "idle"; // idle | live | counting | done
+    const BOOTH_W = 720, BOOTH_H = 900;
+
+    function boothEls() {
+      return {
+        dialog: document.getElementById("booth-dialog"),
+        video: document.getElementById("booth-video"),
+        canvas: document.getElementById("booth-canvas"),
+        count: document.getElementById("booth-countdown"),
+        status: document.getElementById("booth-status"),
+        start: document.getElementById("booth-start-btn"),
+        snap: document.getElementById("booth-snap-btn"),
+        retake: document.getElementById("booth-retake-btn"),
+        save: document.getElementById("booth-save-btn"),
+        name: document.getElementById("booth-name")
+      };
+    }
+
+    function setBoothButtons() {
+      const el = boothEls();
+      el.start.classList.toggle("hidden", boothState !== "idle");
+      el.snap.classList.toggle("hidden", boothState !== "live");
+      el.retake.classList.toggle("hidden", boothState !== "done");
+      el.save.classList.toggle("hidden", boothState !== "done");
+      // live preview gets a CSS sepia look; the finished portrait is processed for real
+      el.canvas.style.filter = boothState === "live" || boothState === "counting" ? "grayscale(1) sepia(0.75) contrast(1.15) brightness(0.95)" : "none";
+    }
+
+    function drawBoothWelcome() {
+      const el = boothEls();
+      const ctx = el.canvas.getContext("2d");
+      const g = ctx.createRadialGradient(BOOTH_W / 2, BOOTH_H / 2, 60, BOOTH_W / 2, BOOTH_H / 2, 620);
+      g.addColorStop(0, "#5a4a36");
+      g.addColorStop(1, "#140f0a");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, BOOTH_W, BOOTH_H);
+      ctx.strokeStyle = "rgba(230,205,150,0.6)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(BOOTH_W / 2, BOOTH_H / 2 - 30, 230, 300, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "#e6d3a8";
+      ctx.textAlign = "center";
+      ctx.font = "bold 40px Georgia, serif";
+      ctx.fillText("Your portrait", BOOTH_W / 2, BOOTH_H / 2 - 40);
+      ctx.font = "italic 28px Georgia, serif";
+      ctx.fillText("will appear here", BOOTH_W / 2, BOOTH_H / 2 + 5);
+    }
+
+    function openBooth() {
+      const el = boothEls();
+      pauseHallMusic();
+      stopAudioGuide();
+      const art = document.getElementById("artifact-dialog");
+      if (art.open) art.close();
+      boothState = "idle";
+      el.status.textContent = "Press “Start Camera” and allow your browser to use the camera.";
+      drawBoothWelcome();
+      setBoothButtons();
+      if (!el.dialog.open) el.dialog.showModal();
+    }
+
+    function stopBoothCamera() {
+      if (boothLoop) cancelAnimationFrame(boothLoop);
+      boothLoop = null;
+      if (boothStream) boothStream.getTracks().forEach((t) => t.stop());
+      boothStream = null;
+    }
+
+    function closeBooth() {
+      stopBoothCamera();
+      document.getElementById("booth-dialog").close();
+    }
+
+    // Copy the middle of the camera picture into a 4:5 portrait, mirrored like a looking glass
+    function drawSourceToCanvas(ctx, source, sw, sh, mirror) {
+      const target = BOOTH_W / BOOTH_H;
+      let cw = sw, ch = sw / target;
+      if (ch > sh) { ch = sh; cw = sh * target; }
+      const sx = (sw - cw) / 2, sy = (sh - ch) / 2;
+      ctx.save();
+      if (mirror) { ctx.translate(BOOTH_W, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(source, sx, sy, cw, ch, 0, 0, BOOTH_W, BOOTH_H);
+      ctx.restore();
+    }
+
+    async function startBoothCamera() {
+      const el = boothEls();
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        el.status.textContent = "This browser can't use a camera here. Use “Use a photo instead” below.";
+        return;
+      }
+      try {
+        boothStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      } catch (err) {
+        el.status.textContent = "The camera is blocked or not available. You can allow it in the browser's address bar, or use “Use a photo instead” below.";
+        return;
+      }
+      el.video.srcObject = boothStream;
+      await el.video.play().catch(() => {});
+      boothState = "live";
+      el.status.textContent = "Sit up straight and look into the lens. In the 1860s you had to hold perfectly still!";
+      setBoothButtons();
+      const ctx = el.canvas.getContext("2d");
+      const tick = () => {
+        if (boothState !== "live" && boothState !== "counting") return;
+        if (el.video.videoWidth) drawSourceToCanvas(ctx, el.video, el.video.videoWidth, el.video.videoHeight, true);
+        boothLoop = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+
+    function takeBoothPortrait() {
+      const el = boothEls();
+      if (boothState !== "live") return;
+      boothState = "counting";
+      setBoothButtons();
+      el.snap.classList.add("hidden");
+      let n = 3;
+      el.count.textContent = n;
+      el.count.classList.remove("hidden");
+      el.status.textContent = "Hold still…";
+      const timer = setInterval(() => {
+        n -= 1;
+        if (n > 0) {
+          el.count.textContent = n;
+          return;
+        }
+        clearInterval(timer);
+        el.count.classList.add("hidden");
+        const shot = document.createElement("canvas");
+        shot.width = BOOTH_W; shot.height = BOOTH_H;
+        drawSourceToCanvas(shot.getContext("2d"), el.video, el.video.videoWidth, el.video.videoHeight, true);
+        finishTintype(shot);
+      }, 1000);
+    }
+
+    function useBoothUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        stopBoothCamera();
+        const shot = document.createElement("canvas");
+        shot.width = BOOTH_W; shot.height = BOOTH_H;
+        drawSourceToCanvas(shot.getContext("2d"), img, img.naturalWidth, img.naturalHeight, false);
+        URL.revokeObjectURL(img.src);
+        finishTintype(shot);
+      };
+      img.src = URL.createObjectURL(file);
+      event.target.value = "";
+    }
+
+    // Turn an ordinary picture into an aged tintype
+    function finishTintype(shot) {
+      const el = boothEls();
+      if (boothLoop) cancelAnimationFrame(boothLoop);
+      boothLoop = null;
+      const ctx = el.canvas.getContext("2d");
+      const src = shot.getContext("2d").getImageData(0, 0, BOOTH_W, BOOTH_H);
+      const d = src.data;
+      const cx = BOOTH_W / 2, cy = BOOTH_H * 0.45, maxR = Math.hypot(cx, BOOTH_H * 0.55);
+      for (let i = 0; i < d.length; i += 4) {
+        const p = i / 4, x = p % BOOTH_W, y = (p / BOOTH_W) | 0;
+        let l = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        l = (l - 128) * 1.35 + 132;                       // strong contrast
+        l += (Math.random() - 0.5) * 22;                  // grain
+        const v = Math.hypot(x - cx, y - cy) / maxR;      // vignette
+        l *= 1 - Math.pow(v, 2.4) * 0.85;
+        l = Math.max(0, Math.min(255, l));
+        d[i] = Math.min(255, l * 0.98 + 10);              // warm brown-black tint
+        d[i + 1] = l * 0.86 + 4;
+        d[i + 2] = l * 0.66;
+      }
+      ctx.putImageData(src, 0, 0);
+
+      // scratches & dust
+      for (let k = 0; k < 14; k++) {
+        ctx.strokeStyle = `rgba(240,225,190,${0.08 + Math.random() * 0.15})`;
+        ctx.lineWidth = Math.random() * 1.5 + 0.4;
+        ctx.beginPath();
+        const sx = Math.random() * BOOTH_W, sy = Math.random() * BOOTH_H;
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx + (Math.random() - 0.5) * 140, sy + Math.random() * 260);
+        ctx.stroke();
+      }
+      for (let k = 0; k < 260; k++) {
+        ctx.fillStyle = Math.random() < 0.6 ? "rgba(15,10,6,0.55)" : "rgba(235,220,185,0.35)";
+        ctx.fillRect(Math.random() * BOOTH_W, Math.random() * BOOTH_H, Math.random() * 3 + 1, Math.random() * 3 + 1);
+      }
+
+      // dark, uneven edges of an iron plate
+      const edge = ctx.createRadialGradient(cx, BOOTH_H / 2, Math.min(BOOTH_W, BOOTH_H) * 0.38, cx, BOOTH_H / 2, maxR * 1.02);
+      edge.addColorStop(0, "rgba(10,7,4,0)");
+      edge.addColorStop(1, "rgba(10,7,4,0.95)");
+      ctx.fillStyle = edge;
+      ctx.fillRect(0, 0, BOOTH_W, BOOTH_H);
+      ctx.fillStyle = "#0b0805";
+      for (let x = 0; x < BOOTH_W; x += 6) {
+        ctx.fillRect(x, 0, 6, 8 + Math.random() * 14);
+        ctx.fillRect(x, BOOTH_H - 8 - Math.random() * 14, 6, 30);
+      }
+      for (let y = 0; y < BOOTH_H; y += 6) {
+        ctx.fillRect(0, y, 8 + Math.random() * 14, 6);
+        ctx.fillRect(BOOTH_W - 8 - Math.random() * 14, y, 30, 6);
+      }
+
+      // engraved caption
+      const name = (el.name.value || "").trim().slice(0, 40);
+      ctx.fillStyle = "rgba(10,7,4,0.75)";
+      ctx.fillRect(0, BOOTH_H - 120, BOOTH_W, 120);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#e3cf9e";
+      ctx.font = "italic bold 38px Georgia, serif";
+      if (name) ctx.fillText(name, BOOTH_W / 2, BOOTH_H - 68);
+      ctx.font = "22px Georgia, serif";
+      ctx.fillStyle = "#cdb98a";
+      ctx.fillText("A Nation Divided • Civil War Museum • Tintype Studio", BOOTH_W / 2, BOOTH_H - (name ? 30 : 52));
+
+      stopBoothCamera();
+      boothState = "done";
+      el.status.textContent = "Your tintype is ready! Download it, or try again.";
+      setBoothButtons();
+    }
+
+    function retakeBoothPortrait() {
+      boothState = "idle";
+      drawBoothWelcome();
+      setBoothButtons();
+      startBoothCamera();
+    }
+
+    function downloadBoothPortrait() {
+      const canvas = document.getElementById("booth-canvas");
+      const link = document.createElement("a");
+      link.download = "my-civil-war-tintype.jpg";
+      link.href = canvas.toDataURL("image/jpeg", 0.92);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
     window.onload = async function () {
+      createPlaceholderImages();
       initMuseumScene();
       initHallMusic();
       updateFullscreenButton();
