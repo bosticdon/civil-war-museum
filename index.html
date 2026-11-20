@@ -352,10 +352,15 @@
           </p>
 
           <audio id="custom-voice-player" class="hidden"></audio>
+          <audio id="song-player" class="hidden" preload="none"></audio>
         </div>
 
         <!-- Placard Footer Actions -->
         <div class="mt-6 pt-4 border-t border-amber-900/25 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" id="song-btn" onclick="toggleSong()" class="hidden px-4 py-2 rounded-lg brass-badge text-xs font-bold flex items-center gap-2 shadow">
+            <span id="song-icon">&#9835;</span>
+            <span id="song-label">Play the Song</span>
+          </button>
           <button type="button" id="audio-guide-btn" onclick="toggleAudioGuide()" class="px-4 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-200 text-xs font-medium flex items-center gap-2 transition shadow">
             <span id="audio-icon">&#128266;</span>
             <span id="audio-label">Play Audio Guide</span>
@@ -426,6 +431,7 @@
       <h3 class="font-cinzel text-sm font-bold tracking-wider text-amber-900 mt-6 mb-2 uppercase">Music</h3>
       <ul class="sources-list">
         <li><i>Our Musical Past, Vol. 1</i>, tracks 3 and 9 (background music in the hall).</li>
+        <li>"Battle Hymn of the Republic" (slow), Concert Band of the United States Air Forces in Europe Band, from <i>To the Colors</i> (1999). Public domain, a work of the U.S. federal government. Wikimedia Commons, from the U.S. Air Force Band's public domain music. <a href="https://www.music.af.mil/Multimedia/Music/Public-Domain-Music/" target="_blank" rel="noopener">music.af.mil</a></li>
       </ul>
     </article>
   </dialog>
@@ -767,6 +773,7 @@
       },
       {
         slug: "instruments",
+        song: { url: "./battle-hymn.mp3", title: "Battle Hymn of the Republic" },
         imageCandidates: ["./instruments.jpg", "./instruments.png"],
         audioCandidates: ["./instruments.mp3", "./instruments.m4a"],
         shortTitle: "Instruments & Songs",
@@ -781,7 +788,7 @@
         mediumLabel: "Songs of the era",
         medium: "\"Battle Hymn of the Republic,\" \"Dixie,\" \"Taps\"",
         description:
-          "In an age before radios, music ran the army. Drummers and buglers sounded the calls that ordered a soldier's whole day, from reveille at dawn to roll call, meals, drill, and lights out. In the smoke and noise of battle, a bugle call or a drum beat could carry orders that a shouted voice could not. Many drummers were boys in their early teens, and a few were even younger. The famous bugle call \"Taps\" was created in July 1862 at Harrison's Landing, Virginia, by Union General Daniel Butterfield and his bugler, Oliver Wilcox Norton, as a lights-out signal; today it is played at military funerals. Regimental brass bands lifted spirits in camp. Confederate soldiers marched to \"Dixie,\" while Union troops sang \"Battle Hymn of the Republic,\" whose words by Julia Ward Howe called on faith in God's justice.",
+          "In an age before radios, music ran the army. Drummers and buglers sounded the calls that ordered a soldier's whole day, from reveille at dawn to roll call, meals, drill, and lights out. In the smoke and noise of battle, a bugle call or a drum beat could carry orders that a shouted voice could not. Many drummers were boys in their early teens, and a few were even younger. The famous bugle call \"Taps\" was created in July 1862 at Harrison's Landing, Virginia, by Union General Daniel Butterfield and his bugler, Oliver Wilcox Norton, as a lights-out signal; today it is played at military funerals. Regimental brass bands lifted spirits in camp. Confederate soldiers marched to \"Dixie,\" while Union troops sang \"Battle Hymn of the Republic,\" whose words by Julia Ward Howe called on faith in God's justice. Press \"Play the Song\" to hear \"Battle Hymn of the Republic\" played by a U.S. Air Force band.",
         isWeaponCase: false,
         isGlassCase: true,
         caseStyle: "instruments",
@@ -968,6 +975,7 @@
       },
       {
         slug: "america-heals",
+        song: { url: "./battle-hymn.mp3", title: "Battle Hymn of the Republic" },
         builtSeparately: true,
         heal: "main",
         imageCandidates: [],
@@ -984,7 +992,7 @@
         mediumLabel: "Length",
         medium: "About 700 words, one of the shortest inaugural addresses ever given",
         description:
-          "With the war almost won, many people expected President Lincoln to celebrate. Instead, his second inaugural speech sounded more like a sermon. He reminded the nation that both sides \"read the same Bible and pray to the same God,\" and he spoke humbly about God's purposes in the war. Then he closed with words that pointed the country toward healing instead of revenge: \"With malice toward none, with charity for all, with firmness in the right as God gives us to see the right, let us strive on to finish the work we are in, to bind up the nation's wounds, to care for him who shall have borne the battle and for his widow and his orphan, to do all which may achieve and cherish a just and lasting peace among ourselves and with all nations.\" Lincoln did not live to lead that healing. Forty-one days later, on April 14, 1865, he was shot at Ford's Theatre, and he died the next morning. The plaques below show three steps the nation took in 1865 as it began to heal.",
+          "With the war almost won, many people expected President Lincoln to celebrate. Instead, his second inaugural speech sounded more like a sermon. He reminded the nation that both sides \"read the same Bible and pray to the same God,\" and he spoke humbly about God's purposes in the war. Then he closed with words that pointed the country toward healing instead of revenge: \"With malice toward none, with charity for all, with firmness in the right as God gives us to see the right, let us strive on to finish the work we are in, to bind up the nation's wounds, to care for him who shall have borne the battle and for his widow and his orphan, to do all which may achieve and cherish a just and lasting peace among ourselves and with all nations.\" Lincoln did not live to lead that healing. Forty-one days later, on April 14, 1865, he was shot at Ford's Theatre, and he died the next morning. The plaques below show three steps the nation took in 1865 as it began to heal. Press \"Play the Song\" to hear \"Battle Hymn of the Republic,\" the Union's great hymn of faith, played by a U.S. Air Force band.",
         view: { x: -2.6, z: -26.5, yaw: Math.PI / 2, pitch: 0.16 }
       },
       {
@@ -3350,6 +3358,7 @@
       // Stop voice narration cleanly if user closes dialog via ESC key
       document.getElementById("artifact-dialog").addEventListener("close", () => {
         stopAudioGuide();
+        if (isSongPlaying) stopSong();
         resumeHallMusic(); // placard closed -> music comes back
       });
       document.getElementById("booth-dialog").addEventListener("close", () => {
@@ -3503,7 +3512,9 @@
       document.getElementById("modal-img-caption").textContent = ex.title;
 
       resetZoom();
+      if (isSongPlaying) stopSong();
       updateVoiceUIState(idx);
+      updateSongButton(idx);
 
       const dialog = document.getElementById("artifact-dialog");
       if (!dialog.open) {
@@ -3625,6 +3636,7 @@
         stopAudioGuide();
         return;
       }
+      if (isSongPlaying) stopSong();
 
       const hostedURL = hostedAudioURLs[currentTourIndex];
       if (hostedURL) {
@@ -3654,6 +3666,52 @@
       window.speechSynthesis.cancel();
       setSpeakingUI("Stop Audio Guide");
       window.speechSynthesis.speak(utterance);
+    }
+
+    // ---------- Period song player (e.g. "Battle Hymn of the Republic") ----------
+    let isSongPlaying = false;
+
+    function updateSongButton(idx) {
+      const btn = document.getElementById("song-btn");
+      const ex = EXHIBITS[idx];
+      btn.classList.toggle("hidden", !(ex && ex.song));
+      if (ex && ex.song && !isSongPlaying) {
+        document.getElementById("song-label").textContent = "Play the Song";
+        document.getElementById("song-icon").innerHTML = "&#9835;";
+      }
+    }
+
+    function stopSong() {
+      const player = document.getElementById("song-player");
+      if (player) {
+        player.pause();
+        player.currentTime = 0;
+      }
+      isSongPlaying = false;
+      updateSongButton(currentTourIndex);
+    }
+
+    function toggleSong() {
+      if (isSongPlaying) {
+        stopSong();
+        return;
+      }
+      const ex = EXHIBITS[currentTourIndex];
+      if (!ex || !ex.song) return;
+      stopAudioGuide();
+      const player = document.getElementById("song-player");
+      player.src = ex.song.url;
+      player.volume = 0.8;
+      player.onended = () => stopSong();
+      document.getElementById("song-label").textContent = "Loading\u2026";
+      player.play().then(() => {
+        isSongPlaying = true;
+        document.getElementById("song-label").textContent = "Stop the Song";
+        document.getElementById("song-icon").innerHTML = "&#9209;";
+      }).catch(() => {
+        updateSongButton(currentTourIndex);
+        showToast("Unable to play the song.");
+      });
     }
 
     function stopAudioGuide() {
