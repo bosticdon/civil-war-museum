@@ -195,7 +195,7 @@
         </li>
       </ul>
       <div class="mt-3 pt-2 border-t border-amber-500/20 text-[10px] text-stone-400">
-        Tip: Use the bottom dock to walk automatically between exhibits, or record your own voice narration inside any placard.
+        Tip: Use the bottom dock to walk automatically between exhibits. Open any placard and press "Play Audio Guide" to hear it read aloud.
       </div>
     </aside>
 
@@ -256,25 +256,20 @@
             <button type="button" onclick="toggleZoom()" id="zoom-btn" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-amber-200 border border-amber-500/30 text-[11px] transition">
               Zoom 2.2x
             </button>
-            <label for="replace-photo-input" class="cursor-pointer px-2.5 py-1 rounded bg-amber-900/50 hover:bg-amber-800/70 text-amber-200 border border-amber-500/40 text-[11px] transition" title="Upload an exported JPG/PNG image from your PowerPoint">
-              Replace Exhibit Photo
-              <input type="file" id="replace-photo-input" accept="image/*" class="hidden" onchange="handleCustomPhotoUpload(event)" />
-            </label>
           </div>
         </div>
 
-        <figure id="zoom-viewport" onclick="toggleZoom()" onmousemove="panZoom(event)" ondragover="handleDragOver(event)" ondrop="handleDropPhoto(event)" class="flex-1 flex items-center justify-center rounded-lg bg-black/60 border border-amber-500/20 min-h-[260px] sm:min-h-[340px] max-h-[55vh] p-2">
+        <figure id="zoom-viewport" onclick="toggleZoom()" onmousemove="panZoom(event)" class="flex-1 flex items-center justify-center rounded-lg bg-black/60 border border-amber-500/20 min-h-[260px] sm:min-h-[340px] max-h-[55vh] p-2">
           <img id="modal-artifact-img" src="" alt="Civil War Artifact" class="max-h-full max-w-full object-contain rounded shadow-2xl" />
           <figcaption class="sr-only" id="modal-img-caption">Archival exhibit photograph</figcaption>
         </figure>
 
-        <div class="mt-3 flex items-center justify-between text-[11px] text-stone-400">
+        <div class="mt-3 text-center text-[11px] text-stone-400">
           <span>Click image to toggle magnifier loupe</span>
-          <span>Drag &amp; drop a photo onto frame to swap</span>
         </div>
       </section>
 
-      <!-- Right: Curatorial Museum Placard & Voice Narration Recorder -->
+      <!-- Right: Curatorial Museum Placard -->
       <section aria-label="Curatorial Description and Voice Guide" class="md:w-1/2 p-5 sm:p-8 flex flex-col justify-between overflow-y-auto placard-scroll max-h-[90vh]">
         <div>
           <div class="flex items-start justify-between gap-4">
@@ -312,34 +307,7 @@
             Standing in front of a headquarters tent just two weeks after the Battle of Antietam...
           </p>
 
-          <!-- Custom Voice Narration Studio (Record Microphone or Upload Audio File) -->
-          <div class="mt-5 p-3 rounded-lg bg-amber-950/10 border border-amber-900/25">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="font-cinzel text-[11px] font-bold tracking-wider text-amber-950 uppercase">
-                Curator Voice Narration
-              </span>
-              <span id="voice-status-badge" class="text-[11px] font-semibold text-stone-600">
-                Narrator: Built-in Guide
-              </span>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="record-voice-btn" onclick="toggleVoiceRecording()" class="px-3 py-1.5 rounded bg-red-800 hover:bg-red-700 text-white text-xs font-medium flex items-center gap-1.5 transition shadow-sm">
-                <span id="record-dot" class="w-2 h-2 rounded-full bg-white inline-block"></span>
-                <span id="record-btn-label">Record Your Voice</span>
-              </button>
-
-              <label for="upload-voice-input" class="cursor-pointer px-3 py-1.5 rounded bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-medium transition shadow-sm">
-                Upload Audio (.mp3/.wav)
-                <input type="file" id="upload-voice-input" accept="audio/*" class="hidden" onchange="handleCustomAudioUpload(event)" />
-              </label>
-
-              <button type="button" id="delete-voice-btn" onclick="deleteCustomVoice()" class="hidden px-2.5 py-1.5 rounded bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-medium transition" title="Revert to default text-to-speech narrator">
-                Reset Voice
-              </button>
-            </div>
-            <audio id="custom-voice-player" class="hidden"></audio>
-          </div>
+          <audio id="custom-voice-player" class="hidden"></audio>
         </div>
 
         <!-- Placard Footer Actions -->
@@ -370,7 +338,6 @@
      */
     const EXHIBITS = [
       {
-        id: 0,
         slug: "lincoln",
         imageCandidates: ["./lincoln.jpg", "./lincoln.JPG", "./lincoln.jpeg", "./lincoln.png"],
         audioCandidates: ["./lincoln.mp3", "./lincoln.MP3", "./lincoln.m4a", "./lincoln.wav"],
@@ -392,7 +359,6 @@
         zPos: 12
       },
       {
-        id: 1,
         slug: "hooker",
         imageCandidates: ["./hooker.jpg", "./hooker.JPG", "./hooker.jpeg", "./hooker.png"],
         audioCandidates: ["./hooker.mp3", "./hooker.MP3", "./hooker.m4a", "./hooker.wav"],
@@ -414,11 +380,33 @@
         zPos: 12
       },
       {
-        id: 2,
+        slug: "medical-supplies",
+        imageCandidates: ["./medical-supplies.jpg", "./medical%20supplies.jpg", "./medical-supplies.png"],
+        audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a", "./medical-supplies.wav"],
+        shortTitle: "3. Medical Supplies",
+        archiveCategory: "CIVIL WAR MEDICAL ARCHIVE",
+        title: "The Field Surgeon's Kit: Civil War Medical Supplies",
+        meta1Heading: "DATE & USE",
+        date: "1861–1865",
+        location: "Field hospitals of the Union and Confederate armies",
+        meta2Heading: "CONTENTS",
+        creatorLabel: "Instruments",
+        creator: "Bone saw, scalpels, forceps, tourniquet",
+        mediumLabel: "Supplies",
+        medium: "Chloroform and ether, quinine, bandages, medicine bottles",
+        description:
+          "Every regiment's surgeon carried a wooden kit like this one, lined with velvet and packed with saws, knives, and forceps. The heavy lead Minié bullets of the Civil War shattered bones, and amputating a badly wounded arm or leg was often the surest way to save a soldier's life. Contrary to the popular idea of \"biting the bullet,\" surgeons put most patients to sleep first with chloroform or ether. The greater killer, though, was disease: about two out of every three soldiers who died in the war died of illnesses such as dysentery, typhoid, and pneumonia rather than of wounds. Doctors gave quinine for malaria and wrapped wounds in cloth bandages, but no one yet understood germs, so instruments were rarely cleaned between patients. The war also brought lasting improvements: an organized ambulance corps to carry the wounded from the field, large pavilion hospitals, and thousands of women such as Clara Barton who served as nurses.",
+        isWeaponCase: false,
+        isGlassCase: true,
+        caseStyle: "medical",
+        wallSide: "center",
+        zPos: 7
+      },
+      {
         slug: "grant",
         imageCandidates: ["./grant.jpg", "./grant.JPG", "./grant.jpeg", "./grant.png"],
         audioCandidates: ["./grant.mp3", "./grant.MP3", "./grant.m4a", "./grant.wav"],
-        shortTitle: "3. Gen. Ulysses S. Grant",
+        shortTitle: "4. Gen. Ulysses S. Grant",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Lieutenant General Ulysses S. Grant at Field Headquarters",
         meta1Heading: "DATE & LOCATION",
@@ -436,11 +424,10 @@
         zPos: 2
       },
       {
-        id: 3,
         slug: "lee",
         imageCandidates: ["./lee.jpg", "./lee.JPG", "./lee.jpeg", "./lee.png"],
         audioCandidates: ["./lee.mp3", "./lee.MP3", "./lee.m4a", "./lee.wav"],
-        shortTitle: "4. Gen. Robert E. Lee",
+        shortTitle: "5. Gen. Robert E. Lee",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "General Robert E. Lee at His Richmond Residence",
         meta1Heading: "DATE & LOCATION",
@@ -458,11 +445,10 @@
         zPos: 2
       },
       {
-        id: 4,
         slug: "hospital",
         imageCandidates: ["./hospital.jpg", "./hospital.JPG", "./hospital.jpeg", "./hospital.png"],
         audioCandidates: ["./hospital.mp3", "./hospital.MP3", "./hospital.m4a", "./hospital.wav"],
-        shortTitle: "5. Union Hospital Ward",
+        shortTitle: "6. Union Hospital Ward",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Interior of a Union General Hospital Ward",
         meta1Heading: "DATE & LOCATION",
@@ -480,11 +466,10 @@
         zPos: -8
       },
       {
-        id: 5,
         slug: "envelope",
         imageCandidates: ["./war%20time%20envolope.jpg", "./war%20time%20envelope.jpg", "./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
         audioCandidates: ["./envelope.mp3", "./envelope.MP3", "./envelope.m4a", "./envelope.wav"],
-        shortTitle: "6. Confederate Envelope",
+        shortTitle: "7. Confederate Envelope",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "Wartime Envelope Addressed to Spartanburg, South Carolina",
         meta1Heading: "DATE & DESTINATION",
@@ -502,11 +487,33 @@
         zPos: -8
       },
       {
-        id: 6,
+        slug: "instruments",
+        imageCandidates: ["./instruments.jpg", "./instruments.png"],
+        audioCandidates: ["./instruments.mp3", "./instruments.m4a", "./instruments.wav"],
+        shortTitle: "8. Instruments & Songs",
+        archiveCategory: "CIVIL WAR MUSIC ARCHIVE",
+        title: "Drums, Bugles & Fifes: The Sounds of Camp and Battle",
+        meta1Heading: "DATE & USE",
+        date: "1861–1865",
+        location: "Camp signals, marches, and battlefield commands",
+        meta2Heading: "INSTRUMENTS & SONGS",
+        creatorLabel: "On display",
+        creator: "Snare drum, bugle, fife, sheet music",
+        mediumLabel: "Songs of the era",
+        medium: "\"Battle Hymn of the Republic,\" \"Dixie,\" \"Taps\"",
+        description:
+          "In an age before radios, music ran the army. Drummers and buglers sounded the calls that ordered a soldier's whole day, from reveille at dawn to roll call, meals, drill, and lights out. In the smoke and noise of battle, a bugle call or a drum beat could carry orders that a shouted voice could not. Many drummers were boys in their early teens, and a few were even younger. The famous bugle call \"Taps\" was created in July 1862 at Harrison's Landing, Virginia, by Union General Daniel Butterfield and his bugler, Oliver Wilcox Norton, as a lights-out signal; today it is played at military funerals. Regimental brass bands lifted spirits in camp. Confederate soldiers marched to \"Dixie,\" while Union troops sang \"Battle Hymn of the Republic,\" whose words by Julia Ward Howe called on faith in God's justice.",
+        isWeaponCase: false,
+        isGlassCase: true,
+        caseStyle: "instruments",
+        wallSide: "center",
+        zPos: -13
+      },
+      {
         slug: "letter",
         imageCandidates: ["./War%20time%20letter.jpg", "./war%20time%20letter.jpg", "./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
         audioCandidates: ["./letter.mp3", "./letter.MP3", "./letter.m4a", "./letter.wav"],
-        shortTitle: "7. Letter Home",
+        shortTitle: "9. Letter Home",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "\"Trust in the Lord\": A Condolence Letter from the 5th Indiana Cavalry",
         meta1Heading: "DATE & LOCATION",
@@ -524,11 +531,10 @@
         zPos: -18
       },
       {
-        id: 7,
         slug: "henry-rifle",
         imageCandidates: ["./henry-rifle.jpg", "./henry-rifle.JPG", "./henry-rifle.jpeg", "./henry-rifle.png"],
         audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.MP3", "./henry-rifle.m4a", "./henry-rifle.wav"],
-        shortTitle: "8. Henry Rifle (North)",
+        shortTitle: "10. Henry Rifle (North)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "Model 1860 Henry Lever-Action Repeating Rifle",
         meta1Heading: "DATE & MAKER",
@@ -547,11 +553,10 @@
         zPos: -29
       },
       {
-        id: 8,
         slug: "enfield-rifle",
         imageCandidates: ["./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
         audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.MP3", "./enfield-rifle.m4a", "./enfield-rifle.wav"],
-        shortTitle: "9. Enfield Rifle (South)",
+        shortTitle: "11. Enfield Rifle (South)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "British Pattern 1853 Enfield Rifle-Musket",
         meta1Heading: "DATE & MAKER",
@@ -576,42 +581,6 @@
      * 2. PROCEDURAL ARCHIVAL ARTWORK & PERSISTENT STORAGE (LOCALSTORAGE + INDEXEDDB)
      * ============================================================================
      */
-    // Saved photos & voices are keyed by exhibit slug so adding/reordering exhibits never mixes them up.
-    const STORAGE_KEY_IMAGES = "civil_war_museum_custom_images_v3";
-    const LEGACY_STORAGE_KEY_IMAGES = "civil_war_museum_custom_images_v2";
-    // Exhibit order in the earlier version (old saves used these index numbers)
-    const LEGACY_SLUGS = ["lincoln", "hooker", "grant", "lee", "hospital", "henry-rifle"];
-
-    function loadSavedCustomImages() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY_IMAGES);
-        if (raw) return JSON.parse(raw);
-        // One-time migration from the old index-based save
-        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY_IMAGES);
-        if (!legacyRaw) return {};
-        const legacy = JSON.parse(legacyRaw);
-        const migrated = {};
-        Object.keys(legacy).forEach((k) => {
-          const slug = LEGACY_SLUGS[Number(k)];
-          if (slug) migrated[slug] = legacy[k];
-        });
-        localStorage.setItem(STORAGE_KEY_IMAGES, JSON.stringify(migrated));
-        return migrated;
-      } catch (e) {
-        return {};
-      }
-    }
-
-    function saveCustomImageToStorage(idx, dataURL) {
-      try {
-        const current = loadSavedCustomImages();
-        current[EXHIBITS[idx].slug] = dataURL;
-        localStorage.setItem(STORAGE_KEY_IMAGES, JSON.stringify(current));
-      } catch (e) {
-        showToast("Image updated for this session (browser storage quota full).");
-      }
-    }
-
     function generateArtifactDataURL(index) {
       const c = document.createElement("canvas");
       c.width = 900;
@@ -705,7 +674,7 @@
         }
 
         ctx.save();
-        if (index === 0) {
+        if (EXHIBITS[index].slug === "lincoln") {
           // Lincoln at Antietam: Ridge tent + 3 figures
           ctx.fillStyle = "#ece3d3";
           ctx.beginPath();
@@ -734,7 +703,7 @@
           ctx.fillRect(615, 505, 66, 240);
           ctx.beginPath(); ctx.arc(648, 478, 22, 0, Math.PI * 2); ctx.fill();
           ctx.fillRect(622, 458, 52, 10);
-        } else if (index === 1) {
+        } else if (EXHIBITS[index].slug === "hooker") {
           // Gen. Joseph Hooker on Horseback
           ctx.fillStyle = "#8a7b66";
           ctx.fillRect(70, 220, 410, 390);
@@ -759,7 +728,7 @@
           ctx.fillRect(418, 415, 42, 120);
           ctx.beginPath(); ctx.arc(438, 392, 18, 0, Math.PI * 2); ctx.fill();
           ctx.fillRect(416, 372, 44, 12);
-        } else if (index === 2) {
+        } else if (EXHIBITS[index].slug === "grant") {
           // Gen. Grant at Cold Harbor + damaged collodion plate edges
           ctx.fillStyle = "#dfd4c2";
           ctx.beginPath();
@@ -783,7 +752,7 @@
           ctx.fillStyle = "#1f1914";
           ctx.fillRect(25, 110, 75, 540);
           ctx.fillRect(800, 160, 70, 590);
-        } else if (index === 3) {
+        } else if (EXHIBITS[index].slug === "lee") {
           // Gen. Robert E. Lee at Richmond Residence
           ctx.fillStyle = "#6c5c4b";
           ctx.fillRect(80, 120, 740, 720);
@@ -796,7 +765,7 @@
           ctx.beginPath(); ctx.arc(450, 372, 26, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = "#6e655b";
           ctx.beginPath(); ctx.arc(385, 585, 28, 0, Math.PI * 2); ctx.fill();
-        } else if (index === 4) {
+        } else if (EXHIBITS[index].slug === "hospital") {
           // Union Hospital Ward
           ctx.strokeStyle = "#4d3f31";
           ctx.lineWidth = 4;
@@ -842,8 +811,7 @@
     }
 
     const defaultArtifactImages = EXHIBITS.map((_, idx) => generateArtifactDataURL(idx));
-    const savedCustomImages = loadSavedCustomImages();
-    const exhibitImages = EXHIBITS.map((ex, idx) => savedCustomImages[ex.slug] || defaultArtifactImages[idx]);
+    const exhibitImages = EXHIBITS.map((_, idx) => defaultArtifactImages[idx]);
 
     // Load a photo onto a frame and resize the picture so it keeps its true shape
     // (wide rifles stay wide, tall letters stay tall) inside the frame's matboard.
@@ -895,8 +863,6 @@
 
     async function autoLoadHostedImages() {
       for (let idx = 0; idx < EXHIBITS.length; idx++) {
-        // Respect explicit user localStorage override if present
-        if (savedCustomImages[EXHIBITS[idx].slug]) continue;
         const candidates = EXHIBITS[idx].imageCandidates || [];
         for (const candidateUrl of candidates) {
           try {
@@ -1090,8 +1056,8 @@
       }
 
       // Half-drop damask repeat (4 motifs that tile seamlessly)
-      const motifColor = "rgba(176, 128, 66, 0.42)";
-      const shadowColor = "rgba(10, 4, 3, 0.35)";
+      const motifColor = "rgba(170, 124, 66, 0.3)";
+      const shadowColor = "rgba(10, 4, 3, 0.25)";
       const spots = [
         [128, 128], [384, 384], [128, 640], [384, -128], [-128, 384], [640, 384]
       ];
@@ -1257,6 +1223,401 @@
       return new THREE.CanvasTexture(c);
     }
 
+    /**
+     * ============================================================================
+     * 3B. GLASS DISPLAY CASES, CHANDELIERS, FLAGS & BENCHES
+     * ============================================================================
+     */
+    function stdMat(color, roughness = 0.6, metalness = 0) {
+      return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+    }
+
+    function addMesh(parent, geometry, material, x, y, z, rx = 0, ry = 0, rz = 0) {
+      const m = new THREE.Mesh(geometry, material);
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, rz);
+      m.castShadow = true;
+      parent.add(m);
+      return m;
+    }
+
+    // --- Medical supplies: open surgeon's kit, bottles, bandages ---
+    function buildMedicalItems(g, deckY) {
+      const walnut = stdMat(0x4a2a14, 0.5);
+      const velvet = stdMat(0x5c0f16, 0.95);
+      const steel = stdMat(0xb9c0c7, 0.25, 0.85);
+      const ebony = stdMat(0x1d1612, 0.5);
+
+      // Open wooden surgeon's kit
+      addMesh(g, new THREE.BoxGeometry(0.95, 0.1, 0.46), walnut, -0.45, deckY + 0.05, 0.05);
+      addMesh(g, new THREE.BoxGeometry(0.88, 0.012, 0.4), velvet, -0.45, deckY + 0.104, 0.05);
+      const lid = addMesh(g, new THREE.BoxGeometry(0.95, 0.46, 0.04), walnut, -0.45, deckY + 0.3, -0.2, -0.25, 0, 0);
+      addMesh(lid, new THREE.PlaneGeometry(0.86, 0.38), velvet, 0, 0, 0.022);
+
+      // Bone saw (blade + handle)
+      addMesh(g, new THREE.BoxGeometry(0.42, 0.006, 0.07), steel, -0.55, deckY + 0.115, 0.13);
+      addMesh(g, new THREE.BoxGeometry(0.13, 0.03, 0.06), ebony, -0.29, deckY + 0.125, 0.13);
+      // Amputation knife & scalpels
+      addMesh(g, new THREE.BoxGeometry(0.34, 0.006, 0.025), steel, -0.55, deckY + 0.115, 0.0);
+      addMesh(g, new THREE.BoxGeometry(0.1, 0.02, 0.03), ebony, -0.33, deckY + 0.12, 0.0);
+      [-0.07, -0.12].forEach((zz) => {
+        addMesh(g, new THREE.BoxGeometry(0.16, 0.005, 0.012), steel, -0.6, deckY + 0.113, zz);
+        addMesh(g, new THREE.BoxGeometry(0.08, 0.014, 0.018), ebony, -0.48, deckY + 0.116, zz);
+      });
+      // Forceps
+      addMesh(g, new THREE.BoxGeometry(0.2, 0.008, 0.012), steel, -0.24, deckY + 0.114, -0.05, 0, 0.12, 0);
+      addMesh(g, new THREE.BoxGeometry(0.2, 0.008, 0.012), steel, -0.24, deckY + 0.114, -0.07, 0, -0.12, 0);
+
+      // Medicine bottles with corks (chloroform, ether, quinine)
+      const bottleColors = [0x5a3210, 0x1f3f7a, 0x2f4a2a];
+      bottleColors.forEach((c, i) => {
+        const glass = new THREE.MeshStandardMaterial({ color: c, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 });
+        const h = 0.24 - i * 0.03;
+        const bx = 0.22 + i * 0.17;
+        addMesh(g, new THREE.CylinderGeometry(0.055, 0.055, h, 20), glass, bx, deckY + h / 2, -0.22);
+        addMesh(g, new THREE.CylinderGeometry(0.022, 0.03, 0.05, 12), glass, bx, deckY + h + 0.025, -0.22);
+        addMesh(g, new THREE.CylinderGeometry(0.02, 0.018, 0.04, 10), stdMat(0xb08a5a, 0.9), bx, deckY + h + 0.065, -0.22);
+        // paper label
+        addMesh(g, new THREE.PlaneGeometry(0.07, 0.07), stdMat(0xe8dcc0, 0.9), bx, deckY + h * 0.5, -0.164);
+      });
+
+      // Rolled bandages
+      const linen = stdMat(0xeee6d4, 0.95);
+      [[0.3, 0.2], [0.48, 0.24], [0.4, 0.33]].forEach(([bx, bz]) => {
+        addMesh(g, new THREE.CylinderGeometry(0.06, 0.06, 0.12, 18), linen, bx, deckY + 0.06, bz, 0, 0, Math.PI / 2);
+      });
+      // Tourniquet strap
+      addMesh(g, new THREE.TorusGeometry(0.09, 0.012, 8, 24), stdMat(0x6b4a2b, 0.8), 0.72, deckY + 0.012, 0.25, Math.PI / 2, 0, 0);
+    }
+
+    // --- Instruments: snare drum, bugle, fife, sheet music ---
+    function createSheetMusicTexture() {
+      const c = document.createElement("canvas");
+      c.width = 256;
+      c.height = 320;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#efe4c8";
+      ctx.fillRect(0, 0, 256, 320);
+      ctx.fillStyle = "#3a2c1c";
+      ctx.font = "bold 18px Georgia, serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Camp Calls", 128, 32);
+      ctx.strokeStyle = "#3a2c1c";
+      ctx.lineWidth = 1;
+      for (let staff = 0; staff < 5; staff++) {
+        const top = 58 + staff * 52;
+        for (let l = 0; l < 5; l++) {
+          ctx.beginPath();
+          ctx.moveTo(18, top + l * 7);
+          ctx.lineTo(238, top + l * 7);
+          ctx.stroke();
+        }
+        for (let n = 0; n < 9; n++) {
+          const nx = 40 + n * 22;
+          const ny = top + ((n * 5 + staff * 3) % 6) * 3.5;
+          ctx.beginPath();
+          ctx.ellipse(nx, ny, 4, 3, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillRect(nx + 3, ny - 18, 1.4, 18);
+        }
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function buildInstrumentItems(g, deckY) {
+      const brass = stdMat(0xc9a24a, 0.25, 0.85);
+      // Snare drum: painted blue shell, red hoops, white head, rope tension
+      const drum = new THREE.Group();
+      drum.position.set(-0.5, deckY + 0.17, -0.05);
+      g.add(drum);
+      addMesh(drum, new THREE.CylinderGeometry(0.25, 0.25, 0.3, 32), stdMat(0x1d3a6b, 0.55), 0, 0, 0);
+      addMesh(drum, new THREE.CylinderGeometry(0.262, 0.262, 0.045, 32), stdMat(0x8a1c1c, 0.6), 0, 0.14, 0);
+      addMesh(drum, new THREE.CylinderGeometry(0.262, 0.262, 0.045, 32), stdMat(0x8a1c1c, 0.6), 0, -0.14, 0);
+      addMesh(drum, new THREE.CircleGeometry(0.245, 32), stdMat(0xf1e9d8, 0.8), 0, 0.163, 0, -Math.PI / 2, 0, 0);
+      const ropePts = [];
+      for (let i = 0; i < 16; i++) {
+        const a1 = (i / 16) * Math.PI * 2;
+        const a2 = ((i + 0.5) / 16) * Math.PI * 2;
+        ropePts.push(new THREE.Vector3(Math.cos(a1) * 0.258, 0.115, Math.sin(a1) * 0.258));
+        ropePts.push(new THREE.Vector3(Math.cos(a2) * 0.258, -0.115, Math.sin(a2) * 0.258));
+      }
+      const ropeGeo = new THREE.BufferGeometry().setFromPoints(ropePts.concat([ropePts[0]]));
+      drum.add(new THREE.Line(ropeGeo, new THREE.LineBasicMaterial({ color: 0xe8dcc0 })));
+      // Crossed drumsticks on top
+      const stickMat = stdMat(0x8a5a2b, 0.6);
+      addMesh(drum, new THREE.CylinderGeometry(0.008, 0.012, 0.4, 8), stickMat, 0, 0.18, 0, Math.PI / 2, 0.5, 0);
+      addMesh(drum, new THREE.CylinderGeometry(0.008, 0.012, 0.4, 8), stickMat, 0, 0.185, 0, Math.PI / 2, -0.5, 0);
+
+      // Bugle: coiled tube laid flat with a flared bell
+      const bugle = new THREE.Group();
+      bugle.position.set(0.25, deckY + 0.03, -0.12);
+      g.add(bugle);
+      addMesh(bugle, new THREE.TorusGeometry(0.13, 0.016, 10, 40), brass, 0, 0, 0, Math.PI / 2, 0, 0);
+      addMesh(bugle, new THREE.TorusGeometry(0.1, 0.014, 10, 40), brass, 0.02, 0.02, 0, Math.PI / 2, 0, 0);
+      addMesh(bugle, new THREE.CylinderGeometry(0.09, 0.016, 0.26, 24, 1, true), brass, 0.25, 0.02, -0.02, 0, 0, Math.PI / 2);
+      addMesh(bugle, new THREE.CylinderGeometry(0.012, 0.018, 0.1, 10), brass, -0.17, 0.0, 0.05, 0, 0, Math.PI / 2);
+
+      // Fife: dark wood with brass ferrules
+      const fife = new THREE.Group();
+      fife.position.set(0.15, deckY + 0.015, 0.3);
+      g.add(fife);
+      addMesh(fife, new THREE.CylinderGeometry(0.012, 0.012, 0.5, 12), stdMat(0x3b2414, 0.5), 0, 0, 0, 0, 0, Math.PI / 2);
+      [-0.24, 0.24].forEach((fx) => addMesh(fife, new THREE.CylinderGeometry(0.015, 0.015, 0.03, 12), brass, fx, 0, 0, 0, 0, Math.PI / 2));
+
+      // Sheet music propped on a small stand
+      const sheet = addMesh(g, new THREE.PlaneGeometry(0.3, 0.38), new THREE.MeshStandardMaterial({ map: createSheetMusicTexture(), roughness: 0.9, side: THREE.DoubleSide }), 0.62, deckY + 0.2, -0.25, -0.3, -0.2, 0);
+      sheet.castShadow = false;
+      addMesh(g, new THREE.BoxGeometry(0.3, 0.02, 0.05), stdMat(0x3b2414, 0.5), 0.62, deckY + 0.02, -0.18, 0, -0.2, 0);
+    }
+
+    function buildGlassCase(exhibit, idx, frameGoldMat) {
+      const group = new THREE.Group();
+      group.position.set(exhibit.xPos || 0, 0, exhibit.zPos);
+
+      const caseW = 2.2, caseD = 1.2, baseH = 0.95, glassH = 0.95;
+      const deckY = baseH + 0.04;
+
+      // Mahogany cabinet base with gilded trim
+      const base = addMesh(group, new THREE.BoxGeometry(caseW, baseH, caseD), stdMat(0x2a160c, 0.45), 0, baseH / 2, 0);
+      base.receiveShadow = true;
+      addMesh(group, new THREE.BoxGeometry(caseW + 0.08, 0.06, caseD + 0.08), frameGoldMat, 0, baseH, 0);
+      addMesh(group, new THREE.BoxGeometry(caseW + 0.06, 0.12, caseD + 0.06), stdMat(0x1c0f08, 0.5), 0, 0.06, 0);
+
+      // Velvet display deck
+      const deckColor = exhibit.caseStyle === "medical" ? 0x3d1013 : 0x173022;
+      addMesh(group, new THREE.BoxGeometry(caseW - 0.08, 0.02, caseD - 0.08), stdMat(deckColor, 0.95), 0, baseH + 0.03, 0);
+
+      // Objects inside
+      if (exhibit.caseStyle === "medical") buildMedicalItems(group, deckY);
+      else buildInstrumentItems(group, deckY);
+
+      // Glass vitrine (also the click target)
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0xd8ecff, transparent: true, opacity: 0.13, roughness: 0.05, metalness: 0.2, depthWrite: false
+      });
+      const glass = new THREE.Mesh(new THREE.BoxGeometry(caseW - 0.04, glassH, caseD - 0.04), glassMat);
+      glass.position.set(0, baseH + 0.03 + glassH / 2, 0);
+      glass.userData = { exhibitIndex: idx };
+      interactiveMeshes.push(glass);
+      group.add(glass);
+
+      // Brass corner posts and top frame
+      const postH = glassH;
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+        addMesh(group, new THREE.BoxGeometry(0.035, postH, 0.035), frameGoldMat, sx * (caseW / 2 - 0.02), baseH + 0.03 + postH / 2, sz * (caseD / 2 - 0.02));
+      });
+      const topY = baseH + 0.03 + glassH;
+      addMesh(group, new THREE.BoxGeometry(caseW, 0.035, 0.035), frameGoldMat, 0, topY, caseD / 2 - 0.02);
+      addMesh(group, new THREE.BoxGeometry(caseW, 0.035, 0.035), frameGoldMat, 0, topY, -caseD / 2 + 0.02);
+      addMesh(group, new THREE.BoxGeometry(0.035, 0.035, caseD), frameGoldMat, caseW / 2 - 0.02, topY, 0);
+      addMesh(group, new THREE.BoxGeometry(0.035, 0.035, caseD), frameGoldMat, -caseW / 2 + 0.02, topY, 0);
+
+      // Placard on the front of the cabinet
+      const placard = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.25, 0.78),
+        new THREE.MeshStandardMaterial({ map: createPlacardTexture(exhibit), roughness: 0.5 })
+      );
+      placard.position.set(0, 0.52, caseD / 2 + 0.012);
+      placard.userData = { exhibitIndex: idx };
+      interactiveMeshes.push(placard);
+      group.add(placard);
+
+      scene.add(group);
+
+      const spot = new THREE.SpotLight(0xfff0d4, 1.9, 12, Math.PI / 5, 0.45, 1);
+      spot.position.set(group.position.x, 6.3, exhibit.zPos + 1.5);
+      spot.target = base;
+      scene.add(spot);
+    }
+
+    // --- Gas chandelier (gasolier) ---
+    function buildChandelier(z, ceilingY) {
+      const brass = stdMat(0xb8913f, 0.3, 0.8);
+      const g = new THREE.Group();
+      g.position.set(0, ceilingY, z);
+      scene.add(g);
+
+      addMesh(g, new THREE.CylinderGeometry(0.22, 0.28, 0.08, 24), brass, 0, -0.08, 0); // ceiling rose
+      for (let i = 0; i < 9; i++) {
+        addMesh(g, new THREE.TorusGeometry(0.035, 0.009, 6, 12), brass, 0, -0.18 - i * 0.075, 0, 0, i % 2 ? Math.PI / 2 : 0, 0);
+      }
+      addMesh(g, new THREE.CylinderGeometry(0.035, 0.05, 0.65, 14), brass, 0, -1.2, 0); // stem
+      addMesh(g, new THREE.SphereGeometry(0.11, 18, 14), brass, 0, -1.55, 0);
+      addMesh(g, new THREE.ConeGeometry(0.07, 0.22, 16), brass, 0, -1.76, 0, Math.PI, 0, 0);
+      addMesh(g, new THREE.TorusGeometry(0.72, 0.022, 10, 64), brass, 0, -1.5, 0, Math.PI / 2, 0, 0);
+
+      const globeMat = new THREE.MeshBasicMaterial({ color: 0xffe2aa });
+      const glowMat = new THREE.SpriteMaterial({ map: createGlowTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+      const arms = 6;
+      for (let i = 0; i < arms; i++) {
+        const a = (i / arms) * Math.PI * 2;
+        const ax = Math.cos(a), az = Math.sin(a);
+        const arm = addMesh(g, new THREE.CylinderGeometry(0.016, 0.016, 0.72, 8), brass, ax * 0.36, -1.5, az * 0.36, 0, -a, Math.PI / 2);
+        arm.castShadow = false;
+        addMesh(g, new THREE.CylinderGeometry(0.06, 0.035, 0.1, 14), brass, ax * 0.72, -1.42, az * 0.72);
+        addMesh(g, new THREE.SphereGeometry(0.1, 16, 12), globeMat, ax * 0.72, -1.28, az * 0.72);
+        const glow = new THREE.Sprite(glowMat);
+        glow.scale.set(1.1, 1.1, 1);
+        glow.position.set(ax * 0.72, -1.28, az * 0.72);
+        g.add(glow);
+      }
+      const light = new THREE.PointLight(0xffd59a, 0.55, 16, 1.6);
+      light.position.set(0, -1.4, 0);
+      g.add(light);
+    }
+
+    // --- Period flags (drawn on canvas) ---
+    function drawStar(ctx, x, y, r) {
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const rad = i % 2 === 0 ? r : r * 0.42;
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        ctx.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function ageFlag(ctx, w, h) {
+      ctx.fillStyle = "rgba(120, 90, 50, 0.16)";
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 2500; i++) {
+        ctx.fillStyle = Math.random() < 0.5 ? "rgba(0,0,0,0.05)" : "rgba(255,240,210,0.05)";
+        ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+      }
+    }
+
+    // type: "us34" (1861–63), "us35" (1863–65), "csa7" (Stars and Bars, 1861), "csa13" (Stars and Bars, late 1861)
+    function createFlagTexture(type) {
+      const w = 760, h = 400;
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d");
+      const red = "#a3242b", white = "#efe8d8", blue = "#1f2f5c";
+
+      if (type.startsWith("us")) {
+        const stripeH = h / 13;
+        for (let i = 0; i < 13; i++) {
+          ctx.fillStyle = i % 2 === 0 ? red : white;
+          ctx.fillRect(0, i * stripeH, w, stripeH + 1);
+        }
+        const cw = w * 0.4, ch = stripeH * 7;
+        ctx.fillStyle = blue;
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.fillStyle = white;
+        const rows = type === "us35" ? [7, 7, 7, 7, 7] : [7, 7, 6, 7, 7];
+        rows.forEach((count, r) => {
+          const y = ch * ((r + 0.75) / (rows.length + 0.5));
+          for (let k = 0; k < count; k++) {
+            const x = cw * ((k + (count === 6 ? 1 : 0.5)) / 7.0);
+            drawStar(ctx, x, y, 11);
+          }
+        });
+      } else {
+        const barH = h / 3;
+        ctx.fillStyle = red;
+        ctx.fillRect(0, 0, w, barH);
+        ctx.fillStyle = white;
+        ctx.fillRect(0, barH, w, barH);
+        ctx.fillStyle = red;
+        ctx.fillRect(0, barH * 2, w, barH);
+        const cs = barH * 2;
+        ctx.fillStyle = blue;
+        ctx.fillRect(0, 0, cs * 1.1, cs);
+        ctx.fillStyle = white;
+        const n = type === "csa13" ? 13 : 7;
+        const cx = (cs * 1.1) / 2, cy = cs / 2, rr = cs * 0.3;
+        for (let k = 0; k < n; k++) {
+          const a = -Math.PI / 2 + (k / n) * Math.PI * 2;
+          drawStar(ctx, cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, n === 13 ? 13 : 17);
+        }
+        if (n === 13) drawStar(ctx, cx, cy, 15);
+      }
+      ageFlag(ctx, w, h);
+      return new THREE.CanvasTexture(c);
+    }
+
+    // A flag hanging from a vertical or tilted pole with soft folds.
+    function buildFlagOnPole(type, x, z, options = {}) {
+      const g = new THREE.Group();
+      g.position.set(x, options.y || 0, z);
+      g.rotation.set(0, options.ry || 0, options.rz || 0);
+      scene.add(g);
+
+      const poleH = options.poleH || 3.9;
+      const wood = stdMat(0x3a2212, 0.55);
+      const gold = stdMat(0xc9a24a, 0.3, 0.8);
+      addMesh(g, new THREE.CylinderGeometry(0.03, 0.035, poleH, 12), wood, 0, poleH / 2, 0);
+      addMesh(g, new THREE.SphereGeometry(0.06, 14, 10), gold, 0, poleH + 0.04, 0);
+      addMesh(g, new THREE.ConeGeometry(0.045, 0.2, 12), gold, 0, poleH + 0.18, 0);
+      if (options.withStand) {
+        addMesh(g, new THREE.CylinderGeometry(0.22, 0.28, 0.08, 20), gold, 0, 0.04, 0);
+      }
+
+      const fw = options.flagW || 1.9, fh = fw * (400 / 760);
+      const geo = new THREE.PlaneGeometry(fw, fh, 30, 12);
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const px = pos.getX(i) + fw / 2; // 0 at the pole
+        const py = pos.getY(i);
+        pos.setZ(i, Math.sin(px * 4.2) * 0.07 * (px / fw + 0.2) + Math.sin(py * 3) * 0.015);
+        pos.setY(i, py - px * px * 0.06); // slight droop away from the pole
+      }
+      geo.computeVertexNormals();
+      const flag = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        map: createFlagTexture(type), roughness: 0.92, side: THREE.DoubleSide
+      }));
+      const dir = options.flyLeft ? -1 : 1;
+      flag.position.set(dir * (fw / 2 + 0.03), poleH - fh / 2 - 0.12, 0);
+      if (options.flyLeft) flag.rotation.y = Math.PI; // hoist (canton) stays against the pole
+      flag.castShadow = true;
+      g.add(flag);
+      return g;
+    }
+
+    // --- Walnut museum bench with cast-iron legs ---
+    function addBench(x, z, rotY) {
+      const g = new THREE.Group();
+      g.position.set(x, 0, z);
+      g.rotation.y = rotY;
+      scene.add(g);
+      const walnut = stdMat(0x4a2a15, 0.5);
+      const iron = stdMat(0x1a1a1a, 0.6, 0.5);
+      // Seat made of planks
+      for (let i = 0; i < 4; i++) {
+        addMesh(g, new THREE.BoxGeometry(2.4, 0.05, 0.11), walnut, 0, 0.47, -0.18 + i * 0.12);
+      }
+      // Cast-iron ends with scrolled feet
+      [-1.05, 1.05].forEach((lx) => {
+        addMesh(g, new THREE.BoxGeometry(0.06, 0.44, 0.06), iron, lx, 0.23, -0.16);
+        addMesh(g, new THREE.BoxGeometry(0.06, 0.44, 0.06), iron, lx, 0.23, 0.16);
+        addMesh(g, new THREE.BoxGeometry(0.07, 0.05, 0.5), iron, lx, 0.43, 0);
+        addMesh(g, new THREE.TorusGeometry(0.06, 0.015, 6, 14, Math.PI), iron, lx, 0.04, -0.2, 0, Math.PI / 2, 0);
+        addMesh(g, new THREE.TorusGeometry(0.06, 0.015, 6, 14, Math.PI), iron, lx, 0.04, 0.2, 0, Math.PI / 2, 0);
+      });
+      addMesh(g, new THREE.CylinderGeometry(0.015, 0.015, 2.1, 8), iron, 0, 0.12, 0, 0, 0, Math.PI / 2);
+    }
+
+    function addHallDecorations(hallWidth, hallHeight, hallLength, centerZ) {
+      // Gas chandeliers down the center of the hall
+      [14, -3, -20].forEach((z) => buildChandelier(z, hallHeight));
+
+      // Benches in the center aisle, facing the walls
+      addBench(0, -3, Math.PI / 2);
+      addBench(0, -22, Math.PI / 2);
+
+      // Standing flags in the far corners beside the exhibition sign
+      const northZ = centerZ - hallLength / 2 + 1.1;
+      buildFlagOnPole("us35", -6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, ry: 0.35 });
+      buildFlagOnPole("csa7", 6.6, northZ + 1.4, { poleH: 4.6, flagW: 2.3, withStand: true, flyLeft: true, ry: -0.35 });
+
+      // Crossed flags mounted above the entrance (south wall), facing into the hall
+      const southZ = centerZ + hallLength / 2 - 0.35;
+      buildFlagOnPole("us34", -1.1, southZ, { y: 2.0, poleH: 4.0, flagW: 2.3, ry: Math.PI, rz: 0.42, flyLeft: true });
+      buildFlagOnPole("csa13", 1.1, southZ - 0.08, { y: 2.0, poleH: 4.0, flagW: 2.3, ry: Math.PI, rz: -0.42 });
+    }
+
     function initMuseumScene() {
       const canvas = document.getElementById("museum-canvas");
       scene = new THREE.Scene();
@@ -1338,11 +1699,11 @@
       // Gallery Walls (Left, Right, North End, South Entrance)
       // Long side walls and short end walls get separate textures so the pattern isn't stretched
       const wallMat = new THREE.MeshStandardMaterial({
-        map: createPeriodWallpaperTexture(14, 2),
+        map: createPeriodWallpaperTexture(26, 4),
         roughness: 0.82
       });
       const endWallMat = new THREE.MeshStandardMaterial({
-        map: createPeriodWallpaperTexture(4, 2),
+        map: createPeriodWallpaperTexture(7, 4),
         roughness: 0.82
       });
       const wainscotMat = new THREE.MeshStandardMaterial({ color: 0x26150c, roughness: 0.55 });
@@ -1373,10 +1734,11 @@
       });
 
       addPeriodTrimAndSconces(hallWidth, hallHeight, hallLength, centerZ);
+      addHallDecorations(hallWidth, hallHeight, hallLength, centerZ);
 
       // Optional: drop a "wallpaper.jpg" into the folder to use your own wallpaper image instead
       probeImageCandidate("./wallpaper.jpg").then((url) => {
-        [[wallMat, 14, 2], [endWallMat, 4, 2]].forEach(([mat, rx, ry]) => {
+        [[wallMat, 26, 4], [endWallMat, 7, 4]].forEach(([mat, rx, ry]) => {
           new THREE.TextureLoader().load(url, (tex) => {
             tex.wrapS = THREE.RepeatWrapping;
             tex.wrapT = THREE.RepeatWrapping;
@@ -1389,30 +1751,41 @@
 
       // End Wall Banner: "1861 – 1865: A NATION DIVIDED"
       const bannerCanvas = document.createElement("canvas");
-      bannerCanvas.width = 1024;
-      bannerCanvas.height = 256;
+      bannerCanvas.width = 2048;
+      bannerCanvas.height = 560;
       const bCtx = bannerCanvas.getContext("2d");
       bCtx.fillStyle = "#1c130d";
-      bCtx.fillRect(0, 0, 1024, 256);
+      bCtx.fillRect(0, 0, 2048, 560);
       bCtx.strokeStyle = "#c8a258";
-      bCtx.lineWidth = 8;
-      bCtx.strokeRect(14, 14, 996, 228);
-      bCtx.fillStyle = "#e6c786";
-      bCtx.font = "bold 46px Georgia, serif";
+      bCtx.lineWidth = 14;
+      bCtx.strokeRect(22, 22, 2004, 516);
+      bCtx.lineWidth = 3;
+      bCtx.strokeRect(46, 46, 1956, 468);
       bCtx.textAlign = "center";
-      bCtx.fillText("1861 — THE AMERICAN CIVIL WAR — 1865", 512, 115);
-      bCtx.fillStyle = "#cfc3ae";
-      bCtx.font = "26px Georgia, serif";
-      bCtx.fillText("PHOTOGRAPHIC & ORDNANCE EXHIBITION", 512, 175);
+      bCtx.fillStyle = "#e6c786";
+      bCtx.font = "bold 112px Georgia, serif";
+      bCtx.fillText("A NATION DIVIDED", 1024, 205);
+      bCtx.fillStyle = "#d9c8a4";
+      bCtx.font = "bold 70px Georgia, serif";
+      bCtx.fillText("1861 — THE AMERICAN CIVIL WAR — 1865", 1024, 330);
+      bCtx.fillStyle = "#bfb39c";
+      bCtx.font = "44px Georgia, serif";
+      bCtx.fillText("PHOTOGRAPHS • LETTERS • WEAPONS • MEDICINE • MUSIC", 1024, 440);
 
       const bannerMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(7.6, 1.9),
+        new THREE.PlaneGeometry(11.2, 3.06),
         new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(bannerCanvas), roughness: 0.6 })
       );
-      bannerMesh.position.set(0, 4.9, centerZ - hallLength / 2 + 0.25);
+      bannerMesh.position.set(0, 5.0, centerZ - hallLength / 2 + 0.25);
       scene.add(bannerMesh);
 
-      // Build Each Exhibit (5 Wall-Mounted Archival Frames + 1 Centerpiece Easel Display)
+      // Gentle light so the large sign reads clearly from the far end of the hall
+      const bannerLight = new THREE.SpotLight(0xffe8c4, 1.4, 16, Math.PI / 4, 0.5, 1);
+      bannerLight.position.set(0, 6.8, centerZ - hallLength / 2 + 6);
+      bannerLight.target = bannerMesh;
+      scene.add(bannerLight);
+
+      // Build Each Exhibit (wall frames, glass display cases, and weapon easel pedestals)
       const frameGoldMat = new THREE.MeshStandardMaterial({
         color: 0xc59b45,
         metalness: 0.68,
@@ -1426,6 +1799,10 @@
       const ropeMat = new THREE.MeshStandardMaterial({ color: 0x6e141a, roughness: 0.85 });
 
       EXHIBITS.forEach((exhibit, idx) => {
+        if (exhibit.isGlassCase) {
+          buildGlassCase(exhibit, idx, frameGoldMat);
+          return;
+        }
         if (!exhibit.isWeaponCase) {
           const isLeft = exhibit.wallSide === "left";
           const wallX = isLeft ? -hallWidth / 2 + 0.25 : hallWidth / 2 - 0.25;
@@ -1601,7 +1978,12 @@
       const ex = EXHIBITS[idx];
       updateActiveTourPill(idx);
 
-      if (!ex.isWeaponCase) {
+      if (ex.isGlassCase) {
+        player.targetX = ex.xPos || 0;
+        player.targetZ = ex.zPos + 3.1;
+        player.targetYaw = 0;
+        player.targetPitch = -0.3;
+      } else if (!ex.isWeaponCase) {
         const isLeft = ex.wallSide === "left";
         player.targetX = isLeft ? -2.3 : 2.3;
         player.targetZ = ex.zPos;
@@ -1680,7 +2062,6 @@
       // Stop voice narration cleanly if user closes dialog via ESC key
       document.getElementById("artifact-dialog").addEventListener("close", () => {
         stopAudioGuide();
-        stopActiveRecordingIfRunning();
         resumeHallMusic(); // placard closed -> music comes back
       });
     }
@@ -1790,7 +2171,6 @@
     function openModalForExhibit(idx) {
       pauseHallMusic(); // placard opened -> music stops so the visitor can read / hear narration
       stopAudioGuide();
-      stopActiveRecordingIfRunning();
       updateActiveTourPill(idx);
       const ex = EXHIBITS[idx];
 
@@ -1821,7 +2201,6 @@
 
     function closeArtifactModal() {
       stopAudioGuide();
-      stopActiveRecordingIfRunning();
       document.getElementById("artifact-dialog").close();
     }
 
@@ -1865,249 +2244,68 @@
       img.style.transform = `scale(2.2) translate(${-xPct * 120}px, ${-yPct * 120}px)`;
     }
 
-    function applyNewPhotoToExhibit(idx, dataURL) {
-      exhibitImages[idx] = dataURL;
-      saveCustomImageToStorage(idx, dataURL);
-      document.getElementById("modal-artifact-img").src = dataURL;
-
-      applyTextureToExhibit(idx, dataURL);
-
-      showToast(`Saved custom photograph for "${EXHIBITS[idx].shortTitle}"!`);
-    }
-
-    function handleCustomPhotoUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => applyNewPhotoToExhibit(currentTourIndex, e.target.result);
-      reader.readAsDataURL(file);
-    }
-
-    function handleDragOver(e) {
-      e.preventDefault();
-    }
-
-    function handleDropPhoto(e) {
-      e.preventDefault();
-      const file = e.dataTransfer.files[0];
-      if (!file || !file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => applyNewPhotoToExhibit(currentTourIndex, ev.target.result);
-      reader.readAsDataURL(file);
-    }
-
     /**
      * ============================================================================
-     * 6. CUSTOM VOICE RECORDING, AUDIO UPLOAD & INDEXEDDB PERSISTENCE
+     * 6. AUDIO GUIDE NARRATION
+     * Plays your recorded voice-over if a matching file is in the folder
+     * (for example "lincoln.mp3" or "enfield-rifle.mp3"); otherwise the browser
+     * reads the placard aloud using the deepest, warmest narrator voice it has.
      * ============================================================================
      */
-    const DB_NAME = "CivilWarMuseumVoiceDB";
-    const STORE_NAME = "exhibitVoices";
-    const customVoiceURLs = {}; // { [exhibitIndex]: objectURL }
+    let isSpeaking = false;
+    let narratorVoice = null;
 
-    function openVoiceDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME);
-          }
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
+    // Preferred narrator voices, best first. Names differ by computer/browser;
+    // the first one found on the visitor's device is used.
+    const PREFERRED_NARRATOR_VOICES = [
+      "Microsoft Christopher Online (Natural)",
+      "Microsoft Guy Online (Natural)",
+      "Microsoft Eric Online (Natural)",
+      "Microsoft Roger Online (Natural)",
+      "Microsoft Davis Online (Natural)",
+      "Google UK English Male",
+      "Microsoft George",
+      "Microsoft David",
+      "Daniel",
+      "Arthur",
+      "Aaron",
+      "Fred",
+      "Alex"
+    ];
 
-    async function saveVoiceBlobToDB(idx, blob) {
-      const db = await openVoiceDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        tx.objectStore(STORE_NAME).put(blob, EXHIBITS[idx].slug);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function deleteVoiceBlobFromDB(idx) {
-      const db = await openVoiceDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
-        store.delete(EXHIBITS[idx].slug);
-        const legacyIdx = LEGACY_SLUGS.indexOf(EXHIBITS[idx].slug);
-        if (legacyIdx >= 0) store.delete(String(legacyIdx)); // clear any old-format save too
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function loadAllSavedVoices() {
-      try {
-        const db = await openVoiceDB();
-        const tx = db.transaction(STORE_NAME, "readonly");
-        const store = tx.objectStore(STORE_NAME);
-        for (let i = 0; i < EXHIBITS.length; i++) {
-          const req = store.get(EXHIBITS[i].slug);
-          req.onsuccess = () => {
-            if (req.result) {
-              customVoiceURLs[i] = URL.createObjectURL(req.result);
-              if (currentTourIndex === i) updateVoiceUIState(i);
-              return;
-            }
-            // Fall back to a recording saved by the earlier (index-based) version
-            const legacyIdx = LEGACY_SLUGS.indexOf(EXHIBITS[i].slug);
-            if (legacyIdx < 0) return;
-            const legacyReq = store.get(String(legacyIdx));
-            legacyReq.onsuccess = () => {
-              if (legacyReq.result) {
-                customVoiceURLs[i] = URL.createObjectURL(legacyReq.result);
-                if (currentTourIndex === i) updateVoiceUIState(i);
-              }
-            };
-          };
+    function pickNarratorVoice() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return;
+      for (const name of PREFERRED_NARRATOR_VOICES) {
+        const match = voices.find((v) => v.name === name || v.name.startsWith(name));
+        if (match) {
+          narratorVoice = match;
+          return;
         }
-      } catch (e) {
-        // IndexedDB unavailable in restricted private browsing modes
       }
+      // Fallback: an English voice whose name suggests a male narrator, then any English voice
+      narratorVoice =
+        voices.find((v) => v.lang.startsWith("en") && /male|guy|david|george|daniel|christopher|eric/i.test(v.name) && !/female/i.test(v.name)) ||
+        voices.find((v) => v.lang.startsWith("en")) ||
+        null;
+    }
+
+    if ("speechSynthesis" in window) {
+      pickNarratorVoice();
+      window.speechSynthesis.onvoiceschanged = pickNarratorVoice;
     }
 
     function updateVoiceUIState(idx) {
-      const hasRecordedOrUploaded = Boolean(customVoiceURLs[idx]);
-      const hasHostedFile = Boolean(hostedAudioURLs[idx]);
-      const badge = document.getElementById("voice-status-badge");
-      const delBtn = document.getElementById("delete-voice-btn");
-      const audioLabel = document.getElementById("audio-label");
-
-      if (hasRecordedOrUploaded) {
-        badge.textContent = "Narrator: Your Recorded Voice";
-        badge.className = "text-[11px] font-bold text-emerald-900";
-        delBtn.classList.remove("hidden");
-        if (!isSpeaking) audioLabel.textContent = "Play Your Voice Guide";
-      } else if (hasHostedFile) {
-        badge.textContent = `Narrator: Hosted Voice (${EXHIBITS[idx].slug}.mp3)`;
-        badge.className = "text-[11px] font-bold text-amber-900";
-        delBtn.classList.add("hidden");
-        if (!isSpeaking) audioLabel.textContent = "Play Voice Guide";
-      } else {
-        badge.textContent = "Narrator: Built-in Guide";
-        badge.className = "text-[11px] font-semibold text-stone-600";
-        delBtn.classList.add("hidden");
-        if (!isSpeaking) audioLabel.textContent = "Play Audio Guide";
-      }
+      if (isSpeaking) return;
+      document.getElementById("audio-label").textContent = "Play Audio Guide";
     }
 
-    // Microphone Recorder
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let recordingTimerInterval = null;
-    let recordingSeconds = 0;
-
-    async function toggleVoiceRecording() {
-      if (mediaRecorder && mediaRecorder.state === "recording") {
-        stopActiveRecordingIfRunning();
-        return;
-      }
-
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showToast("Microphone recording is not supported in this browser. Try uploading an audio file instead.");
-        return;
-      }
-
-      try {
-        stopAudioGuide();
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        recordedChunks = [];
-        const targetIdx = currentTourIndex;
-
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
-        };
-
-        mediaRecorder.onstop = async () => {
-          stream.getTracks().forEach((track) => track.stop());
-          clearInterval(recordingTimerInterval);
-
-          const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || "audio/webm" });
-          if (customVoiceURLs[targetIdx]) URL.revokeObjectURL(customVoiceURLs[targetIdx]);
-          customVoiceURLs[targetIdx] = URL.createObjectURL(blob);
-
-          await saveVoiceBlobToDB(targetIdx, blob);
-          resetRecordButtonUI();
-          updateVoiceUIState(currentTourIndex);
-          showToast(`Saved your voice narration for "${EXHIBITS[targetIdx].shortTitle}"!`);
-        };
-
-        mediaRecorder.start();
-        recordingSeconds = 0;
-        const btn = document.getElementById("record-voice-btn");
-        const dot = document.getElementById("record-dot");
-        const label = document.getElementById("record-btn-label");
-
-        btn.classList.remove("bg-red-800", "hover:bg-red-700");
-        btn.classList.add("bg-red-600", "hover:bg-red-500");
-        dot.classList.add("recording-dot");
-        label.textContent = "Stop Recording (0:00)";
-
-        recordingTimerInterval = setInterval(() => {
-          recordingSeconds++;
-          const mins = Math.floor(recordingSeconds / 60);
-          const secs = String(recordingSeconds % 60).padStart(2, "0");
-          label.textContent = `Stop Recording (${mins}:${secs})`;
-        }, 1000);
-      } catch (err) {
-        showToast("Microphone permission denied or unavailable.");
-      }
+    function setSpeakingUI(label) {
+      isSpeaking = true;
+      document.getElementById("audio-icon").textContent = "⏹";
+      document.getElementById("audio-label").textContent = label;
     }
-
-    function stopActiveRecordingIfRunning() {
-      if (mediaRecorder && mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-      }
-      clearInterval(recordingTimerInterval);
-      resetRecordButtonUI();
-    }
-
-    function resetRecordButtonUI() {
-      const btn = document.getElementById("record-voice-btn");
-      const dot = document.getElementById("record-dot");
-      const label = document.getElementById("record-btn-label");
-      btn.classList.remove("bg-red-600", "hover:bg-red-500");
-      btn.classList.add("bg-red-800", "hover:bg-red-700");
-      dot.classList.remove("recording-dot");
-      label.textContent = "Record Your Voice";
-    }
-
-    async function handleCustomAudioUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      stopAudioGuide();
-
-      const targetIdx = currentTourIndex;
-      if (customVoiceURLs[targetIdx]) URL.revokeObjectURL(customVoiceURLs[targetIdx]);
-      customVoiceURLs[targetIdx] = URL.createObjectURL(file);
-
-      await saveVoiceBlobToDB(targetIdx, file);
-      updateVoiceUIState(targetIdx);
-      showToast(`Attached "${file.name}" to ${EXHIBITS[targetIdx].shortTitle}!`);
-      event.target.value = "";
-    }
-
-    async function deleteCustomVoice() {
-      stopAudioGuide();
-      const idx = currentTourIndex;
-      if (customVoiceURLs[idx]) {
-        URL.revokeObjectURL(customVoiceURLs[idx]);
-        delete customVoiceURLs[idx];
-      }
-      await deleteVoiceBlobFromDB(idx);
-      updateVoiceUIState(idx);
-      showToast("Reverted exhibit to built-in narrator.");
-    }
-
-    // Museum Audio Guide (Plays Recorded Voice -> Hosted ./.mp3 -> Web Speech API fallback)
-    let isSpeaking = false;
 
     function toggleAudioGuide() {
       if (isSpeaking) {
@@ -2115,18 +2313,14 @@
         return;
       }
 
-      const activeAudioURL = customVoiceURLs[currentTourIndex] || hostedAudioURLs[currentTourIndex];
-      if (activeAudioURL) {
+      const hostedURL = hostedAudioURLs[currentTourIndex];
+      if (hostedURL) {
         const player = document.getElementById("custom-voice-player");
-        player.src = activeAudioURL;
+        player.src = hostedURL;
         player.onended = () => stopAudioGuide();
         player.onerror = () => stopAudioGuide();
-        player.play().then(() => {
-          isSpeaking = true;
-          document.getElementById("audio-icon").textContent = "⏹";
-          document.getElementById("audio-label").textContent = "Stop Voice Narration";
-        }).catch(() => {
-          showToast("Unable to play audio recording.");
+        player.play().then(() => setSpeakingUI("Stop Audio Guide")).catch(() => {
+          showToast("Unable to play the voice-over file.");
         });
         return;
       }
@@ -2138,12 +2332,14 @@
 
       const ex = EXHIBITS[currentTourIndex];
       const utterance = new SpeechSynthesisUtterance(`${ex.title}. ${ex.date}. ${ex.location}. ${ex.description}`);
-      utterance.rate = 0.96;
+      if (!narratorVoice) pickNarratorVoice();
+      if (narratorVoice) utterance.voice = narratorVoice;
+      utterance.rate = 0.88;  // slower, documentary pace
+      utterance.pitch = 0.85; // a little deeper
       utterance.onend = () => stopAudioGuide();
 
-      isSpeaking = true;
-      document.getElementById("audio-icon").textContent = "⏹";
-      document.getElementById("audio-label").textContent = "Stop Audio Guide";
+      window.speechSynthesis.cancel();
+      setSpeakingUI("Stop Audio Guide");
       window.speechSynthesis.speak(utterance);
     }
 
@@ -2265,8 +2461,7 @@
       initHallMusic();
       await Promise.all([
         autoLoadHostedImages(),
-        autoLoadHostedAudio(),
-        loadAllSavedVoices()
+        autoLoadHostedAudio()
       ]);
     };
   </script>
