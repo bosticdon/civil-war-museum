@@ -340,7 +340,7 @@
       {
         slug: "lincoln",
         imageCandidates: ["./lincoln.jpg", "./lincoln.JPG", "./lincoln.jpeg", "./lincoln.png"],
-        audioCandidates: ["./lincoln.mp3", "./lincoln.MP3", "./lincoln.m4a", "./lincoln.wav"],
+        audioCandidates: ["./lincoln.mp3", "./lincoln.m4a"],
         shortTitle: "1. Lincoln at Antietam",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "President Lincoln on the Battlefield at Antietam",
@@ -361,7 +361,7 @@
       {
         slug: "hooker",
         imageCandidates: ["./hooker.jpg", "./hooker.JPG", "./hooker.jpeg", "./hooker.png"],
-        audioCandidates: ["./hooker.mp3", "./hooker.MP3", "./hooker.m4a", "./hooker.wav"],
+        audioCandidates: ["./hooker.mp3", "./hooker.m4a"],
         shortTitle: "2. Gen. Joseph Hooker",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Major General Joseph Hooker on Horseback",
@@ -382,7 +382,7 @@
       {
         slug: "medical-supplies",
         imageCandidates: ["./medical-supplies.jpg", "./medical%20supplies.jpg", "./medical-supplies.png"],
-        audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a", "./medical-supplies.wav"],
+        audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a"],
         shortTitle: "3. Medical Supplies",
         archiveCategory: "CIVIL WAR MEDICAL ARCHIVE",
         title: "The Field Surgeon's Kit: Civil War Medical Supplies",
@@ -405,7 +405,7 @@
       {
         slug: "grant",
         imageCandidates: ["./grant.jpg", "./grant.JPG", "./grant.jpeg", "./grant.png"],
-        audioCandidates: ["./grant.mp3", "./grant.MP3", "./grant.m4a", "./grant.wav"],
+        audioCandidates: ["./grant.mp3", "./grant.m4a"],
         shortTitle: "4. Gen. Ulysses S. Grant",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Lieutenant General Ulysses S. Grant at Field Headquarters",
@@ -426,7 +426,7 @@
       {
         slug: "lee",
         imageCandidates: ["./lee.jpg", "./lee.JPG", "./lee.jpeg", "./lee.png"],
-        audioCandidates: ["./lee.mp3", "./lee.MP3", "./lee.m4a", "./lee.wav"],
+        audioCandidates: ["./lee.mp3", "./lee.m4a"],
         shortTitle: "5. Gen. Robert E. Lee",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "General Robert E. Lee at His Richmond Residence",
@@ -447,7 +447,7 @@
       {
         slug: "hospital",
         imageCandidates: ["./hospital.jpg", "./hospital.JPG", "./hospital.jpeg", "./hospital.png"],
-        audioCandidates: ["./hospital.mp3", "./hospital.MP3", "./hospital.m4a", "./hospital.wav"],
+        audioCandidates: ["./hospital.mp3", "./hospital.m4a"],
         shortTitle: "6. Union Hospital Ward",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Interior of a Union General Hospital Ward",
@@ -468,7 +468,7 @@
       {
         slug: "envelope",
         imageCandidates: ["./war%20time%20envolope.jpg", "./war%20time%20envelope.jpg", "./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
-        audioCandidates: ["./envelope.mp3", "./envelope.MP3", "./envelope.m4a", "./envelope.wav"],
+        audioCandidates: ["./envelope.mp3", "./envelope.m4a"],
         shortTitle: "7. Confederate Envelope",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "Wartime Envelope Addressed to Spartanburg, South Carolina",
@@ -489,7 +489,7 @@
       {
         slug: "instruments",
         imageCandidates: ["./instruments.jpg", "./instruments.png"],
-        audioCandidates: ["./instruments.mp3", "./instruments.m4a", "./instruments.wav"],
+        audioCandidates: ["./instruments.mp3", "./instruments.m4a"],
         shortTitle: "8. Instruments & Songs",
         archiveCategory: "CIVIL WAR MUSIC ARCHIVE",
         title: "Drums, Bugles & Fifes: The Sounds of Camp and Battle",
@@ -512,7 +512,7 @@
       {
         slug: "letter",
         imageCandidates: ["./War%20time%20letter.jpg", "./war%20time%20letter.jpg", "./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
-        audioCandidates: ["./letter.mp3", "./letter.MP3", "./letter.m4a", "./letter.wav"],
+        audioCandidates: ["./letter.mp3", "./letter.m4a"],
         shortTitle: "9. Letter Home",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "\"Trust in the Lord\": A Condolence Letter from the 5th Indiana Cavalry",
@@ -533,7 +533,7 @@
       {
         slug: "henry-rifle",
         imageCandidates: ["./henry-rifle.jpg", "./henry-rifle.JPG", "./henry-rifle.jpeg", "./henry-rifle.png"],
-        audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.MP3", "./henry-rifle.m4a", "./henry-rifle.wav"],
+        audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.m4a"],
         shortTitle: "10. Henry Rifle (North)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "Model 1860 Henry Lever-Action Repeating Rifle",
@@ -555,7 +555,7 @@
       {
         slug: "enfield-rifle",
         imageCandidates: ["./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
-        audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.MP3", "./enfield-rifle.m4a", "./enfield-rifle.wav"],
+        audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.m4a"],
         shortTitle: "11. Enfield Rifle (South)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "British Pattern 1853 Enfield Rifle-Musket",
@@ -828,8 +828,17 @@
       mesh.scale.set(w, h, 1);
     }
 
+    // Each frame remembers which picture it should show. If an older load (like the
+    // drawn placeholder) finishes after the real photo, it is ignored instead of
+    // covering the photo back up.
     function loadTextureIntoMesh(mesh, url) {
+      mesh.userData.wantedUrl = url;
       new THREE.TextureLoader().load(url, (tex) => {
+        if (mesh.userData.wantedUrl !== url) {
+          tex.dispose();
+          return;
+        }
+        if (mesh.material.map && mesh.material.map !== tex) mesh.material.map.dispose();
         mesh.material.map = tex;
         mesh.material.color.set(0xffffff);
         mesh.material.needsUpdate = true;
@@ -861,29 +870,32 @@
       });
     }
 
-    async function autoLoadHostedImages() {
-      for (let idx = 0; idx < EXHIBITS.length; idx++) {
-        const candidates = EXHIBITS[idx].imageCandidates || [];
-        for (const candidateUrl of candidates) {
-          try {
-            const validUrl = await probeImageCandidate(candidateUrl);
-            defaultArtifactImages[idx] = validUrl;
-            exhibitImages[idx] = validUrl;
+    // Finds each exhibit's photo in the folder. All exhibits are looked up at the
+    // same time, so one missing file never holds up the others.
+    async function findHostedImage(idx) {
+      const candidates = EXHIBITS[idx].imageCandidates || [];
+      for (const candidateUrl of candidates) {
+        try {
+          const validUrl = await probeImageCandidate(candidateUrl);
+          exhibitImages[idx] = validUrl;
 
-            // Immediately apply texture to the 3D gallery frame or easel
-            applyTextureToExhibit(idx, validUrl);
+          // Put the photo on the 3D frame or easel
+          applyTextureToExhibit(idx, validUrl);
 
-            // Also update modal preview image if this exhibit is currently open
-            if (currentTourIndex === idx) {
-              const modalImg = document.getElementById("modal-artifact-img");
-              if (modalImg) modalImg.src = validUrl;
-            }
-            break;
-          } catch (_) {
-            // Try next extension (.jpg -> .JPG -> .jpeg -> .png)
+          // Also update the placard picture if this exhibit is open right now
+          const dialog = document.getElementById("artifact-dialog");
+          if (dialog.open && currentTourIndex === idx) {
+            document.getElementById("modal-artifact-img").src = validUrl;
           }
+          return;
+        } catch (_) {
+          // Try the next file name
         }
       }
+    }
+
+    function autoLoadHostedImages() {
+      return Promise.all(EXHIBITS.map((_, idx) => findHostedImage(idx)));
     }
 
     function probeAudioCandidate(url) {
@@ -902,26 +914,28 @@
           cleanup();
           reject(new Error("Audio not found: " + url));
         };
+        setTimeout(() => {
+          cleanup();
+          reject(new Error("Audio check timed out: " + url));
+        }, 8000);
         audioProbe.src = url;
       });
     }
 
-    async function autoLoadHostedAudio() {
-      for (let idx = 0; idx < EXHIBITS.length; idx++) {
-        const candidates = EXHIBITS[idx].audioCandidates || [];
-        for (const candidateUrl of candidates) {
-          try {
-            const validUrl = await probeAudioCandidate(candidateUrl);
-            hostedAudioURLs[idx] = validUrl;
-            if (currentTourIndex === idx) {
-              updateVoiceUIState(idx);
-            }
-            break;
-          } catch (_) {
-            // Try next extension (.mp3 -> .MP3 -> .m4a -> .wav)
-          }
+    async function findHostedAudio(idx) {
+      const candidates = EXHIBITS[idx].audioCandidates || [];
+      for (const candidateUrl of candidates) {
+        try {
+          hostedAudioURLs[idx] = await probeAudioCandidate(candidateUrl);
+          return;
+        } catch (_) {
+          // Try the next file name
         }
       }
+    }
+
+    function autoLoadHostedAudio() {
+      return Promise.all(EXHIBITS.map((_, idx) => findHostedAudio(idx)));
     }
 
     /**
