@@ -122,6 +122,12 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.45; transform: scale(1.18); }
     }
+    .touch-btn {
+      width: 52px; height: 52px; border-radius: 12px; font-size: 22px; line-height: 1;
+      color: #f3d796; background: rgba(24, 18, 13, 0.82); border: 1px solid rgba(200, 162, 88, 0.45);
+      backdrop-filter: blur(6px); touch-action: none; -webkit-user-select: none;
+    }
+    .touch-btn:active, .touch-btn.pressed { background: linear-gradient(135deg, #c8a258 0%, #99732f 100%); color: #161008; }
     .sources-list { list-style: disc; padding-left: 1.25rem; font-size: 0.92rem; line-height: 1.45; }
     .sources-list li { margin-bottom: 0.45rem; }
     .sources-list a { color: #7a581d; text-decoration: underline; word-break: break-word; }
@@ -143,7 +149,7 @@
           AMERICAN CIVIL WAR GALLERY
         </h1>
         <p class="text-[11px] sm:text-xs text-stone-300 tracking-wide">
-          Photographs, Letters &amp; Weapons of a Nation Divided
+          Curated by MaryKate Bostic
         </p>
       </div>
     </div>
@@ -204,7 +210,7 @@
         </li>
       </ul>
       <div class="mt-3 pt-2 border-t border-amber-500/20 text-[10px] text-stone-400">
-        Tip: Use the bottom dock to walk automatically between exhibits. Open any placard and press "Play Audio Guide" to hear it read aloud.
+        Tip: On a touchscreen, use the arrow buttons on the right to walk and turn. Use the bottom dock to walk automatically between exhibits. Open any placard and press "Play Audio Guide" to hear it read aloud.
       </div>
     </aside>
 
@@ -214,6 +220,34 @@
     <!-- Background hall music (browsers only allow sound after a click, so it starts from the Enter button) -->
     <audio id="bg-music" preload="auto"></audio>
 
+    <!-- Farewell Screen (shown after the last tour stop) -->
+    <div id="farewell-overlay" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div class="plaque-card rounded-xl px-8 py-8 max-w-md w-[90vw] text-center">
+        <div class="w-14 h-14 mx-auto rounded-full brass-badge flex items-center justify-center font-cinzel font-bold text-lg shadow-lg">1865</div>
+        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-stone-900 mt-4 tracking-wide">Thank You for Visiting</h2>
+        <p class="font-serif-editorial text-lg text-stone-700 mt-2 leading-snug">
+          &ldquo;With malice toward none, with charity for all&hellip; let us strive on to finish the work we are in, to bind up the nation's wounds.&rdquo;
+        </p>
+        <p class="font-serif-editorial text-sm text-stone-600 mt-1">&mdash; Abraham Lincoln, March 4, 1865</p>
+        <p class="font-cinzel text-xs tracking-widest text-amber-900 mt-4 uppercase">A Nation Divided &bull; Curated by MaryKate Bostic</p>
+        <div class="mt-6 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="restartTour()" class="px-5 py-2 rounded-lg brass-badge font-cinzel font-bold text-xs tracking-wider shadow">Start the Tour Again</button>
+          <button type="button" onclick="document.getElementById('farewell-overlay').classList.add('hidden')" class="px-5 py-2 rounded-lg bg-stone-800 text-amber-200 text-xs font-medium">Keep Exploring</button>
+          <button type="button" onclick="openSources()" class="px-5 py-2 rounded-lg border border-amber-900/40 text-stone-900 text-xs font-semibold">Sources</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-screen walking buttons (for touchscreens like a Promethean board, tablets, phones) -->
+    <div id="touch-pad" class="fixed right-4 bottom-32 z-20 grid grid-cols-3 gap-1.5 select-none" aria-label="Walking controls">
+      <span></span>
+      <button type="button" data-move="forward" class="touch-btn" aria-label="Walk forward">&#9650;</button>
+      <span></span>
+      <button type="button" data-move="turnLeft" class="touch-btn" aria-label="Turn left">&#8630;</button>
+      <button type="button" data-move="back" class="touch-btn" aria-label="Walk back">&#9660;</button>
+      <button type="button" data-move="turnRight" class="touch-btn" aria-label="Turn right">&#8631;</button>
+    </div>
+
     <!-- Entrance Screen -->
     <div id="enter-overlay" class="fixed inset-0 z-40 flex items-center justify-center bg-black/85 backdrop-blur-sm">
       <div class="plaque-card rounded-xl px-8 py-8 max-w-md w-[90vw] text-center">
@@ -222,6 +256,7 @@
         <p class="font-serif-editorial text-lg text-stone-700 mt-2 leading-snug">
           An exhibition of Civil War photographs, letters, weapons, flags, and the road to freedom.
         </p>
+        <p class="font-cinzel text-xs tracking-widest text-amber-900 mt-4 uppercase">Curated by MaryKate Bostic</p>
         <button type="button" onclick="enterMuseum(true)" class="mt-6 px-6 py-2.5 rounded-lg brass-badge font-cinzel font-bold text-sm tracking-wider shadow hover:brightness-110 transition">
           Enter the Hall &#9835;
         </button>
@@ -442,12 +477,32 @@
      */
     const EXHIBITS = [
       {
+        slug: "welcome",
+        builtSeparately: true,
+        imageCandidates: [],
+        audioCandidates: ["./welcome.mp3", "./welcome.m4a"],
+        shortTitle: "Welcome",
+        archiveCategory: "WELCOME • A NOTE FROM THE CURATOR",
+        title: "Welcome to A Nation Divided",
+        meta1Heading: "CURATED BY",
+        date: "MaryKate Bostic",
+        location: "America the Beautiful, Part 1 • Fall Semester 2026",
+        meta2Heading: "THE EXHIBITION",
+        creatorLabel: "Covers",
+        creator: "Unit 14 (A Nation Divided) and Unit 15 (America Begins to Heal)",
+        mediumLabel: "Inside",
+        medium: "Photographs, letters, weapons, flags, medicine, music, and the road to freedom",
+        description:
+          "Welcome! This museum tells the story of the American Civil War through the things people left behind: photographs taken by Mathew Brady and his camera crews, a letter that brought terrible news to a family in Indiana, the rifles each side carried, the instruments that called soldiers to battle, and the flags they followed. It begins before the war, with Harriet Tubman leading people to freedom on the Underground Railroad, and it ends in 1865, as the nation began to heal. As you walk through the hall, think about the ordinary people behind each object: the soldiers, nurses, families, and freedom seekers whose faith and courage carried them through the hardest years in our nation's history. Use the tour buttons at the bottom of the screen, click any exhibit to read its placard, and before you leave, sit for your own tintype portrait.",
+        view: { x: 2.4, z: 16.0, yaw: Math.PI + 0.42, pitch: 0.02 }
+      },
+      {
         slug: "underground-railroad",
         builtSeparately: true,
         ugrr: true,
         imageCandidates: ["./harriettubman%20library%20of%20congress.jpg", "./tubman.jpg"],
         audioCandidates: ["./underground-railroad.mp3", "./underground-railroad.m4a"],
-        shortTitle: "1. The Underground Railroad",
+        shortTitle: "The Underground Railroad",
         archiveCategory: "BEFORE THE WAR • THE ROAD TO FREEDOM",
         title: "Harriet Tubman and the Underground Railroad",
         meta1Heading: "DATE & PLACE",
@@ -564,7 +619,7 @@
         slug: "lincoln",
         imageCandidates: ["./lincoln.jpg", "./lincoln.JPG", "./lincoln.jpeg", "./lincoln.png"],
         audioCandidates: ["./lincoln.mp3", "./lincoln.m4a"],
-        shortTitle: "2. Lincoln at Antietam",
+        shortTitle: "Lincoln at Antietam",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "President Lincoln on the Battlefield at Antietam",
         meta1Heading: "DATE & LOCATION",
@@ -585,7 +640,7 @@
         slug: "hooker",
         imageCandidates: ["./hooker.jpg", "./hooker.JPG", "./hooker.jpeg", "./hooker.png"],
         audioCandidates: ["./hooker.mp3", "./hooker.m4a"],
-        shortTitle: "3. Gen. Joseph Hooker",
+        shortTitle: "Gen. Joseph Hooker",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Major General Joseph Hooker on Horseback",
         meta1Heading: "DATE & LOCATION",
@@ -606,7 +661,7 @@
         slug: "medical-supplies",
         imageCandidates: ["./national%20archive%20medical%20supplies.jpg", "./medical-supplies.jpg"],
         audioCandidates: ["./medical-supplies.mp3", "./medical-supplies.m4a"],
-        shortTitle: "4. Medical Supplies",
+        shortTitle: "Medical Supplies",
         archiveCategory: "CIVIL WAR MEDICAL ARCHIVE",
         title: "The Field Surgeon's Kit: Civil War Medical Supplies",
         meta1Heading: "DATE & USE",
@@ -629,7 +684,7 @@
         slug: "grant",
         imageCandidates: ["./grant.jpg", "./grant.JPG", "./grant.jpeg", "./grant.png"],
         audioCandidates: ["./grant.mp3", "./grant.m4a"],
-        shortTitle: "5. Gen. Ulysses S. Grant",
+        shortTitle: "Gen. Ulysses S. Grant",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Lieutenant General Ulysses S. Grant at Field Headquarters",
         meta1Heading: "DATE & LOCATION",
@@ -650,7 +705,7 @@
         slug: "lee",
         imageCandidates: ["./lee.jpg", "./lee.JPG", "./lee.jpeg", "./lee.png"],
         audioCandidates: ["./lee.mp3", "./lee.m4a"],
-        shortTitle: "6. Gen. Robert E. Lee",
+        shortTitle: "Gen. Robert E. Lee",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "General Robert E. Lee at His Richmond Residence",
         meta1Heading: "DATE & LOCATION",
@@ -671,7 +726,7 @@
         slug: "hospital",
         imageCandidates: ["./hospital.jpg", "./hospital.JPG", "./hospital.jpeg", "./hospital.png"],
         audioCandidates: ["./hospital.mp3", "./hospital.m4a"],
-        shortTitle: "7. Union Hospital Ward",
+        shortTitle: "Union Hospital Ward",
         archiveCategory: "CIVIL WAR PHOTOGRAPHIC ARCHIVE",
         title: "Interior of a Union General Hospital Ward",
         meta1Heading: "DATE & LOCATION",
@@ -693,7 +748,7 @@
         darkMat: true, // black mat + softer light so the old paper doesn't wash out
         imageCandidates: ["./war%20time%20envolope.jpg", "./war%20time%20envelope.jpg", "./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
         audioCandidates: ["./envelope.mp3", "./envelope.m4a"],
-        shortTitle: "8. Confederate Envelope",
+        shortTitle: "Confederate Envelope",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "Wartime Envelope Addressed to Spartanburg, South Carolina",
         meta1Heading: "DATE & DESTINATION",
@@ -714,7 +769,7 @@
         slug: "instruments",
         imageCandidates: ["./instruments.jpg", "./instruments.png"],
         audioCandidates: ["./instruments.mp3", "./instruments.m4a"],
-        shortTitle: "9. Instruments & Songs",
+        shortTitle: "Instruments & Songs",
         archiveCategory: "CIVIL WAR MUSIC ARCHIVE",
         title: "Drums, Bugles & Fifes: The Sounds of Camp and Battle",
         meta1Heading: "DATE & USE",
@@ -738,7 +793,7 @@
         darkMat: true, // black mat + softer light so the old paper doesn't wash out
         imageCandidates: ["./War%20time%20letter.jpg", "./war%20time%20letter.jpg", "./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
         audioCandidates: ["./letter.mp3", "./letter.m4a"],
-        shortTitle: "10. Letter Home",
+        shortTitle: "Letter Home",
         archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
         title: "\"Trust in the Lord\": A Condolence Letter from the 5th Indiana Cavalry",
         meta1Heading: "DATE & LOCATION",
@@ -759,7 +814,7 @@
         slug: "henry-rifle",
         imageCandidates: ["./henry-rifle.jpg", "./henry-rifle.JPG", "./henry-rifle.jpeg", "./henry-rifle.png"],
         audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.m4a"],
-        shortTitle: "11. Henry Rifle (North)",
+        shortTitle: "Henry Rifle (North)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "Model 1860 Henry Lever-Action Repeating Rifle",
         meta1Heading: "DATE & MAKER",
@@ -781,7 +836,7 @@
         slug: "enfield-rifle",
         imageCandidates: ["./enfield-rifle-dark.jpg", "./enfield%20rifle.jpg", "./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
         audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.m4a"],
-        shortTitle: "12. Enfield Rifle (South)",
+        shortTitle: "Enfield Rifle (South)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "British Pattern 1853 Enfield Rifle-Musket",
         meta1Heading: "DATE & MAKER",
@@ -806,7 +861,7 @@
         flagType: "us34",
         imageCandidates: [],
         audioCandidates: ["./flag-us34.mp3", "./flag-us34.m4a"],
-        shortTitle: "13. U.S. Flag, 34 Stars (1861)",
+        shortTitle: "U.S. Flag, 34 Stars (1861)",
         archiveCategory: "FLAGS OF THE WAR • UNION",
         title: "The Stars and Stripes, 34 Stars (1861–1863)",
         meta1Heading: "DATE & USE",
@@ -828,7 +883,7 @@
         flagType: "csa7",
         imageCandidates: ["./NMAH-2004-19157-08.jpg"],
         audioCandidates: ["./flag-csa-first.mp3", "./flag-csa-first.m4a"],
-        shortTitle: "14. Stars and Bars (1861)",
+        shortTitle: "Stars and Bars (1861)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Stars and Bars: First Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -850,7 +905,7 @@
         flagType: "us35",
         imageCandidates: [],
         audioCandidates: ["./flag-us35.mp3", "./flag-us35.m4a"],
-        shortTitle: "15. U.S. Flag, 35 Stars (1863)",
+        shortTitle: "U.S. Flag, 35 Stars (1863)",
         archiveCategory: "FLAGS OF THE WAR • UNION",
         title: "The Stars and Stripes, 35 Stars (1863–1865)",
         meta1Heading: "DATE & USE",
@@ -872,7 +927,7 @@
         flagType: "csa2",
         imageCandidates: ["./stainlessbanner.jpg"],
         audioCandidates: ["./flag-csa-second.mp3", "./flag-csa-second.m4a"],
-        shortTitle: "16. Stainless Banner (1863)",
+        shortTitle: "Stainless Banner (1863)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Stainless Banner: Second Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -894,7 +949,7 @@
         flagType: "csa3",
         imageCandidates: [],
         audioCandidates: ["./flag-csa-third.mp3", "./flag-csa-third.m4a"],
-        shortTitle: "17. Blood-Stained Banner (1865)",
+        shortTitle: "Blood-Stained Banner (1865)",
         archiveCategory: "FLAGS OF THE WAR • CONFEDERACY",
         title: "The Blood-Stained Banner: Third Confederate National Flag",
         meta1Heading: "DATE & USE",
@@ -917,7 +972,7 @@
         heal: "main",
         imageCandidates: [],
         audioCandidates: ["./america-heals.mp3", "./america-heals.m4a"],
-        shortTitle: "18. America Begins to Heal",
+        shortTitle: "America Begins to Heal",
         archiveCategory: "AMERICA BEGINS TO HEAL • 1865",
         title: "\"With Malice Toward None\": Lincoln's Second Inaugural Address",
         meta1Heading: "DATE & PLACE",
@@ -980,7 +1035,7 @@
         isBooth: true,
         imageCandidates: [],
         audioCandidates: [],
-        shortTitle: "19. Tintype Photo Booth",
+        shortTitle: "Tintype Photo Booth",
         archiveCategory: "HANDS-ON • 1860s PHOTOGRAPHY",
         title: "Sit for Your Tintype Portrait",
         meta1Heading: "", date: "", location: "", meta2Heading: "", creatorLabel: "", creator: "", mediumLabel: "", medium: "",
@@ -992,7 +1047,18 @@
 
     // Guided tour order (main stops only) and placard reading order
     // (each main stop followed by its "hidden" parts, e.g. the map's numbered stops).
-    const TOUR = EXHIBITS.map((_, i) => i).filter((i) => !EXHIBITS[i].hidden);
+    const TOUR_ORDER = [
+      "welcome", "underground-railroad", "lincoln", "hooker", "medical-supplies", "grant", "lee",
+      "hospital", "envelope", "instruments", "flag-csa-second", "letter", "flag-csa-third",
+      "henry-rifle", "enfield-rifle", "flag-csa-first", "flag-us35", "america-heals",
+      "flag-us34", "photo-booth"
+    ];
+    const TOUR = TOUR_ORDER.map((slug) => EXHIBITS.findIndex((e) => e.slug === slug)).filter((i) => i >= 0);
+    // Any main exhibit left out of the list above still joins the end of the tour
+    EXHIBITS.forEach((e, i) => { if (!e.hidden && !TOUR.includes(i)) TOUR.push(i); });
+    function tourLabel(idx) {
+      return `${TOUR.indexOf(idx) + 1}. ${EXHIBITS[idx].shortTitle}`;
+    }
     const READING = [];
     TOUR.forEach((i) => {
       if (EXHIBITS[i].isBooth) return;
@@ -2199,6 +2265,7 @@
 
       buildUGRRMap(hallWidth);
       buildSourcesPlaque(hallLength, centerZ);
+      buildWelcomePlaque(hallLength, centerZ);
       buildHealWall(hallWidth);
       buildPhotoBooth(hallWidth);
     }
@@ -2777,6 +2844,49 @@
       scene.add(frame);
     }
 
+    // ---------- Curator's welcome plaque (south wall, beside the entrance) ----------
+    function buildWelcomePlaque(hallLength, centerZ) {
+      const idx = exhibitIndexBySlug("welcome");
+      const c = document.createElement("canvas");
+      c.width = 1100; c.height = 700;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#1c130d";
+      ctx.fillRect(0, 0, 1100, 700);
+      ctx.strokeStyle = "#c8a258"; ctx.lineWidth = 12; ctx.strokeRect(14, 14, 1072, 672);
+      ctx.lineWidth = 3; ctx.strokeRect(36, 36, 1028, 628);
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#c8a258";
+      ctx.font = "bold 40px Georgia, serif";
+      ctx.fillText("W E L C O M E", 550, 130);
+      ctx.fillStyle = "#e6c786";
+      ctx.font = "bold 92px Georgia, serif";
+      ctx.fillText("A Nation Divided", 550, 260);
+      ctx.fillStyle = "#d9c8a4";
+      ctx.font = "italic 40px Georgia, serif";
+      ctx.fillText("The Civil War, 1861–1865", 550, 330);
+      ctx.fillStyle = "#e6c786";
+      ctx.font = "bold 44px Georgia, serif";
+      ctx.fillText("Curated by MaryKate Bostic", 550, 450);
+      ctx.fillStyle = "#bfb39c";
+      ctx.font = "bold 30px Georgia, serif";
+      ctx.fillText("CLICK TO READ THE CURATOR'S WELCOME  \u2192", 550, 600);
+
+      const z = centerZ + hallLength / 2 - 0.22;
+      const plaque = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.4), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(c), roughness: 0.6 }));
+      plaque.position.set(5.2, 2.2, z);
+      plaque.rotation.y = Math.PI;
+      plaque.userData = { exhibitIndex: idx };
+      interactiveMeshes.push(plaque);
+      scene.add(plaque);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(2.36, 1.56, 0.05), stdMat(0xc59b45, 0.3, 0.68));
+      frame.position.set(5.2, 2.2, z + 0.03);
+      scene.add(frame);
+      const spot = new THREE.SpotLight(0xffe6bd, 0.8, 10, Math.PI / 6, 0.5, 1.2);
+      spot.position.set(4.2, 6.2, z - 3.5);
+      spot.target = plaque;
+      scene.add(spot);
+    }
+
     function initMuseumScene() {
       const canvas = document.getElementById("museum-canvas");
       scene = new THREE.Scene();
@@ -3116,12 +3226,12 @@
         btn.className = "tour-pill px-3.5 py-2 rounded-full text-xs text-stone-200 whitespace-nowrap flex items-center gap-2";
         btn.id = `tour-pill-${i}`;
         btn.dataset.idx = String(i);
-        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>${ex.shortTitle}</span>`;
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>${tourLabel(i)}</span>`;
         btn.onclick = () => (ex.isBooth ? moveToExhibit(i, true) : moveToExhibit(i, false));
         dock.appendChild(btn);
       });
 
-      updateActiveTourPill(0);
+      updateActiveTourPill(TOUR[0]);
       bindEvents();
       animate();
     }
@@ -3176,6 +3286,10 @@
 
     function stepTour(delta) {
       const pos = TOUR.indexOf(mainIndexOf(currentTourIndex));
+      if (delta > 0 && pos === TOUR.length - 1) {
+        showFarewell();
+        return;
+      }
       const next = TOUR[(pos + delta + TOUR.length) % TOUR.length];
       moveToExhibit(next, false);
     }
@@ -3275,11 +3389,13 @@
       const rightX = Math.cos(player.yaw);
       const rightZ = -Math.sin(player.yaw);
 
-      if (keys["KeyW"] || keys["ArrowUp"]) {
+      if (keys["Touch_turnLeft"]) player.yaw += 0.035;
+      if (keys["Touch_turnRight"]) player.yaw -= 0.035;
+      if (keys["KeyW"] || keys["ArrowUp"] || keys["Touch_forward"]) {
         player.x += forwardX * moveSpeed;
         player.z += forwardZ * moveSpeed;
       }
-      if (keys["KeyS"] || keys["ArrowDown"]) {
+      if (keys["KeyS"] || keys["ArrowDown"] || keys["Touch_back"]) {
         player.x -= forwardX * moveSpeed;
         player.z -= forwardZ * moveSpeed;
       }
@@ -3369,7 +3485,7 @@
       document.getElementById("modal-catalog-id").textContent = ex.stop
         ? `MAP STOP ${ex.stop} OF ${UGRR_STOPS.length}`
         : ex.parent
-          ? `PART OF: ${EXHIBITS[mainIndexOf(idx)].shortTitle.replace(/^\d+\.\s*/, "").toUpperCase()}`
+          ? `PART OF: ${EXHIBITS[mainIndexOf(idx)].shortTitle.toUpperCase()}`
           : `EXHIBIT ${String(TOUR.indexOf(idx) + 1).padStart(2, "0")} / ${String(TOUR.length).padStart(2, "0")}`;
       document.getElementById("modal-archive-tag").textContent = ex.archiveCategory;
       document.getElementById("modal-title").textContent = ex.title;
@@ -3679,6 +3795,28 @@
     document.addEventListener("fullscreenchange", updateFullscreenButton);
     document.addEventListener("webkitfullscreenchange", updateFullscreenButton);
 
+    function showFarewell() {
+      document.getElementById("farewell-overlay").classList.remove("hidden");
+    }
+
+    function restartTour() {
+      document.getElementById("farewell-overlay").classList.add("hidden");
+      moveToExhibit(TOUR[0], false);
+    }
+
+    // Press-and-hold walking buttons for touchscreens
+    function initTouchPad() {
+      document.querySelectorAll("#touch-pad [data-move]").forEach((btn) => {
+        const key = "Touch_" + btn.dataset.move;
+        const down = (e) => { e.preventDefault(); keys[key] = true; player.autoMoving = false; btn.classList.add("pressed"); };
+        const up = () => { keys[key] = false; btn.classList.remove("pressed"); };
+        btn.addEventListener("pointerdown", down);
+        btn.addEventListener("pointerup", up);
+        btn.addEventListener("pointerleave", up);
+        btn.addEventListener("pointercancel", up);
+      });
+    }
+
     function enterMuseum(withMusic) {
       enterFullscreen();
       document.getElementById("enter-overlay").classList.add("hidden");
@@ -3955,6 +4093,7 @@
       createPlaceholderImages();
       initMuseumScene();
       initHallMusic();
+      initTouchPad();
       updateFullscreenButton();
       await Promise.all([
         autoLoadHostedImages(),
