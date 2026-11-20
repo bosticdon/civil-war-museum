@@ -140,12 +140,15 @@
           AMERICAN CIVIL WAR GALLERY
         </h1>
         <p class="text-[11px] sm:text-xs text-stone-300 tracking-wide">
-          Photographic &amp; Ordnance Exhibition &bull; Mathew Brady &amp; New Haven Arms
+          Photographs, Letters &amp; Weapons of a Nation Divided
         </p>
       </div>
     </div>
 
     <nav aria-label="Gallery Utilities" class="pointer-events-auto flex items-center gap-2">
+      <button id="music-btn" type="button" onclick="toggleMusic()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
+        &#9835; Music: Off
+      </button>
       <button id="toggle-controls-btn" type="button" onclick="toggleControlsHelp()" class="px-3 py-1.5 rounded-full text-xs font-medium bg-stone-900/85 hover:bg-stone-800 text-amber-200 border border-amber-500/35 backdrop-blur-md transition">
         Controls
       </button>
@@ -198,6 +201,26 @@
 
     <!-- Status Toast Notification -->
     <output id="toast-msg" class="fixed top-16 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-stone-900/95 border border-amber-400/50 text-amber-200 text-xs font-medium shadow-xl opacity-0 pointer-events-none transition-opacity duration-300"></output>
+
+    <!-- Background hall music (browsers only allow sound after a click, so it starts from the Enter button) -->
+    <audio id="bg-music" preload="auto"></audio>
+
+    <!-- Entrance Screen -->
+    <div id="enter-overlay" class="fixed inset-0 z-40 flex items-center justify-center bg-black/85 backdrop-blur-sm">
+      <div class="plaque-card rounded-xl px-8 py-8 max-w-md w-[90vw] text-center">
+        <div class="w-14 h-14 mx-auto rounded-full brass-badge flex items-center justify-center font-cinzel font-bold text-lg shadow-lg">1861</div>
+        <h2 class="font-cinzel text-xl sm:text-2xl font-bold text-stone-900 mt-4 tracking-wide">A Nation Divided</h2>
+        <p class="font-serif-editorial text-lg text-stone-700 mt-2 leading-snug">
+          An exhibition of Civil War photographs, letters, and weapons.
+        </p>
+        <button type="button" onclick="enterMuseum(true)" class="mt-6 px-6 py-2.5 rounded-lg brass-badge font-cinzel font-bold text-sm tracking-wider shadow hover:brightness-110 transition">
+          Enter the Hall &#9835;
+        </button>
+        <button type="button" onclick="enterMuseum(false)" class="block mx-auto mt-3 text-xs text-stone-600 hover:text-stone-900 underline">
+          Enter without music
+        </button>
+      </div>
+    </div>
   </main>
 
   <!-- Semantic HTML5 Footer Guided Tour Dock -->
@@ -366,7 +389,7 @@
           "Standing in front of a headquarters tent just two weeks after the Battle of Antietam—the single bloodiest day in American military history—President Abraham Lincoln confers with Allan Pinkerton (left), head of the Union Intelligence Service, and Major General John A. McClernand (right). Lincoln traveled to Maryland to inspect the Army of the Potomac and press its commander, General George B. McClellan, to pursue retreating Confederate forces. The stark contrast between Lincoln’s towering civilian attire and the rugged field camp underscores the direct, personal burden the Commander-in-Chief carried during a pivotal turning point of the war.",
         isWeaponCase: false,
         wallSide: "left",
-        zPos: 8
+        zPos: 12
       },
       {
         id: 1,
@@ -388,7 +411,7 @@
           "Posed in crisp profile outside a military encampment, Major General Joseph \"Fighting Joe\" Hooker sits astride his mount in full Union dress uniform. Hooker rose rapidly through the ranks of the Army of the Potomac, earning a reputation for aggressive leadership and reorganizing troop morale before assuming overall command in early 1863. Brady’s equestrian framing draws directly on classical traditions of military portraiture, projecting authority, order, and readiness despite the harsh realities of the ongoing campaign.",
         isWeaponCase: false,
         wallSide: "right",
-        zPos: 8
+        zPos: 12
       },
       {
         id: 2,
@@ -410,7 +433,7 @@
           "Captured during the grueling Overland Campaign, Lieutenant General Ulysses S. Grant—recently appointed General-in-Chief of all Union armies—stands casually beside a pine tree outside his headquarters tent at Cold Harbor. Unlike the formal, upright poses favored by many Civil War commanders, Grant leans comfortably with one hand on his hip, wearing an unbuttoned field coat that reflects his pragmatic, unpretentious command style. The visible chemical flaking along the edges of the glass plate serves as a physical reminder of the fragile wet-plate process used under active battlefield conditions.",
         isWeaponCase: false,
         wallSide: "left",
-        zPos: -6
+        zPos: 2
       },
       {
         id: 3,
@@ -432,7 +455,7 @@
           "Just days after surrendering the Army of Northern Virginia at Appomattox Court House on April 9, 1865, Confederate General Robert E. Lee agreed to pose for Mathew Brady on the back porch of his rented brick home on East Franklin Street in Richmond. Dressed in the tailored gray uniform he wore at the surrender, Lee stands composed with his hat in hand. As one of Brady’s final wartime portraits, the image captures a quiet, solemn moment of transition as the Confederacy collapsed and the nation entered the uncertain era of Reconstruction.",
         isWeaponCase: false,
         wallSide: "right",
-        zPos: -6
+        zPos: 2
       },
       {
         id: 4,
@@ -454,14 +477,58 @@
           "Rows of neatly made cots line a wooden pavilion hospital ward in Washington, D.C., decorated with evergreen garlands and Union flags—including a 33-star \"Great Star\" banner—for a holiday or hospital anniversary. Wounded and convalescing soldiers rest alongside medical staff and female nurses, illustrating the unprecedented scale of Civil War medical care. Designed with high ceilings and tall windows to promote cross-ventilation and prevent infection, pavilion hospitals like this transformed American military medicine and nursing practices.",
         isWeaponCase: false,
         wallSide: "left",
-        zPos: -20
+        zPos: -8
       },
       {
         id: 5,
+        slug: "envelope",
+        imageCandidates: ["./envelope.jpg", "./envelope.JPG", "./envelope.jpeg", "./envelope.png"],
+        audioCandidates: ["./envelope.mp3", "./envelope.MP3", "./envelope.m4a", "./envelope.wav"],
+        shortTitle: "6. Confederate Envelope",
+        archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
+        title: "Wartime Envelope Addressed to Spartanburg, South Carolina",
+        meta1Heading: "DATE & DESTINATION",
+        date: "Confederate wartime mail, ca. 1861–1865",
+        location: "Spartanburg Court House, South Carolina",
+        meta2Heading: "POSTAL DETAILS",
+        creatorLabel: "Postage",
+        creator: "Hand-stamped \"10\" (10 cents)",
+        mediumLabel: "Medium",
+        medium: "Ink on paper with circular postmark",
+        description:
+          "This worn envelope traveled through the Confederate mail to \"J. B. ___, Esq.\" at Spartanburg C.H. (Court House), South Carolina. Instead of a printed stamp, a postmaster struck a bold \"10\" with a hand-stamp to show the postage. Ten cents was the Confederate rate for a letter sent any distance after July 1, 1862; before that, it was the rate for letters going more than 500 miles. Stamps and even paper ran short in the South as the Union blockade tightened, so postmasters used hand-stamps and families reused whatever paper they had. The note written in the upper corner appears to mention the Marion Artillery, a South Carolina unit. For soldiers and their families, envelopes like this one carried the only news from home or from the front.",
+        isWeaponCase: false,
+        wallSide: "right",
+        zPos: -8
+      },
+      {
+        id: 6,
+        slug: "letter",
+        imageCandidates: ["./letter.jpg", "./letter.JPG", "./letter.jpeg", "./letter.png"],
+        audioCandidates: ["./letter.mp3", "./letter.MP3", "./letter.m4a", "./letter.wav"],
+        shortTitle: "7. Letter Home",
+        archiveCategory: "CIVIL WAR CORRESPONDENCE ARCHIVE",
+        title: "\"Trust in the Lord\": A Condolence Letter from the 5th Indiana Cavalry",
+        meta1Heading: "DATE & LOCATION",
+        date: "May 28, 1865",
+        location: "Camp of the 5th Indiana Cavalry, Pulaski, Tennessee",
+        meta2Heading: "LETTER DETAILS",
+        creatorLabel: "Addressed to",
+        creator: "Mrs. Walters, Starr City, Pulaski County, Indiana",
+        mediumLabel: "Medium",
+        medium: "Handwritten ink on paper",
+        description:
+          "Written just weeks after the war ended, this letter carried the news every family feared. It opens: \"Be not weary or troubled. Trust in the Lord for he is able to comfort.\" The writer tells Mrs. Walters that her husband, D. W. (David) Walters, died in a Confederate prison around February 10, 1865. He had cared for David as long as he could, and he writes that David \"often spoke of you and his little boy\" and longed for the day the prison doors would open so he could return home, \"but alas, the small amount of meal that he was allowed was not sufficient for him.\" The writer closes with comfort rooted in faith: he believed David had \"experienced a change\" and was trying \"to live the life of a Christian,\" and he calls him \"one of my best men.\" Letters like this one remind us that every soldier in the war's casualty lists left behind a family waiting at home.",
+        isWeaponCase: false,
+        wallSide: "left",
+        zPos: -18
+      },
+      {
+        id: 7,
         slug: "henry-rifle",
         imageCandidates: ["./henry-rifle.jpg", "./henry-rifle.JPG", "./henry-rifle.jpeg", "./henry-rifle.png"],
         audioCandidates: ["./henry-rifle.mp3", "./henry-rifle.MP3", "./henry-rifle.m4a", "./henry-rifle.wav"],
-        shortTitle: "6. 1860 Henry Rifle",
+        shortTitle: "8. Henry Rifle (North)",
         archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
         title: "Model 1860 Henry Lever-Action Repeating Rifle",
         meta1Heading: "DATE & MAKER",
@@ -476,6 +543,30 @@
           "Designed by Benjamin Tyler Henry, the Model 1860 Henry Rifle was the most technologically advanced infantry firearm of the American Civil War. Featuring a distinctive brass frame and a tubular under-barrel magazine, it held 15 .44-caliber rimfire metallic cartridges plus one in the chamber, allowing a soldier to fire 16 rounds rapidly via its lever action while standard muzzle-loading rifles fired only two to three shots per minute. Though purchased only in limited numbers by the U.S. Ordnance Department, many Union soldiers bought Henry rifles with their own pay—earning the weapon a fearsome reputation among Confederate troops as \"that Yankee rifle that you load on Sunday and shoot all week.\"",
         isWeaponCase: true,
         wallSide: "center",
+        xPos: -3.2,
+        zPos: -29
+      },
+      {
+        id: 8,
+        slug: "enfield-rifle",
+        imageCandidates: ["./enfield-rifle.jpg", "./enfield-rifle.JPG", "./enfield-rifle.jpeg", "./enfield-rifle.png"],
+        audioCandidates: ["./enfield-rifle.mp3", "./enfield-rifle.MP3", "./enfield-rifle.m4a", "./enfield-rifle.wav"],
+        shortTitle: "9. Enfield Rifle (South)",
+        archiveCategory: "CIVIL WAR WEAPONRY ARCHIVE",
+        title: "British Pattern 1853 Enfield Rifle-Musket",
+        meta1Heading: "DATE & MAKER",
+        date: "Adopted by the British Army in 1853",
+        location: "Makers: Royal Small Arms Factory (Enfield), London Armoury Co. & others, England",
+        meta2Heading: "SPECIFICATIONS & MATERIALS",
+        creatorLabel: "Materials",
+        creator: "Walnut stock, iron barrel and bands, brass fittings",
+        mediumLabel: "Stock & Action",
+        medium: ".577-caliber, single-shot, muzzle-loading percussion rifle-musket",
+        description:
+          "The Enfield was the rifle most used by Confederate soldiers. The South had few factories that could make guns, so Confederate agents bought rifles from private makers in England. About 900,000 Enfields were imported during the war, mostly by the Confederacy, and blockade runners smuggled hundreds of thousands past the Union navy. The Enfield was 55¼ inches long, weighed about 9 pounds, and was accurate out to 500 yards. To load it, a soldier tore open a paper cartridge with his teeth, poured the gunpowder down the barrel, rammed the bullet down after it, and placed a percussion cap under the hammer. A trained soldier could fire only about three or four shots a minute. Across the aisle, the Union's Henry rifle could fire sixteen shots before reloading. Because Union .58-caliber bullets also fit the .577 Enfield, soldiers on both sides could use captured ammunition.",
+        isWeaponCase: true,
+        wallSide: "center",
+        xPos: 3.2,
         zPos: -29
       }
     ];
@@ -485,12 +576,27 @@
      * 2. PROCEDURAL ARCHIVAL ARTWORK & PERSISTENT STORAGE (LOCALSTORAGE + INDEXEDDB)
      * ============================================================================
      */
-    const STORAGE_KEY_IMAGES = "civil_war_museum_custom_images_v2";
+    // Saved photos & voices are keyed by exhibit slug so adding/reordering exhibits never mixes them up.
+    const STORAGE_KEY_IMAGES = "civil_war_museum_custom_images_v3";
+    const LEGACY_STORAGE_KEY_IMAGES = "civil_war_museum_custom_images_v2";
+    // Exhibit order in the earlier version (old saves used these index numbers)
+    const LEGACY_SLUGS = ["lincoln", "hooker", "grant", "lee", "hospital", "henry-rifle"];
 
     function loadSavedCustomImages() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY_IMAGES);
-        return raw ? JSON.parse(raw) : {};
+        if (raw) return JSON.parse(raw);
+        // One-time migration from the old index-based save
+        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY_IMAGES);
+        if (!legacyRaw) return {};
+        const legacy = JSON.parse(legacyRaw);
+        const migrated = {};
+        Object.keys(legacy).forEach((k) => {
+          const slug = LEGACY_SLUGS[Number(k)];
+          if (slug) migrated[slug] = legacy[k];
+        });
+        localStorage.setItem(STORAGE_KEY_IMAGES, JSON.stringify(migrated));
+        return migrated;
       } catch (e) {
         return {};
       }
@@ -499,7 +605,7 @@
     function saveCustomImageToStorage(idx, dataURL) {
       try {
         const current = loadSavedCustomImages();
-        current[idx] = dataURL;
+        current[EXHIBITS[idx].slug] = dataURL;
         localStorage.setItem(STORAGE_KEY_IMAGES, JSON.stringify(current));
       } catch (e) {
         showToast("Image updated for this session (browser storage quota full).");
@@ -512,8 +618,8 @@
       c.height = 1050;
       const ctx = c.getContext("2d");
 
-      if (index === 5) {
-        // Exhibit 6: Studio archival photograph of the Model 1860 Henry Rifle on rustic cradle
+      if (EXHIBITS[index].isWeaponCase) {
+        // Weapon exhibits: Studio archival photograph of the Model 1860 Henry Rifle on rustic cradle
         const bg = ctx.createRadialGradient(450, 480, 60, 450, 525, 650);
         bg.addColorStop(0, "#241d17");
         bg.addColorStop(1, "#090705");
@@ -737,7 +843,39 @@
 
     const defaultArtifactImages = EXHIBITS.map((_, idx) => generateArtifactDataURL(idx));
     const savedCustomImages = loadSavedCustomImages();
-    const exhibitImages = EXHIBITS.map((_, idx) => savedCustomImages[idx] || defaultArtifactImages[idx]);
+    const exhibitImages = EXHIBITS.map((ex, idx) => savedCustomImages[ex.slug] || defaultArtifactImages[idx]);
+
+    // Load a photo onto a frame and resize the picture so it keeps its true shape
+    // (wide rifles stay wide, tall letters stay tall) inside the frame's matboard.
+    function fitPhotoMesh(mesh, tex) {
+      const img = tex.image;
+      if (!img || !img.width || !img.height) return;
+      const aspect = img.width / img.height;
+      let w = mesh.userData.maxW;
+      let h = w / aspect;
+      if (h > mesh.userData.maxH) {
+        h = mesh.userData.maxH;
+        w = h * aspect;
+      }
+      mesh.scale.set(w, h, 1);
+    }
+
+    function loadTextureIntoMesh(mesh, url) {
+      new THREE.TextureLoader().load(url, (tex) => {
+        mesh.material.map = tex;
+        mesh.material.color.set(0xffffff);
+        mesh.material.needsUpdate = true;
+        fitPhotoMesh(mesh, tex);
+      });
+    }
+
+    function applyTextureToExhibit(idx, url) {
+      interactiveMeshes.forEach((mesh) => {
+        if (mesh.userData.exhibitIndex === idx && mesh.userData.isPhoto) {
+          loadTextureIntoMesh(mesh, url);
+        }
+      });
+    }
 
     /**
      * ============================================================================
@@ -758,7 +896,7 @@
     async function autoLoadHostedImages() {
       for (let idx = 0; idx < EXHIBITS.length; idx++) {
         // Respect explicit user localStorage override if present
-        if (savedCustomImages[idx]) continue;
+        if (savedCustomImages[EXHIBITS[idx].slug]) continue;
         const candidates = EXHIBITS[idx].imageCandidates || [];
         for (const candidateUrl of candidates) {
           try {
@@ -767,13 +905,7 @@
             exhibitImages[idx] = validUrl;
 
             // Immediately apply texture to the 3D gallery frame or easel
-            const tex = new THREE.TextureLoader().load(validUrl);
-            interactiveMeshes.forEach((mesh) => {
-              if (mesh.userData.exhibitIndex === idx && mesh.geometry.parameters.width > 1.8) {
-                mesh.material.map = tex;
-                mesh.material.needsUpdate = true;
-              }
-            });
+            applyTextureToExhibit(idx, validUrl);
 
             // Also update modal preview image if this exhibit is currently open
             if (currentTourIndex === idx) {
@@ -889,32 +1021,195 @@
       return tex;
     }
 
-    function createWallDamaskTexture() {
-      const c = document.createElement("canvas");
-      c.width = 256;
-      c.height = 256;
-      const ctx = c.getContext("2d");
-      ctx.fillStyle = "#2b1614";
-      ctx.fillRect(0, 0, 256, 256);
+    /**
+     * 1860s-style flocked damask wallpaper (deep oxblood paper with a raised
+     * gold-brown medallion pattern, half-drop repeat, faded and stained with age).
+     */
+    function drawDamaskMotif(ctx, cx, cy, size, color) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size * 0.035;
+      [1, -1].forEach((side) => {
+        ctx.save();
+        ctx.scale(side, 1);
+        // Outer scrolling leaf
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.95);
+        ctx.bezierCurveTo(size * 0.35, -size * 0.75, size * 0.62, -size * 0.35, size * 0.42, -size * 0.02);
+        ctx.bezierCurveTo(size * 0.72, size * 0.12, size * 0.66, size * 0.58, size * 0.3, size * 0.7);
+        ctx.bezierCurveTo(size * 0.2, size * 0.86, size * 0.06, size * 0.92, 0, size * 0.98);
+        ctx.lineTo(0, size * 0.8);
+        ctx.bezierCurveTo(size * 0.2, size * 0.6, size * 0.44, size * 0.42, size * 0.3, size * 0.12);
+        ctx.bezierCurveTo(size * 0.15, size * 0.18, size * 0.22, -size * 0.3, 0, -size * 0.6);
+        ctx.closePath();
+        ctx.fill();
+        // Curling tendril
+        ctx.beginPath();
+        ctx.moveTo(size * 0.42, -size * 0.02);
+        ctx.bezierCurveTo(size * 0.8, -size * 0.2, size * 0.9, size * 0.12, size * 0.72, size * 0.2);
+        ctx.bezierCurveTo(size * 0.62, size * 0.24, size * 0.6, size * 0.12, size * 0.68, size * 0.1);
+        ctx.stroke();
+        // Small side bud
+        ctx.beginPath();
+        ctx.ellipse(size * 0.5, -size * 0.55, size * 0.07, size * 0.16, 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+      // Central flame / pomegranate
+      ctx.beginPath();
+      ctx.moveTo(0, -size * 0.42);
+      ctx.bezierCurveTo(size * 0.17, -size * 0.18, size * 0.17, size * 0.22, 0, size * 0.42);
+      ctx.bezierCurveTo(-size * 0.17, size * 0.22, -size * 0.17, -size * 0.18, 0, -size * 0.42);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, -size * 1.05, size * 0.07, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
-      ctx.strokeStyle = "rgba(195, 155, 85, 0.08)";
-      ctx.lineWidth = 2;
-      for (let y = 0; y < 256; y += 64) {
-        for (let x = 0; x < 256; x += 64) {
-          ctx.beginPath();
-          ctx.moveTo(x + 32, y + 8);
-          ctx.lineTo(x + 56, y + 32);
-          ctx.lineTo(x + 32, y + 56);
-          ctx.lineTo(x + 8, y + 32);
-          ctx.closePath();
-          ctx.stroke();
-        }
+    function createPeriodWallpaperTexture(repeatX, repeatY) {
+      const c = document.createElement("canvas");
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext("2d");
+
+      // Aged oxblood paper base
+      const base = ctx.createLinearGradient(0, 0, 0, 512);
+      base.addColorStop(0, "#3d1a17");
+      base.addColorStop(0.5, "#4a201b");
+      base.addColorStop(1, "#381714");
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Faint vertical "printed" stripes
+      for (let x = 0; x < 512; x += 16) {
+        ctx.fillStyle = x % 32 === 0 ? "rgba(0,0,0,0.07)" : "rgba(255,220,170,0.025)";
+        ctx.fillRect(x, 0, 2, 512);
       }
+
+      // Half-drop damask repeat (4 motifs that tile seamlessly)
+      const motifColor = "rgba(176, 128, 66, 0.42)";
+      const shadowColor = "rgba(10, 4, 3, 0.35)";
+      const spots = [
+        [128, 128], [384, 384], [128, 640], [384, -128], [-128, 384], [640, 384]
+      ];
+      spots.forEach(([x, y]) => drawDamaskMotif(ctx, x + 3, y + 4, 92, shadowColor));
+      spots.forEach(([x, y]) => drawDamaskMotif(ctx, x, y, 92, motifColor));
+
+      // Small diamond fillers between medallions
+      ctx.fillStyle = "rgba(176, 128, 66, 0.28)";
+      [[384, 128], [128, 384], [0, 0], [512, 0], [0, 512], [512, 512], [256, 256 + 256], [256, 0]].forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.moveTo(x, y - 14); ctx.lineTo(x + 9, y); ctx.lineTo(x, y + 14); ctx.lineTo(x - 9, y);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Paper grain & age speckle
+      for (let i = 0; i < 9000; i++) {
+        ctx.fillStyle = Math.random() < 0.5 ? "rgba(0,0,0,0.06)" : "rgba(255,230,190,0.035)";
+        ctx.fillRect(Math.random() * 512, Math.random() * 512, 1.5, 1.5);
+      }
+      // Soft water stains / fading
+      for (let i = 0; i < 5; i++) {
+        const sx = Math.random() * 512, sy = Math.random() * 512, r = 60 + Math.random() * 120;
+        const stain = ctx.createRadialGradient(sx, sy, 0, sx, sy, r);
+        stain.addColorStop(0, "rgba(120, 80, 45, 0.10)");
+        stain.addColorStop(1, "rgba(120, 80, 45, 0)");
+        ctx.fillStyle = stain;
+        ctx.fillRect(0, 0, 512, 512);
+      }
+
       const tex = new THREE.CanvasTexture(c);
       tex.wrapS = THREE.RepeatWrapping;
       tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(16, 4);
+      tex.repeat.set(repeatX, repeatY);
       return tex;
+    }
+
+    function createGlowTexture() {
+      const c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext("2d");
+      const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      g.addColorStop(0, "rgba(255, 214, 140, 0.9)");
+      g.addColorStop(0.25, "rgba(255, 180, 90, 0.35)");
+      g.addColorStop(1, "rgba(255, 160, 70, 0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(c);
+    }
+
+    /**
+     * Crown molding, chair rail, baseboards and brass gas-lamp sconces.
+     */
+    function addPeriodTrimAndSconces(hallWidth, hallHeight, hallLength, centerZ) {
+      const trimMat = new THREE.MeshStandardMaterial({ color: 0x3a2213, roughness: 0.5 });
+      const gildedTrimMat = new THREE.MeshStandardMaterial({ color: 0x9c7a3c, metalness: 0.55, roughness: 0.4 });
+
+      [-1, 1].forEach((side) => {
+        const x = side * (hallWidth / 2 - 0.22);
+        // Baseboard
+        const baseboard = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.32, hallLength), trimMat);
+        baseboard.position.set(x - side * 0.04, 0.16, centerZ);
+        scene.add(baseboard);
+        // Chair rail on top of the wainscoting
+        const chairRail = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.09, hallLength), gildedTrimMat);
+        chairRail.position.set(x - side * 0.04, 1.39, centerZ);
+        scene.add(chairRail);
+        // Picture rail
+        const pictureRail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, hallLength), gildedTrimMat);
+        pictureRail.position.set(x, hallHeight - 1.15, centerZ);
+        scene.add(pictureRail);
+        // Stepped crown molding
+        const crown1 = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.22, hallLength), trimMat);
+        crown1.position.set(x - side * 0.1, hallHeight - 0.11, centerZ);
+        scene.add(crown1);
+        const crown2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, hallLength), gildedTrimMat);
+        crown2.position.set(x - side * 0.02, hallHeight - 0.27, centerZ);
+        scene.add(crown2);
+      });
+
+      // Brass gas-lamp sconces in the gaps between exhibits
+      const brassMat = new THREE.MeshStandardMaterial({ color: 0xb8913f, metalness: 0.8, roughness: 0.3 });
+      const globeMat = new THREE.MeshBasicMaterial({ color: 0xffd99a });
+      const glowMat = new THREE.SpriteMaterial({
+        map: createGlowTexture(),
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      const sconceZs = [17, 6.3, -3.7, -13.7, -24];
+      [-1, 1].forEach((side) => {
+        const wallX = side * (hallWidth / 2 - 0.2);
+        sconceZs.forEach((z) => {
+          const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.04, 20), brassMat);
+          plate.rotation.z = Math.PI / 2;
+          plate.position.set(wallX, 3.4, z);
+          scene.add(plate);
+
+          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.42, 10), brassMat);
+          arm.rotation.z = Math.PI / 2;
+          arm.position.set(wallX - side * 0.22, 3.4, z);
+          scene.add(arm);
+
+          const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.05, 0.1, 16), brassMat);
+          cup.position.set(wallX - side * 0.42, 3.47, z);
+          scene.add(cup);
+
+          const globe = new THREE.Mesh(new THREE.SphereGeometry(0.13, 18, 14), globeMat);
+          globe.position.set(wallX - side * 0.42, 3.64, z);
+          scene.add(globe);
+
+          const glow = new THREE.Sprite(glowMat);
+          glow.scale.set(1.5, 1.5, 1);
+          glow.position.copy(globe.position);
+          scene.add(glow);
+        });
+      });
     }
 
     function createPlacardTexture(exhibit) {
@@ -1041,9 +1336,14 @@
       }
 
       // Gallery Walls (Left, Right, North End, South Entrance)
+      // Long side walls and short end walls get separate textures so the pattern isn't stretched
       const wallMat = new THREE.MeshStandardMaterial({
-        map: createWallDamaskTexture(),
-        roughness: 0.78
+        map: createPeriodWallpaperTexture(14, 2),
+        roughness: 0.82
+      });
+      const endWallMat = new THREE.MeshStandardMaterial({
+        map: createPeriodWallpaperTexture(4, 2),
+        roughness: 0.82
       });
       const wainscotMat = new THREE.MeshStandardMaterial({ color: 0x26150c, roughness: 0.55 });
 
@@ -1057,11 +1357,11 @@
       rightWall.receiveShadow = true;
       scene.add(rightWall);
 
-      const northWall = new THREE.Mesh(new THREE.BoxGeometry(hallWidth, hallHeight, 0.4), wallMat);
+      const northWall = new THREE.Mesh(new THREE.BoxGeometry(hallWidth, hallHeight, 0.4), endWallMat);
       northWall.position.set(0, hallHeight / 2, centerZ - hallLength / 2);
       scene.add(northWall);
 
-      const southWall = new THREE.Mesh(new THREE.BoxGeometry(hallWidth, hallHeight, 0.4), wallMat);
+      const southWall = new THREE.Mesh(new THREE.BoxGeometry(hallWidth, hallHeight, 0.4), endWallMat);
       southWall.position.set(0, hallHeight / 2, centerZ + hallLength / 2);
       scene.add(southWall);
 
@@ -1071,6 +1371,21 @@
         wainscot.position.set(wx, 0.675, centerZ);
         scene.add(wainscot);
       });
+
+      addPeriodTrimAndSconces(hallWidth, hallHeight, hallLength, centerZ);
+
+      // Optional: drop a "wallpaper.jpg" into the folder to use your own wallpaper image instead
+      probeImageCandidate("./wallpaper.jpg").then((url) => {
+        [[wallMat, 14, 2], [endWallMat, 4, 2]].forEach(([mat, rx, ry]) => {
+          new THREE.TextureLoader().load(url, (tex) => {
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(rx, ry);
+            mat.map = tex;
+            mat.needsUpdate = true;
+          });
+        });
+      }).catch(() => { /* no custom wallpaper; keep the built-in damask */ });
 
       // End Wall Banner: "1861 – 1865: A NATION DIVIDED"
       const bannerCanvas = document.createElement("canvas");
@@ -1133,11 +1448,12 @@
           group.add(matBoard);
 
           // Photographic Canvas Plane
-          const photoTex = new THREE.TextureLoader().load(exhibitImages[idx]);
-          const photoMat = new THREE.MeshStandardMaterial({ map: photoTex, roughness: 0.45 });
-          const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.12, 2.58), photoMat);
+          const photoMat = new THREE.MeshStandardMaterial({ color: 0x1a140f, roughness: 0.45 });
+          const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), photoMat);
           photoMesh.position.z = 0.1;
-          photoMesh.userData = { exhibitIndex: idx };
+          photoMesh.userData = { exhibitIndex: idx, isPhoto: true, maxW: 2.12, maxH: 2.58 };
+          photoMesh.scale.set(2.12, 2.58, 1);
+          loadTextureIntoMesh(photoMesh, exhibitImages[idx]);
           interactiveMeshes.push(photoMesh);
           group.add(photoMesh);
 
@@ -1175,10 +1491,9 @@
           spot.target = outerFrame;
           scene.add(spot);
         } else {
-          // Exhibit 6: Model 1860 Henry Rifle Framed Archival Photograph on Museum Easel Pedestal
-          // (3D digital rifle mesh removed per user request)
+          // Weapon exhibits (Henry & Enfield): Framed photograph on a museum easel pedestal
           const caseGroup = new THREE.Group();
-          caseGroup.position.set(0, 0, exhibit.zPos);
+          caseGroup.position.set(exhibit.xPos || 0, 0, exhibit.zPos);
 
           // Walnut & Brass Pedestal Base
           const pedestal = new THREE.Mesh(
@@ -1221,11 +1536,12 @@
           easelGroup.add(matBoard);
 
           // Henry Rifle Photographic Canvas Plane (supports auto-loaded or uploaded photo)
-          const photoTex = new THREE.TextureLoader().load(exhibitImages[idx]);
-          const photoMat = new THREE.MeshStandardMaterial({ map: photoTex, roughness: 0.45 });
-          const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.02, 1.54), photoMat);
+          const photoMat = new THREE.MeshStandardMaterial({ color: 0x1a140f, roughness: 0.45 });
+          const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), photoMat);
           photoMesh.position.z = 0.09;
-          photoMesh.userData = { exhibitIndex: idx };
+          photoMesh.userData = { exhibitIndex: idx, isPhoto: true, maxW: 2.02, maxH: 1.54 };
+          photoMesh.scale.set(2.02, 1.54, 1);
+          loadTextureIntoMesh(photoMesh, exhibitImages[idx]);
           interactiveMeshes.push(photoMesh);
           easelGroup.add(photoMesh);
 
@@ -1246,7 +1562,7 @@
           scene.add(caseGroup);
 
           const caseSpot = new THREE.SpotLight(0xfff0d4, 2.1, 14, Math.PI / 4, 0.4, 1);
-          caseSpot.position.set(0, 6.4, exhibit.zPos + 2.4);
+          caseSpot.position.set(exhibit.xPos || 0, 6.4, exhibit.zPos + 2.4);
           caseSpot.target = outerFrame;
           scene.add(caseSpot);
         }
@@ -1292,7 +1608,7 @@
         player.targetYaw = isLeft ? Math.PI / 2 : -Math.PI / 2;
         player.targetPitch = 0.04;
       } else {
-        player.targetX = 0;
+        player.targetX = ex.xPos || 0;
         player.targetZ = ex.zPos + 4.3;
         player.targetYaw = 0;
         player.targetPitch = -0.05;
@@ -1365,6 +1681,7 @@
       document.getElementById("artifact-dialog").addEventListener("close", () => {
         stopAudioGuide();
         stopActiveRecordingIfRunning();
+        resumeHallMusic(); // placard closed -> music comes back
       });
     }
 
@@ -1471,12 +1788,13 @@
     let isZoomed = false;
 
     function openModalForExhibit(idx) {
+      pauseHallMusic(); // placard opened -> music stops so the visitor can read / hear narration
       stopAudioGuide();
       stopActiveRecordingIfRunning();
       updateActiveTourPill(idx);
       const ex = EXHIBITS[idx];
 
-      document.getElementById("modal-catalog-id").textContent = `ARTIFACT 0${idx + 1} / 0${EXHIBITS.length}`;
+      document.getElementById("modal-catalog-id").textContent = `ARTIFACT ${String(idx + 1).padStart(2, "0")} / ${String(EXHIBITS.length).padStart(2, "0")}`;
       document.getElementById("modal-archive-tag").textContent = ex.archiveCategory;
       document.getElementById("modal-title").textContent = ex.title;
       document.getElementById("modal-meta1-heading").textContent = ex.meta1Heading;
@@ -1552,13 +1870,7 @@
       saveCustomImageToStorage(idx, dataURL);
       document.getElementById("modal-artifact-img").src = dataURL;
 
-      const tex = new THREE.TextureLoader().load(dataURL);
-      interactiveMeshes.forEach((mesh) => {
-        if (mesh.userData.exhibitIndex === idx && mesh.geometry.parameters.width > 1.8) {
-          mesh.material.map = tex;
-          mesh.material.needsUpdate = true;
-        }
-      });
+      applyTextureToExhibit(idx, dataURL);
 
       showToast(`Saved custom photograph for "${EXHIBITS[idx].shortTitle}"!`);
     }
@@ -1611,7 +1923,7 @@
       const db = await openVoiceDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readwrite");
-        tx.objectStore(STORE_NAME).put(blob, String(idx));
+        tx.objectStore(STORE_NAME).put(blob, EXHIBITS[idx].slug);
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
       });
@@ -1621,7 +1933,10 @@
       const db = await openVoiceDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readwrite");
-        tx.objectStore(STORE_NAME).delete(String(idx));
+        const store = tx.objectStore(STORE_NAME);
+        store.delete(EXHIBITS[idx].slug);
+        const legacyIdx = LEGACY_SLUGS.indexOf(EXHIBITS[idx].slug);
+        if (legacyIdx >= 0) store.delete(String(legacyIdx)); // clear any old-format save too
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
       });
@@ -1633,12 +1948,23 @@
         const tx = db.transaction(STORE_NAME, "readonly");
         const store = tx.objectStore(STORE_NAME);
         for (let i = 0; i < EXHIBITS.length; i++) {
-          const req = store.get(String(i));
+          const req = store.get(EXHIBITS[i].slug);
           req.onsuccess = () => {
             if (req.result) {
               customVoiceURLs[i] = URL.createObjectURL(req.result);
               if (currentTourIndex === i) updateVoiceUIState(i);
+              return;
             }
+            // Fall back to a recording saved by the earlier (index-based) version
+            const legacyIdx = LEGACY_SLUGS.indexOf(EXHIBITS[i].slug);
+            if (legacyIdx < 0) return;
+            const legacyReq = store.get(String(legacyIdx));
+            legacyReq.onsuccess = () => {
+              if (legacyReq.result) {
+                customVoiceURLs[i] = URL.createObjectURL(legacyReq.result);
+                if (currentTourIndex === i) updateVoiceUIState(i);
+              }
+            };
           };
         }
       } catch (e) {
@@ -1835,6 +2161,92 @@
       updateVoiceUIState(currentTourIndex);
     }
 
+    /**
+     * ============================================================================
+     * 7. BACKGROUND HALL MUSIC
+     * Plays while walking the hall, pauses when a placard opens, resumes when it closes.
+     * Put the music files in the same folder as this page, then list them here.
+     * ============================================================================
+     */
+    const MUSIC_PLAYLIST = ["./003.mp3", "./009.mp3"];
+    const MUSIC_VOLUME = 0.35; // 0.0 (silent) to 1.0 (full)
+    let musicEnabled = false;
+    let musicTrackIndex = 0;
+    let musicFadeTimer = null;
+
+    function getMusicEl() {
+      return document.getElementById("bg-music");
+    }
+
+    function fadeMusicTo(target, onDone) {
+      const music = getMusicEl();
+      clearInterval(musicFadeTimer);
+      musicFadeTimer = setInterval(() => {
+        const step = 0.03;
+        if (Math.abs(music.volume - target) <= step) {
+          music.volume = target;
+          clearInterval(musicFadeTimer);
+          if (onDone) onDone();
+        } else {
+          music.volume += music.volume < target ? step : -step;
+        }
+      }, 40);
+    }
+
+    function playCurrentTrack() {
+      const music = getMusicEl();
+      if (!music.src || !music.src.endsWith(MUSIC_PLAYLIST[musicTrackIndex].replace("./", ""))) {
+        music.src = MUSIC_PLAYLIST[musicTrackIndex];
+      }
+      music.volume = 0;
+      music.play().then(() => fadeMusicTo(MUSIC_VOLUME)).catch(() => {
+        showToast("Music file not found. Put " + MUSIC_PLAYLIST.join(" & ") + " next to this page.");
+      });
+    }
+
+    function initHallMusic() {
+      const music = getMusicEl();
+      music.addEventListener("ended", () => {
+        // Move to the next song, then loop back to the first
+        musicTrackIndex = (musicTrackIndex + 1) % MUSIC_PLAYLIST.length;
+        music.src = MUSIC_PLAYLIST[musicTrackIndex];
+        if (musicEnabled && !document.getElementById("artifact-dialog").open) playCurrentTrack();
+      });
+    }
+
+    function pauseHallMusic() {
+      const music = getMusicEl();
+      if (music.paused) return;
+      fadeMusicTo(0, () => music.pause());
+    }
+
+    function resumeHallMusic() {
+      if (!musicEnabled) return;
+      if (document.getElementById("artifact-dialog").open) return;
+      playCurrentTrack();
+    }
+
+    function updateMusicButton() {
+      document.getElementById("music-btn").innerHTML = musicEnabled ? "&#9835; Music: On" : "&#9835; Music: Off";
+    }
+
+    function toggleMusic() {
+      musicEnabled = !musicEnabled;
+      updateMusicButton();
+      if (musicEnabled) {
+        resumeHallMusic();
+      } else {
+        pauseHallMusic();
+      }
+    }
+
+    function enterMuseum(withMusic) {
+      document.getElementById("enter-overlay").classList.add("hidden");
+      musicEnabled = withMusic;
+      updateMusicButton();
+      if (withMusic) resumeHallMusic();
+    }
+
     function toggleControlsHelp() {
       document.getElementById("controls-panel").classList.toggle("hidden");
     }
@@ -1850,6 +2262,7 @@
 
     window.onload = async function () {
       initMuseumScene();
+      initHallMusic();
       await Promise.all([
         autoLoadHostedImages(),
         autoLoadHostedAudio(),
